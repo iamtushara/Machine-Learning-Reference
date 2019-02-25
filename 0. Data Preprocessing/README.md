@@ -2,7 +2,7 @@
 
 Before we can start building models, we need to ensure that the data passes through a certain checklist of items. The pre-processing phase deals with structuring the data in a way that can lead to better insights and superior model performance. This is one of the most critical and time-consuming part of any Data Science project.
 
-## What does Data Pre-processing entail?
+## What does Data Pre-Processing entail?
 
 * **Handling Missing Values**
 Here we make strategies to handle missing values from our dataset
