@@ -5,7 +5,7 @@ Before we can start building models, we need to ensure that the data passes thro
 ## What does Data Pre-Processing entail?
 
 * **Handling Missing Values**
-Here we make strategies to handle missing values from our dataset
+Here we make strategies to handle missing values present in our dataset
 
 * **Handling Categorical Features**
   * **Label Encoding**
