@@ -15,4 +15,4 @@ Here we make strategies to handle missing values from our dataset
   In order to avoid the induced Ordinality in a Nominal data after Label Encoding, One Hot Encoding provides a set of dummy variables (equal to the number of unique values in the dependent variable) to be used in lieu of the original categorical column
 
 * **Feature Scaling**
-In order to ensure that one column does not overshadow other columns by the virtue of large numbers present within the said column
+In order to ensure that a column does not overshadow other columns by the virtue of relatively larger numbers present within the said column compared to the other column(s)
