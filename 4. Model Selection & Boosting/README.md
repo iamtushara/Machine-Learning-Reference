@@ -2,6 +2,7 @@
 
 This section will introduce you to concepts like Grid Search and k-Fold Cross Validation. These are techniques to improve the performance of the model we already built. 
 
-**Grid Search** is used to choose amongst a list of potential values, the best combination as the hyper-parameter settings.
+**Grid Search** is used to choose amongst a list of potential values, the best combination as the hyper-parameter settings. This technique albeit brute, is an efficient way of finding the best set of hyper-parameters for enhancing the performance of the model we just made.
 
 **k-Fold Cross Validation** is a better technique than a confusion matrix to evaluate the performance of a classification model.
+It divides the dataset into 'k' folds and makes 'k' models, each model making use of different (k-1) chunks of data for training and one chunk for testing. At the end, the mean of all the accuracies of the k models is calculated. This is a good technique to evaluate the actual performance of a model.
