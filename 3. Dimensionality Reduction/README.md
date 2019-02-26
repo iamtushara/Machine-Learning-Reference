@@ -1,6 +1,6 @@
 # Dimensionality Reduction
 
-Dimensionality Reduction is an Unsupervised Learning technique to reduce the number of dimensions in the dataset. Having higher number of dimensions can lead to multiple problems.
+Dimensionality Reduction is an Unsupervised Learning technique used to reduce the number of dimensions in the dataset. Having higher number of dimensions can lead to multiple problems.
 * Higher dimensions (more than 3) are impossible to visualise.
 * Very computationally intensive
 * Not all features are important or have actual impact on the outcome
