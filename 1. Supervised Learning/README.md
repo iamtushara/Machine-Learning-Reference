@@ -1,6 +1,6 @@
 # Supervised Learning
 
-Supervised Learning is the branch of Machine Learning where we deal with Labeled Data. A labeled data supervises the learning of a model by telling the model what answers to give under what circumstances, hence the name - Supervised Learning. In a labeled data we have both - a set of Independent Variables and a Dependent Variable. The dataset is divided into Training Data and Test Data. The model is built on the Training data. Once the model is built, its performance is measured on the Test data.
+Supervised Learning is the branch of Machine Learning where we deal with Labeled Data. A labeled data supervises the learning of a model by telling the model what answers to give under what circumstances, hence the name - Supervised Learning. In a labeled data we have both - a set of Independent Variables and a Dependent Variable. The dataset is divided into Training Data and Test Data. The model is built on the Training data, and then its performance is measured on the Test data.
 
 ## Regression
 Regression is a statistical tool used for multivariate analysis. It is used to study the effect of some independent variables upon a target variable (dependent variable) that is numerical/ continuous in nature. Some of the techniques used to perform Regression are:
