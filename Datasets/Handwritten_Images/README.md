@@ -1,1 +1,0 @@
-Handwritten Image of Digits
