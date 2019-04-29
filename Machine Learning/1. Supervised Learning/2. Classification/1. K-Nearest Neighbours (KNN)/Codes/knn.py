@@ -11,14 +11,14 @@ import matplotlib.pyplot as plt
 dataset = pd.read_csv('Social_Network_Ads.csv')
 
 # Visualising the dataset
-plt.figure(figsize=(18,18))
-sns.set_context('poster', font_scale=1)
-sns.scatterplot(x='Age', y='EstimatedSalary', style='Gender', hue='Purchased', data=dataset, )
+plt.figure(figsize=(18,12))
+sns.set_context('poster', font_scale=0.5)
+sns.scatterplot(x='Age', y='EstimatedSalary', style='Gender', hue='Purchased', data=dataset, legend='full')
 plt.show()
 
 
 # Splitting the Independent and Dependent features
-X = dataset.iloc[:, [1,2, 3]].values
+X = dataset.iloc[:, [2, 3]].values  # Using only Age and Gender columns
 y = dataset.iloc[:, 4].values
 
 
