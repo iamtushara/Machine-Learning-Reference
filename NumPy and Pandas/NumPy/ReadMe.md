@@ -5,7 +5,7 @@ Well, NumPy allows us to customize how values are displayed on the console. If y
 # Setting print/display options in NumPy
 
 
-numpy.set_printoptions(_`precision`=None, `threshold`=None, `edgeitems`=None, `linewidth`=None, `suppress`=None, `nanstr`=None, `infstr`=None, `formatter`=None, `sign`=None, `floatmode`=None, **kwarg_)
+**numpy.set_printoptions**(_`precision`=None, `threshold`=None, `edgeitems`=None, `linewidth`=None, `suppress`=None, `nanstr`=None, `infstr`=None, `formatter`=None, `sign`=None, `floatmode`=None, **kwarg_)
 
 
 
