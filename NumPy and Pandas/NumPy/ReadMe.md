@@ -1,7 +1,11 @@
+I'm often asked - "**What if I don't want NumPy to display values in Scientific Notation?**" and "**How to display multiple columns of a dataset in one row, without linebreaks in between**?"
+
+Well, NumPy allows us to customize how values are displayed on the console. If you are having the same problem described above, Read the documentation below to find out how to deal with such situations.
+
 # Setting print/display options in NumPy
 
 
-##### numpy.set_printoptions(_`precision`=None, `threshold`=None, `edgeitems`=None, `linewidth`=None, `suppress`=None, `nanstr`=None, `infstr`=None, `formatter`=None, `sign`=None, `floatmode`=None, **kwarg_)
+numpy.set_printoptions(_`precision`=None, `threshold`=None, `edgeitems`=None, `linewidth`=None, `suppress`=None, `nanstr`=None, `infstr`=None, `formatter`=None, `sign`=None, `floatmode`=None, **kwarg_)
 
 
 
