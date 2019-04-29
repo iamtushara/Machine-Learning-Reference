@@ -1,3 +1,9 @@
+# Welcome to NumPy tutorial
+
+Use these Jupyter Notebooks to learn and understand how NumPy works. 
+The Excersise folder contains questions for practice. Solutions are present in a different notebook in the same folder.
+
+
 I'm often asked - "**What if I don't want NumPy to display values in Scientific Notation?**" and "**How to display multiple columns of a dataset in one row, without linebreaks in between**?"
 
 Well, NumPy allows us to customize how values are displayed on the console. If you are having the same problem described above, Read the documentation below to find out how to deal with such situations.
