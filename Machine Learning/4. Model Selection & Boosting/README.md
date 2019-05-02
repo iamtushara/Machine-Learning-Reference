@@ -1,6 +1,6 @@
 # Model Selection
 
-This section will introduce you to concepts like Grid Search and k-Fold Cross Validation. These are techniques to improve the performance of the model we already built. 
+This section will introduce you to concepts like Grid Search and k-Fold Cross Validation. These are techniques to analyse and improve upon the performance of the model we already built. 
 
 **Grid Search** is used to choose amongst a list of potential values, the best combination of values to be taken as the hyper-parameter settings. This technique albeit brute, is an efficient way of finding the best set of hyper-parameters for enhancing the performance of the model we just made.
 
