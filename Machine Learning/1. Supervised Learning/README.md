@@ -11,6 +11,7 @@ Regression is a statistical tool used for multivariate analysis. It is used to s
 * Support Vector Regression
 * Decision Tree Regression
 * Random Forst Regression
+* XGBoost (eXtreme Gradient Boosting)
 
 ## Classification
 Classification is a branch of Supervised Learning where we classify an event into a predefined category. Here, the dependent variable is always categorical/discrete. Some of the most widely used Classification algorithms are:
@@ -21,3 +22,4 @@ Classification is a branch of Supervised Learning where we classify an event int
 * Kernel SVM
 * Decision Tree
 * Random Forest
+* XGBoost (eXtreme Gradient Boosting)
