@@ -1,0 +1,196 @@
+<html data-type="html" data-identifier="813d198d-7d89-4626-ba25-a26f4a8ff70c" data-title="How KNN Works — Interactive Explainer" data-version="1" width="1200" height="900"><head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0e1016;
+    color: #e8eaf0;
+    padding: 24px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.5px; }
+  h2 { font-size: 17px; margin: 0 0 10px; color: #9fb4ff; }
+  h3 { font-size: 14px; margin: 18px 0 6px; color: #ffd479; }
+  p { line-height: 1.6; color: #b9c0d0; font-size: 14px; margin: 0 0 10px; }
+  .layout { display: flex; gap: 20px; flex-wrap: wrap; }
+  .panel {
+    background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 18px;
+  }
+  .left { flex: 1 1 620px; }
+  .right { flex: 1 1 360px; }
+  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; }
+  .controls { display: flex; align-items: center; gap: 14px; margin: 14px 0 4px; flex-wrap: wrap; }
+  label { font-size: 13px; color: #8b93a7; }
+  input[type=range] { width: 200px; accent-color: #6c8cff; }
+  button {
+    background: #6c8cff; color: #0b0d13; border: 0; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  button.ghost { background: #262c3d; color: #cfd6e6; }
+  button:hover { filter: brightness(1.1); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .verdict { font-size: 15px; margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; }
+  th { color: #8b93a7; font-weight: 600; }
+  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 10px; }
+  .k-warn { color: #ff9f9f; font-size: 12.5px; min-height: 16px; }
+  .legend { display: flex; gap: 16px; font-size: 12.5px; color: #8b93a7; margin-top: 10px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 10px 12px; border-radius: 6px; font-size: 13px; color: #b9c0d0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">K-Nearest Neighbours, Interactively</h1>
+  <p id="intro">KNN is the "ask your neighbours" algorithm. It doesn't really <em>learn</em> anything up front — it just memorises the training data. To classify a new point, it finds the <strong>k</strong> closest known points and takes a vote. Click anywhere on the canvas to drop a mystery point and watch it happen.</p>
+
+  <div class="layout">
+    <div class="panel left">
+      <h2 id="h-canvas">1. The playground</h2>
+      <canvas id="plot" width="640" height="440"></canvas>
+      <div class="controls">
+        <label for="k">k = <strong id="kval">5</strong></label>
+        <input type="range" id="k" min="1" max="15" step="1" value="5">
+        <button id="reseed" class="ghost">New dataset</button>
+        <button id="mode">Add mode: Query point</button>
+      </div>
+      <div class="k-warn" id="warn"></div>
+      <div class="legend">
+        <span><span class="dot" style="background:#ff6b8b"></span>Class A — Cats</span>
+        <span><span class="dot" style="background:#4fd1c5"></span>Class B — Dogs</span>
+        <span><span class="dot" style="background:#ffd479"></span>Query point</span>
+      </div>
+      <div class="verdict" id="verdict">Click the canvas to place a query point.</div>
+      <table id="tbl">
+        <thead><tr><th>#</th><th>Neighbour class</th><th>Distance</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel right">
+      <h2 id="h-how">2. How it actually works</h2>
+      <ol id="steps">
+        <li><strong>Store everything.</strong> Training is just saving the labelled points. This is why KNN is called a "lazy learner".</li>
+        <li><strong>Measure distance.</strong> For a new point, compute distance to every stored point — usually Euclidean: √((x₁−x₂)² + (y₁−y₂)²).</li>
+        <li><strong>Sort and take k.</strong> Keep only the k smallest distances.</li>
+        <li><strong>Vote.</strong> The most common class among those k neighbours wins. (For regression, average their values instead.)</li>
+      </ol>
+
+      <h3 id="h-k">Choosing k</h3>
+      <p id="p-k">Small k (1–3) hugs the data tightly and is noisy — one mislabelled point can flip a prediction. Large k smooths the boundary but can wash out small, genuine clusters. Odd values avoid ties in two-class problems. Try dragging the slider near the boundary and watch the answer flip.</p>
+
+      <h3 id="h-scale">Why scaling matters</h3>
+      <p id="p-scale">Distance is blind to units. If one feature is "salary in £" (0–100,000) and another is "years of experience" (0–40), salary completely dominates the distance. Always normalise or standardise features first.</p>
+
+      <h3 id="h-cost">The trade-off</h3>
+      <p id="p-cost">Training costs nothing; prediction costs everything. Every query compares against the whole dataset — O(n) per prediction. It also degrades in high dimensions, where all points become roughly equidistant (the curse of dimensionality).</p>
+
+      <div class="tip" id="tip">Try it: switch to "Add mode: Cats" and plant a few cats deep inside dog territory. Then set k=1 and k=15 on a nearby query point — you'll see exactly how k controls sensitivity to noise.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cv = document.getElementById('plot');
+const ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+const COL = ['#ff6b8b', '#4fd1c5'];
+let pts = [], query = null, k = 5, addMode = 0; // 0=query,1=classA,2=classB
+
+function seed() {
+  pts = [];
+  const centers = [[170,150],[470,300]];
+  centers.forEach((c, ci) => {
+    for (let i = 0; i < 28; i++) {
+      pts.push({ x: c[0] + (Math.random()+Math.random()+Math.random()-1.5)*110,
+                 y: c[1] + (Math.random()+Math.random()+Math.random()-1.5)*90, c: ci });
+    }
+  });
+  pts = pts.filter(p => p.x>12 && p.x<W-12 && p.y>12 && p.y<H-12);
+}
+
+function neighbours() {
+  if (!query) return [];
+  return pts.map(p => ({ p, d: Math.hypot(p.x-query.x, p.y-query.y) }))
+            .sort((a,b) => a.d-b.d).slice(0, k);
+}
+
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle = '#1a1f2c'; ctx.lineWidth = 1;
+  for (let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for (let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  const nb = neighbours();
+  if (query && nb.length) {
+    const r = nb[nb.length-1].d;
+    ctx.beginPath(); ctx.arc(query.x, query.y, r, 0, 7);
+    ctx.fillStyle = 'rgba(255,212,121,0.06)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,212,121,0.5)'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+    nb.forEach(n => {
+      ctx.beginPath(); ctx.moveTo(query.x, query.y); ctx.lineTo(n.p.x, n.p.y);
+      ctx.strokeStyle = 'rgba(255,212,121,0.45)'; ctx.stroke();
+    });
+  }
+
+  const nbSet = new Set(nb.map(n => n.p));
+  pts.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, nbSet.has(p) ? 8 : 5.5, 0, 7);
+    ctx.fillStyle = COL[p.c]; ctx.fill();
+    if (nbSet.has(p)) { ctx.strokeStyle = '#ffd479'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineWidth = 1; }
+  });
+
+  if (query) {
+    ctx.beginPath(); ctx.arc(query.x, query.y, 9, 0, 7);
+    ctx.fillStyle = '#ffd479'; ctx.fill();
+    ctx.strokeStyle = '#0b0d13'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineWidth = 1;
+  }
+  report(nb);
+}
+
+function report(nb) {
+  const tb = document.getElementById('tbody');
+  const v = document.getElementById('verdict');
+  tb.innerHTML = '';
+  if (!query) { v.textContent = 'Click the canvas to place a query point.'; return; }
+  let a = 0;
+  nb.forEach((n,i) => {
+    if (n.p.c === 0) a++;
+    tb.innerHTML += `<tr><td>${i+1}</td><td><span class="badge" style="background:${COL[n.p.c]};color:#0b0d13">${n.p.c===0?'Cat':'Dog'}</span></td><td>${n.d.toFixed(1)}</td></tr>`;
+  });
+  const b = nb.length - a;
+  if (a === b) v.innerHTML = `<strong>Tie!</strong> ${a} vs ${b} — this is why odd k values are preferred.`;
+  else {
+    const win = a > b ? 'Cat' : 'Dog';
+    v.innerHTML = `Vote: ${a} Cat vs ${b} Dog → predicted <span class="badge" style="background:${a>b?COL[0]:COL[1]};color:#0b0d13">${win}</span>`;
+  }
+  document.getElementById('warn').textContent =
+    k === 1 ? 'k=1: extremely sensitive to noise and outliers.' :
+    k >= 13 ? 'Large k: boundary is very smooth, small clusters get outvoted.' : '';
+}
+
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * (W / r.width);
+  const y = (e.clientY - r.top) * (H / r.height);
+  if (addMode === 0) query = { x, y };
+  else pts.push({ x, y, c: addMode - 1 });
+  draw();
+});
+
+document.getElementById('k').addEventListener('input', e => {
+  k = +e.target.value; document.getElementById('kval').textContent = k; draw();
+});
+document.getElementById('reseed').addEventListener('click', () => { seed(); query = null; draw(); });
+document.getElementById('mode').addEventListener('click', e => {
+  addMode = (addMode + 1) % 3;
+  e.target.textContent = 'Add mode: ' + ['Query point','Cats','Dogs'][addMode];
+});
+
+seed(); draw();
+</script>
+
+</body></html>
