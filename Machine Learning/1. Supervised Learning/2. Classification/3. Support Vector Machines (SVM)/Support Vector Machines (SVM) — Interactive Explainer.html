@@ -1,4 +1,4 @@
-<html data-type="html" data-identifier="8fa51086-631d-44a6-9818-f6ad3b062534" data-title="Support Vector Machines (SVM) — Interactive Explainer" data-version="2" width="1200" height="900"><head>
+<html data-type="html" data-identifier="8fa51086-631d-44a6-9818-f6ad3b062534" data-title="Support Vector Machines (SVM) — Interactive Explainer" data-version="3" width="1200" height="900"><head>
 <meta charset="utf-8">
 <style>
   * { box-sizing: border-box; }
@@ -8,148 +8,146 @@
     background: #0e1016;
     color: #e8eaf0;
     padding: 24px;
+    transition: background .25s, color .25s;
   }
   .wrap { max-width: 1120px; margin: 0 auto; }
 
-  header.main-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #262c3d; }
-  header.main-header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header.main-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  header.main-header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color .25s; }
   header.main-header h1 .badge-tag { font-size: 13px; background: #6c8cff; color: #0b0d13; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
-  header.main-header p { font-size: 15px; color: #b9c0d0; margin: 0; line-height: 1.6; max-width: 900px; }
+  header.main-header p { font-size: 15px; color: #b9c0d0; margin: 0; line-height: 1.6; max-width: 900px; transition: color .25s; }
 
-  h2 { font-size: 18px; margin: 0 0 10px; color: #9fb4ff; border-bottom: 1px solid #262c3d; padding-bottom: 6px; }
-  h3 { font-size: 15px; margin: 18px 0 6px; color: #ffd479; }
-  p { line-height: 1.65; color: #b9c0d0; font-size: 14px; margin: 0 0 12px; }
+  h2 { font-size: 18px; margin: 0 0 10px; color: #9fb4ff; border-bottom: 1px solid #262c3d; padding-bottom: 6px; transition: color .25s, border-color .25s; }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: #ffd479; transition: color .25s; }
+  p { line-height: 1.65; color: #b9c0d0; font-size: 14px; margin: 0 0 12px; transition: color .25s; }
 
   .layout { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
-  .panel { background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 20px; }
+  .panel { background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 20px; transition: background .25s, border-color .25s; }
   .left { flex: 1 1 620px; }
   .right { flex: 1 1 360px; }
   .full-width { width: 100%; margin-top: 20px; }
 
-  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; }
+  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; transition: background .25s; }
   .controls { display: flex; align-items: center; gap: 12px; margin: 14px 0 4px; flex-wrap: wrap; }
-  label { font-size: 13px; color: #8b93a7; }
+  label { font-size: 13px; color: #8b93a7; transition: color .25s; }
   input[type=range] { width: 130px; accent-color: #6c8cff; }
   button { background: #6c8cff; color: #0b0d13; border: 0; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: filter .15s; }
-  button.ghost { background: #262c3d; color: #cfd6e6; }
+  button.ghost { background: #262c3d; color: #cfd6e6; transition: background .25s, color .25s; }
   button:hover { filter: brightness(1.15); }
   .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
   table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
-  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; }
-  th { color: #8b93a7; font-weight: 600; }
-  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 12px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  th { color: #8b93a7; font-weight: 600; transition: color .25s; }
+  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 12px; transition: color .25s; }
   li { margin-bottom: 6px; }
   .k-warn { color: #ff9f9f; font-size: 12.5px; min-height: 16px; margin-top: 4px; }
-  .legend { display: flex; gap: 14px; font-size: 12px; color: #8b93a7; margin-top: 10px; flex-wrap: wrap; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #8b93a7; margin-top: 10px; flex-wrap: wrap; transition: color .25s; }
   .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
   .lsamp { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; }
-  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #b9c0d0; margin-top: 14px; }
+  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #b9c0d0; margin-top: 14px; transition: background .25s, color .25s; }
   .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-  .card { background: #10141d; border: 1px solid #262c3d; border-radius: 10px; padding: 16px; }
+  .card { background: #10141d; border: 1px solid #262c3d; border-radius: 10px; padding: 16px; transition: background .25s, border-color .25s; }
   .card h3 { margin-top: 0; }
-  pre { background: #0b0d13; padding: 14px; border-radius: 8px; border: 1px solid #262c3d; font-family: 'Fira Code', Consolas, monospace; font-size: 12.5px; color: #a9b7c6; overflow-x: auto; line-height: 1.5; }
-  code { font-family: 'Fira Code', Consolas, monospace; background: #10141d; color: #9fb4ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  pre { background: #0b0d13; padding: 14px; border-radius: 8px; border: 1px solid #262c3d; font-family: 'Fira Code', Consolas, monospace; font-size: 12.5px; color: #a9b7c6; overflow-x: auto; line-height: 1.5; transition: background .25s, border-color .25s, color .25s; }
+  code { font-family: 'Fira Code', Consolas, monospace; background: #10141d; color: #9fb4ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; transition: background .25s, color .25s; }
   .kw { color: #cc7832; font-weight: bold; }
   .fn { color: #ff2f8b; }
   .str { color: #6a8759; }
   .cm { color: #607080; font-style: italic; }
-  .tag { background: #262c3d; color: #4fd1c5; font-size: 11px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: bold; margin-bottom: 6px; display: inline-block; }
-  .warn-box { background: #1a1418; border-left: 3px solid #ff6b8b; padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; }
+  .tag { background: #262c3d; color: #4fd1c5; font-size: 11px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: bold; margin-bottom: 6px; display: inline-block; transition: background .25s; }
+  .warn-box { background: #1a1418; border-left: 3px solid #ff6b8b; padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; transition: background .25s; }
 
-  /* ── Verdict Card ───────────────────────────────────── */
-  .verdict-card {
-    background: linear-gradient(140deg,#10141f 0%,#0d1019 100%);
-    border: 1px solid #1e2535;
-    border-radius: 12px;
-    padding: 16px;
-    margin-top: 14px;
-  }
-  .vc-empty {
-    display: flex; align-items: center; justify-content: center;
-    gap: 10px; color: #38415a; font-size: 13px; padding: 12px 0;
-  }
-  .vc-empty-ring {
-    width: 18px; height: 18px; border-radius: 50%;
-    border: 2px dashed #38415a; flex-shrink: 0;
-  }
-  .vc-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px; padding-bottom: 10px;
-    border-bottom: 1px solid #181f2e;
-  }
-  .vc-section-title {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
-    color: #424e6a; font-weight: 700;
-  }
-  .vc-model-pill {
-    background: #131826; border: 1px solid #222c3f;
-    padding: 3px 10px; border-radius: 20px;
-    font-size: 11px; color: #5c6e96;
-    font-family: 'Fira Code', Consolas, monospace;
-  }
-  .vc-metrics {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    gap: 14px; margin-bottom: 16px;
-  }
+  /* ── Verdict Card ─────────────────────────────────── */
+  .verdict-card { background: linear-gradient(140deg,#10141f 0%,#0d1019 100%); border: 1px solid #1e2535; border-radius: 12px; padding: 16px; margin-top: 14px; transition: background .25s, border-color .25s; }
+  .vc-empty { display: flex; align-items: center; justify-content: center; gap: 10px; color: #38415a; font-size: 13px; padding: 12px 0; transition: color .25s; }
+  .vc-empty-ring { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed #38415a; flex-shrink: 0; transition: border-color .25s; }
+  .vc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #181f2e; transition: border-color .25s; }
+  .vc-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #424e6a; font-weight: 700; transition: color .25s; }
+  .vc-model-pill { background: #131826; border: 1px solid #222c3f; padding: 3px 10px; border-radius: 20px; font-size: 11px; color: #5c6e96; font-family: 'Fira Code', Consolas, monospace; transition: background .25s, border-color .25s, color .25s; }
+  .vc-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
   .vc-metric { display: flex; flex-direction: column; gap: 6px; }
-  .vc-metric-label {
-    font-size: 10px; text-transform: uppercase; letter-spacing: .8px;
-    color: #424e6a; font-weight: 600;
-  }
-  .vc-metric-value {
-    font-size: 22px; font-weight: 800;
-    font-family: 'Fira Code', Consolas, monospace;
-    line-height: 1; letter-spacing: -.5px;
-  }
-  .vc-class-chip {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 5px 11px 5px 8px; border-radius: 8px; width: fit-content;
-  }
+  .vc-metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #424e6a; font-weight: 600; transition: color .25s; }
+  .vc-metric-value { font-size: 22px; font-weight: 800; font-family: 'Fira Code', Consolas, monospace; line-height: 1; letter-spacing: -.5px; }
+  .vc-class-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 8px; border-radius: 8px; width: fit-content; }
   .vc-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .vc-chip-label { font-size: 13px; font-weight: 700; letter-spacing: .2px; }
   .vc-status-row { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
   .vc-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .vc-status-text { font-size: 12.5px; font-weight: 600; }
-
-  /* Gauge */
-  .vc-gauge-bar {
-    position: relative; height: 10px; border-radius: 5px;
-    background: linear-gradient(to right,
-      #ff6b8b 0%, rgba(255,107,139,.38) 30%,
-      rgba(24,30,46,.95) 41%, rgba(24,30,46,.95) 59%,
-      rgba(79,209,197,.38) 70%, #4fd1c5 100%);
-    overflow: visible;
-  }
-  .vc-gauge-tick {
-    position: absolute; top: -4px;
-    width: 1px; height: 18px;
-    background: rgba(255,255,255,.18);
-    transform: translateX(-50%);
-  }
-  .vc-gauge-needle {
-    position: absolute; top: -6px;
-    width: 3px; height: 22px;
-    background: #ffd479; border-radius: 3px;
-    transform: translateX(-50%);
-    box-shadow: 0 0 8px rgba(255,212,121,.9), 0 0 18px rgba(255,212,121,.3);
-    z-index: 2;
-    transition: left .12s ease;
-  }
-  .vc-gauge-axis {
-    position: relative; height: 16px; margin-top: 5px;
-  }
-  .vc-gauge-axis-label {
-    position: absolute; font-size: 10px;
-    transform: translateX(-50%);
-    font-family: 'Fira Code', Consolas, monospace;
-  }
-  .vc-gauge-zones {
-    display: flex; justify-content: space-between; margin-top: 2px;
-  }
+  .vc-gauge-bar { position: relative; height: 10px; border-radius: 5px; background: linear-gradient(to right,#ff6b8b 0%,rgba(255,107,139,.38) 30%,rgba(24,30,46,.95) 41%,rgba(24,30,46,.95) 59%,rgba(79,209,197,.38) 70%,#4fd1c5 100%); overflow: visible; transition: background .25s; }
+  .vc-gauge-tick { position: absolute; top: -4px; width: 1px; height: 18px; background: rgba(255,255,255,.18); transform: translateX(-50%); transition: background .25s; }
+  .vc-gauge-needle { position: absolute; top: -6px; width: 3px; height: 22px; background: #ffd479; border-radius: 3px; transform: translateX(-50%); box-shadow: 0 0 8px rgba(255,212,121,.9),0 0 18px rgba(255,212,121,.3); z-index: 2; transition: left .12s ease; }
+  .vc-gauge-axis { position: relative; height: 16px; margin-top: 5px; }
+  .vc-gauge-axis-label { position: absolute; font-size: 10px; transform: translateX(-50%); font-family: 'Fira Code', Consolas, monospace; }
+  .vc-gauge-zones { display: flex; justify-content: space-between; margin-top: 2px; }
   .vc-gauge-zone-label { font-size: 10.5px; opacity: .65; }
+
+  /* ── Theme Toggle Button ──────────────────────────── */
+  #theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #1e2436;
+    border: 1px solid #333d55;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    z-index: 1000;
+    transition: background .25s, border-color .25s, transform .15s;
+    line-height: 1;
+  }
+  #theme-toggle:hover { filter: none; transform: scale(1.1); }
+
+  /* ── Light Mode Overrides ─────────────────────────── */
+  body.light { background: #f0f3fa; color: #1a1f2e; }
+  body.light #theme-toggle { background: #e4e8f5; border-color: #c4cce0; }
+  body.light header.main-header { border-bottom-color: #d4daf0; }
+  body.light header.main-header h1 { color: #1a1f2e; }
+  body.light header.main-header p { color: #4a5270; }
+  body.light h2 { color: #3b5bdb; border-bottom-color: #d4daf0; }
+  body.light h3 { color: #9a7000; }
+  body.light p { color: #4a5270; }
+  body.light ol, body.light ul { color: #4a5270; }
+  body.light .panel { background: #ffffff; border-color: #d4daf0; }
+  body.light .card { background: #f5f7fe; border-color: #d4daf0; }
+  body.light canvas { background: #eaeefc; }
+  body.light pre { background: #f2f4fc; border-color: #d4daf0; color: #2d3660; }
+  body.light code { background: #e8edfb; color: #2d52c4; }
+  body.light .kw { color: #b05800; }
+  body.light .fn { color: #b5096a; }
+  body.light .str { color: #3a6e2a; }
+  body.light .cm { color: #5a6a7a; }
+  body.light th { color: #6878a8; }
+  body.light td, body.light th { border-bottom-color: #d4daf0; }
+  body.light label { color: #6878a8; }
+  body.light .legend { color: #6878a8; }
+  body.light button.ghost { background: #e4e8f5; color: #3a4268; }
+  body.light .tag { background: #e4e8fa; color: #1d7a6a; }
+  body.light .tip { background: #eef2ff; color: #3d4a6e; }
+  body.light .warn-box { background: #fff5f5; }
+  body.light .k-warn { color: #c0392b; }
+  body.light .verdict-card { background: linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color: #d0d8ee; }
+  body.light .vc-header { border-bottom-color: #dce4f4; }
+  body.light .vc-section-title { color: #8594b8; }
+  body.light .vc-model-pill { background: #e8edfb; border-color: #d0d8ee; color: #5868a0; }
+  body.light .vc-metric-label { color: #8594b8; }
+  body.light .vc-empty { color: #a8b2cc; }
+  body.light .vc-empty-ring { border-color: #a8b2cc; }
+  body.light .vc-gauge-bar { background: linear-gradient(to right,#ff6b8b 0%,rgba(255,107,139,.45) 30%,rgba(198,206,226,.95) 41%,rgba(198,206,226,.95) 59%,rgba(79,209,197,.45) 70%,#4fd1c5 100%); }
+  body.light .vc-gauge-tick { background: rgba(0,0,0,.15); }
 </style>
 </head>
 <body>
+
+  <!-- Theme Toggle -->
+  <button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
+
 <div class="wrap">
 
   <header class="main-header">
@@ -161,11 +159,9 @@
   </header>
 
   <div class="layout">
-    <!-- Left: Canvas -->
     <div class="panel left">
       <h2 id="h-canvas">Interactive Playground</h2>
       <canvas id="plot" width="640" height="420"></canvas>
-
       <div class="controls">
         <button id="kernel-toggle">Kernel: Linear</button>
         <label for="c-slider">C = <strong id="c-val">1.00</strong></label>
@@ -175,7 +171,6 @@
         <button id="reseed" class="ghost">New Dataset</button>
         <button id="mode-btn">Add Mode: Query Point</button>
       </div>
-
       <div class="k-warn" id="warn"></div>
       <div class="legend">
         <span><span class="dot" style="background:#ff6b8b"></span>Class −1</span>
@@ -184,24 +179,15 @@
         <span><span class="lsamp" style="background:#ffd479;"></span>Boundary (f = 0)</span>
         <span><span class="lsamp" style="border-top:2px dashed rgba(255,212,121,.5);"></span>Margins (f = ±1)</span>
       </div>
-
-      <!-- Polished Prediction Card -->
       <div class="verdict-card" id="verdict-card">
-        <div class="vc-empty">
-          <div class="vc-empty-ring"></div>
-          Click the canvas to place a query point
-        </div>
+        <div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>
       </div>
-
       <table id="tbl">
-        <thead>
-          <tr><th>#</th><th>Role</th><th>f(x)</th><th>Class</th><th>Margin Status</th></tr>
-        </thead>
+        <thead><tr><th>#</th><th>Role</th><th>f(x)</th><th>Class</th><th>Margin Status</th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
     </div>
 
-    <!-- Right: How it works -->
     <div class="panel right">
       <h2 id="h-how">How SVM Works</h2>
       <ol>
@@ -229,8 +215,8 @@
           <li><strong>Decision Function:</strong> The hyperplane is <code>f(x) = w · x + b = 0</code>; margin planes sit at <code>f(x) = ±1</code>. Geometric margin width = <code>2 / ||w||</code>.</li>
           <li><strong>Dual &amp; Support Vectors:</strong> Via Lagrange multipliers α<sub>i</sub>, the solution is:<br>
             <code>f(x) = ∑ α<sub>i</sub> y<sub>i</sub> K(x<sub>i</sub>, x) + b</code><br>
-            Points where α<sub>i</sub> &gt; 0 are the <strong>support vectors</strong> — the only training points that matter.</li>
-          <li><strong>RBF Kernel:</strong> <code>K(x, x') = exp(−γ ||x − x'||<sup>2</sup>)</code>. Corresponds to a valid inner product in a reproducing kernel Hilbert space (Mercer's theorem).</li>
+            Points where α<sub>i</sub> &gt; 0 are the <strong>support vectors</strong>.</li>
+          <li><strong>RBF Kernel:</strong> <code>K(x, x') = exp(−γ ||x − x'||<sup>2</sup>)</code>. Valid inner product in a reproducing kernel Hilbert space (Mercer's theorem).</li>
         </ul>
       </div>
       <div>
@@ -245,11 +231,11 @@
           </li>
           <li><strong>γ — RBF radius of influence:</strong>
             <ul>
-              <li><strong>High γ:</strong> Influence is hyper-local; boundary forms tight islands around individual support vectors (high variance, overfitting).</li>
-              <li><strong>Low γ:</strong> Influence is broad; smooth, sweeping boundary that captures global structure (high bias, underfitting).</li>
+              <li><strong>High γ:</strong> Influence is hyper-local; boundary forms tight islands around individual support vectors (high variance).</li>
+              <li><strong>Low γ:</strong> Influence is broad; smooth sweeping boundary capturing global structure (high bias).</li>
             </ul>
           </li>
-          <li><strong>Best practice:</strong> Always tune C and γ jointly via a logarithmic grid search with cross-validation — <code>GridSearchCV</code> or <code>RandomizedSearchCV</code>.</li>
+          <li><strong>Best practice:</strong> Always tune C and γ jointly via a logarithmic grid search with cross-validation.</li>
         </ul>
       </div>
     </div>
@@ -290,8 +276,8 @@
       <div>
         <h3 id="h-libsvm">LIBSVM vs LIBLINEAR</h3>
         <ul>
-          <li><strong>SVC — LIBSVM:</strong> Solves the dual QP problem via the <em>Sequential Minimal Optimisation (SMO)</em> algorithm. Time complexity: <strong>O(N<sup>2</sup> × D) to O(N<sup>3</sup> × D)</strong> (N = samples, D = features). Practical ceiling is ~50,000 samples before training latency becomes prohibitive. Supports RBF, polynomial, and sigmoid kernels. Multiclass strategy: <strong>One-vs-One</strong> (trains N(N−1)/2 classifiers internally).</li>
-          <li><strong>LinearSVC — LIBLINEAR:</strong> Uses coordinate descent or trust-region Newton methods on the primal objective — no kernel matrix required. Time complexity: <strong>O(N × D)</strong>. Scales to millions of sparse samples. Multiclass strategy: <strong>One-vs-Rest</strong> (trains N classifiers). Note: also minimises <em>squared hinge loss</em> by default, unlike SVC which minimises standard hinge loss.</li>
+          <li><strong>SVC — LIBSVM:</strong> Solves the dual QP problem via the <em>Sequential Minimal Optimisation (SMO)</em> algorithm. Time complexity: <strong>O(N<sup>2</sup> × D) to O(N<sup>3</sup> × D)</strong> (N = samples, D = features). Practical ceiling is ~50,000 samples before training latency becomes prohibitive. Supports RBF, polynomial, and sigmoid kernels. Multiclass strategy: <strong>One-vs-One</strong> — trains N(N−1)/2 binary classifiers internally.</li>
+          <li><strong>LinearSVC — LIBLINEAR:</strong> Uses coordinate descent or trust-region Newton methods on the primal — no kernel matrix required. Time complexity: <strong>O(N × D)</strong>. Scales to millions of sparse samples. Multiclass strategy: <strong>One-vs-Rest</strong> — trains N binary classifiers. Minimises <em>squared hinge loss</em> by default (unlike SVC which uses standard hinge loss).</li>
           <li><strong>Primal vs Dual:</strong> LIBLINEAR can optionally solve the primal when N &gt; D, saving significant training time over the dual formulation.</li>
         </ul>
       </div>
@@ -361,284 +347,153 @@ const cv = document.getElementById('plot');
 const ctx = cv.getContext('2d');
 const W = cv.width, H = cv.height;
 
-// State
-let pts = [];
-let query = null;
-let kernel = 'linear';
-let C = 1.0;
-let gamma = 10;       // Used with normalised coords (÷ 640)
-let addMode = 0;      // 0 = query, 1 = class -1, 2 = class +1
+let pts = [], query = null, kernel = 'linear', C = 1.0, gamma = 10, addMode = 0;
+let isDark = true;
 
-// Low-res offscreen buffer for region colouring
 const offCv = document.createElement('canvas');
 const OW = 160, OH = 105;
 offCv.width = OW; offCv.height = OH;
 const offCtx = offCv.getContext('2d');
 
-// ── Kernel function ─────────────────────────────────────
-// RBF: normalise pixel coords by canvas width so that
-// gamma lives on an intuitive 1-50 scale instead of ~0.000x.
-// With normalisation: typical inter-cluster ||Δ||² ≈ 0.02–0.08
-// gamma=10 → exp(-10·0.04) ≈ 0.67  (good separation)
-// gamma=50 → exp(-50·0.04) ≈ 0.14  (tight / high variance)
 function K(p1, p2) {
   if (kernel === 'linear') {
-    // Scaled dot product for pixel coords (keeps α values well-conditioned)
     return (p1.x * p2.x + p1.y * p2.y) * 0.00002;
   } else {
-    const scale = 640;
-    const dx = (p1.x - p2.x) / scale;
-    const dy = (p1.y - p2.y) / scale;
+    const sc = 640;
+    const dx = (p1.x - p2.x) / sc, dy = (p1.y - p2.y) / sc;
     return Math.exp(-gamma * (dx * dx + dy * dy));
   }
 }
 
-// ── Dataset seeding ─────────────────────────────────────
 function seed() {
   pts = []; query = null;
   if (kernel === 'linear') {
-    const clustersN = [[175, 145], [465, 285]];
-    clustersN.forEach((c, ci) => {
-      for (let i = 0; i < 22; i++) {
-        pts.push({
-          x: c[0] + (Math.random() + Math.random() - 1) * 100,
-          y: c[1] + (Math.random() + Math.random() - 1) * 80,
-          yVal: ci === 0 ? -1 : 1
-        });
-      }
+    [[175,145],[465,285]].forEach((c, ci) => {
+      for (let i = 0; i < 22; i++)
+        pts.push({ x: c[0]+(Math.random()+Math.random()-1)*100, y: c[1]+(Math.random()+Math.random()-1)*80, yVal: ci===0?-1:1 });
     });
   } else {
-    // Concentric rings — ideal for RBF
-    const cx = W / 2, cy = H / 2;
-    for (let i = 0; i < 28; i++) {
-      const r = 52 + Math.random() * 50, th = Math.random() * Math.PI * 2;
-      pts.push({ x: cx + Math.cos(th) * r, y: cy + Math.sin(th) * r, yVal: 1 });
-    }
-    for (let i = 0; i < 34; i++) {
-      const r = 145 + Math.random() * 60, th = Math.random() * Math.PI * 2;
-      pts.push({ x: cx + Math.cos(th) * r, y: cy + Math.sin(th) * r, yVal: -1 });
-    }
+    const cx = W/2, cy = H/2;
+    for (let i = 0; i < 28; i++) { const r=52+Math.random()*50,th=Math.random()*Math.PI*2; pts.push({x:cx+Math.cos(th)*r,y:cy+Math.sin(th)*r,yVal:1}); }
+    for (let i = 0; i < 34; i++) { const r=145+Math.random()*60,th=Math.random()*Math.PI*2; pts.push({x:cx+Math.cos(th)*r,y:cy+Math.sin(th)*r,yVal:-1}); }
   }
-  pts = pts.filter(p => p.x > 14 && p.x < W - 14 && p.y > 14 && p.y < H - 14);
+  pts = pts.filter(p => p.x>14&&p.x<W-14&&p.y>14&&p.y<H-14);
 }
 
-// ── Simplified SMO optimiser ─────────────────────────────
 function trainSVM() {
   const n = pts.length;
-  if (n === 0) return { alpha: new Float64Array(0), b: 0, svIndices: [], decisionFn: () => 0 };
-
+  if (!n) return { alpha:new Float64Array(0), b:0, svIndices:[], decisionFn:()=>0 };
   const alpha = new Float64Array(n);
   let b = 0;
-
-  // Precompute Gram matrix
-  const gram = Array.from({ length: n }, (_, i) => {
-    const row = new Float64Array(n);
-    for (let j = 0; j <= i; j++) {
-      const v = K(pts[i], pts[j]);
-      row[j] = v;
-      // fill symmetric entry lazily below
-    }
-    return row;
-  });
-  // Symmetrise
-  for (let i = 0; i < n; i++)
-    for (let j = i + 1; j < n; j++)
-      gram[i][j] = gram[j][i];
-
-  function f_i(idx) {
-    let s = b;
-    for (let j = 0; j < n; j++)
-      if (alpha[j] > 1e-6) s += alpha[j] * pts[j].yVal * gram[j][idx];
-    return s;
-  }
-
-  // Coordinate descent with random working-set selection (simplified SMO)
-  for (let pass = 0; pass < 50; pass++) {
-    let changed = 0;
-    for (let i = 0; i < n; i++) {
-      const Ei = f_i(i) - pts[i].yVal;
-      if ((pts[i].yVal * Ei < -0.01 && alpha[i] < C) ||
-          (pts[i].yVal * Ei >  0.01 && alpha[i] > 0)) {
-        let j = Math.floor(Math.random() * (n - 1));
-        if (j >= i) j++;
-        const Ej = f_i(j) - pts[j].yVal;
-        const aiO = alpha[i], ajO = alpha[j];
-        let L, H;
-        if (pts[i].yVal !== pts[j].yVal) {
-          L = Math.max(0, alpha[j] - alpha[i]);
-          H = Math.min(C, C + alpha[j] - alpha[i]);
-        } else {
-          L = Math.max(0, alpha[i] + alpha[j] - C);
-          H = Math.min(C, alpha[i] + alpha[j]);
-        }
-        if (L >= H) continue;
-        const eta = 2 * gram[i][j] - gram[i][i] - gram[j][j];
-        if (eta >= 0) continue;
-        alpha[j] = Math.min(H, Math.max(L, alpha[j] - pts[j].yVal * (Ei - Ej) / eta));
-        if (Math.abs(alpha[j] - ajO) < 1e-5) continue;
-        alpha[i] += pts[i].yVal * pts[j].yVal * (ajO - alpha[j]);
-        const b1 = b - Ei - pts[i].yVal * (alpha[i]-aiO) * gram[i][i] - pts[j].yVal * (alpha[j]-ajO) * gram[i][j];
-        const b2 = b - Ej - pts[i].yVal * (alpha[i]-aiO) * gram[i][j] - pts[j].yVal * (alpha[j]-ajO) * gram[j][j];
-        b = (alpha[i] > 0 && alpha[i] < C) ? b1 : (alpha[j] > 0 && alpha[j] < C) ? b2 : (b1 + b2) / 2;
+  const gram = Array.from({length:n},(_,i)=>{ const row=new Float64Array(n); for(let j=0;j<=i;j++) row[j]=K(pts[i],pts[j]); return row; });
+  for (let i=0;i<n;i++) for (let j=i+1;j<n;j++) gram[i][j]=gram[j][i];
+  function fi(idx) { let s=b; for(let j=0;j<n;j++) if(alpha[j]>1e-6) s+=alpha[j]*pts[j].yVal*gram[j][idx]; return s; }
+  for (let pass=0;pass<50;pass++) {
+    let changed=0;
+    for (let i=0;i<n;i++) {
+      const Ei=fi(i)-pts[i].yVal;
+      if ((pts[i].yVal*Ei<-0.01&&alpha[i]<C)||(pts[i].yVal*Ei>0.01&&alpha[i]>0)) {
+        let j=Math.floor(Math.random()*(n-1)); if(j>=i) j++;
+        const Ej=fi(j)-pts[j].yVal, aiO=alpha[i], ajO=alpha[j];
+        let L,H;
+        if (pts[i].yVal!==pts[j].yVal) { L=Math.max(0,alpha[j]-alpha[i]); H=Math.min(C,C+alpha[j]-alpha[i]); }
+        else { L=Math.max(0,alpha[i]+alpha[j]-C); H=Math.min(C,alpha[i]+alpha[j]); }
+        if (L>=H) continue;
+        const eta=2*gram[i][j]-gram[i][i]-gram[j][j];
+        if (eta>=0) continue;
+        alpha[j]=Math.min(H,Math.max(L,alpha[j]-pts[j].yVal*(Ei-Ej)/eta));
+        if (Math.abs(alpha[j]-ajO)<1e-5) continue;
+        alpha[i]+=pts[i].yVal*pts[j].yVal*(ajO-alpha[j]);
+        const b1=b-Ei-pts[i].yVal*(alpha[i]-aiO)*gram[i][i]-pts[j].yVal*(alpha[j]-ajO)*gram[i][j];
+        const b2=b-Ej-pts[i].yVal*(alpha[i]-aiO)*gram[i][j]-pts[j].yVal*(alpha[j]-ajO)*gram[j][j];
+        b=(alpha[i]>0&&alpha[i]<C)?b1:(alpha[j]>0&&alpha[j]<C)?b2:(b1+b2)/2;
         changed++;
       }
     }
-    if (changed === 0 && pass > 12) break;
+    if (!changed&&pass>12) break;
   }
-
-  const svIndices = [];
-  for (let i = 0; i < n; i++) if (alpha[i] > 1e-5) svIndices.push(i);
-
-  function decisionFn(x, y) {
-    const pt = { x, y };
-    let s = b;
-    for (const idx of svIndices)
-      s += alpha[idx] * pts[idx].yVal * K(pts[idx], pt);
-    return s;
-  }
-
-  return { alpha, b, svIndices, decisionFn };
+  const svIndices=[];
+  for (let i=0;i<n;i++) if(alpha[i]>1e-5) svIndices.push(i);
+  function decisionFn(x,y) { const pt={x,y}; let s=b; for(const idx of svIndices) s+=alpha[idx]*pts[idx].yVal*K(pts[idx],pt); return s; }
+  return {alpha,b,svIndices,decisionFn};
 }
 
-// ── Main draw loop ───────────────────────────────────────
 function draw() {
-  ctx.clearRect(0, 0, W, H);
-
-  // Grid
-  ctx.strokeStyle = '#1a1f2c'; ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-
+  ctx.clearRect(0,0,W,H);
+  const gridColor = isDark ? '#1a1f2c' : '#d4daf0';
+  ctx.strokeStyle = gridColor; ctx.lineWidth=1;
+  for (let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for (let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
   const model = trainSVM();
-
-  // Region coloring via low-res offscreen buffer
-  const img = offCtx.createImageData(OW, OH);
+  const img = offCtx.createImageData(OW,OH);
   const d = img.data;
-  const sx = W / OW, sy = H / OH;
-  for (let py = 0; py < OH; py++) {
-    for (let px = 0; px < OW; px++) {
-      const f = model.decisionFn(px * sx, py * sy);
-      const idx4 = (py * OW + px) * 4;
-      const alpha8 = Math.min(46, Math.abs(f) * 14);
-      if (f >= 0) {
-        d[idx4]=79; d[idx4+1]=209; d[idx4+2]=197; d[idx4+3]=alpha8;
-      } else {
-        d[idx4]=255; d[idx4+1]=107; d[idx4+2]=139; d[idx4+3]=alpha8;
-      }
-    }
+  const sx=W/OW, sy=H/OH;
+  const maxA = isDark ? 46 : 62;
+  for (let py=0;py<OH;py++) for (let px=0;px<OW;px++) {
+    const f=model.decisionFn(px*sx,py*sy), i4=(py*OW+px)*4, a=Math.min(maxA,Math.abs(f)*15);
+    if (f>=0){d[i4]=79;d[i4+1]=209;d[i4+2]=197;d[i4+3]=a;}
+    else {d[i4]=255;d[i4+1]=107;d[i4+2]=139;d[i4+3]=a;}
   }
-  offCtx.putImageData(img, 0, 0);
-  ctx.save(); ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(offCv, 0, 0, W, H); ctx.restore();
-
-  // Contours
+  offCtx.putImageData(img,0,0);
+  ctx.save(); ctx.imageSmoothingEnabled=true; ctx.drawImage(offCv,0,0,W,H); ctx.restore();
   drawContours(model.decisionFn);
-
-  // Points
-  const svSet = new Set(model.svIndices);
-  pts.forEach((p, i) => {
-    if (svSet.has(i)) {
-      ctx.beginPath(); ctx.arc(p.x, p.y, 11, 0, Math.PI * 2);
-      ctx.strokeStyle = '#ffd479'; ctx.lineWidth = 2.5; ctx.stroke();
-    }
-    ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-    ctx.fillStyle = p.yVal === -1 ? '#ff6b8b' : '#4fd1c5';
-    ctx.fill();
-    ctx.strokeStyle = '#0b0d13'; ctx.lineWidth = 1.5; ctx.stroke();
+  const svSet=new Set(model.svIndices);
+  pts.forEach((p,i)=>{
+    if (svSet.has(i)){ctx.beginPath();ctx.arc(p.x,p.y,11,0,Math.PI*2);ctx.strokeStyle='#ffd479';ctx.lineWidth=2.5;ctx.stroke();}
+    ctx.beginPath();ctx.arc(p.x,p.y,6,0,Math.PI*2);ctx.fillStyle=p.yVal===-1?'#ff6b8b':'#4fd1c5';ctx.fill();ctx.strokeStyle='#0b0d13';ctx.lineWidth=1.5;ctx.stroke();
   });
-
-  // Query point
-  if (query) {
-    const qVal = model.decisionFn(query.x, query.y);
-    ctx.beginPath(); ctx.arc(query.x, query.y, 9, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffd479'; ctx.fill();
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke();
-    report(model, qVal);
-  } else {
-    report(model, null);
-  }
+  if (query){
+    const qVal=model.decisionFn(query.x,query.y);
+    ctx.beginPath();ctx.arc(query.x,query.y,9,0,Math.PI*2);ctx.fillStyle='#ffd479';ctx.fill();ctx.strokeStyle='#ffffff';ctx.lineWidth=2.5;ctx.stroke();
+    report(model,qVal);
+  } else { report(model,null); }
 }
 
-// ── Marching-squares contour renderer ───────────────────
 function drawContours(fn) {
-  const step = 8;
-  const cols = Math.floor(W / step), rows = Math.floor(H / step);
-  const vals = [];
-  for (let r = 0; r <= rows; r++) {
-    vals[r] = new Float64Array(cols + 1);
-    for (let c = 0; c <= cols; c++) vals[r][c] = fn(c * step, r * step);
-  }
-
-  function contour(thresh, color, dashed, lw) {
-    ctx.strokeStyle = color; ctx.lineWidth = lw;
-    ctx.setLineDash(dashed ? [4, 4] : []);
-    ctx.beginPath();
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const x = c * step, y = r * step;
-        const v1 = vals[r][c]-thresh, v2 = vals[r][c+1]-thresh;
-        const v3 = vals[r+1][c+1]-thresh, v4 = vals[r+1][c]-thresh;
-        const pts2 = [];
-        if ((v1>0)!==(v2>0)) pts2.push({x:x+step*(-v1/(v2-v1)),y});
-        if ((v2>0)!==(v3>0)) pts2.push({x:x+step,y:y+step*(-v2/(v3-v2))});
-        if ((v3>0)!==(v4>0)) pts2.push({x:x+step*(-v4/(v3-v4)),y:y+step});
-        if ((v4>0)!==(v1>0)) pts2.push({x,y:y+step*(-v1/(v4-v1))});
-        if (pts2.length===2) { ctx.moveTo(pts2[0].x,pts2[0].y); ctx.lineTo(pts2[1].x,pts2[1].y); }
-        else if (pts2.length===4) {
-          ctx.moveTo(pts2[0].x,pts2[0].y); ctx.lineTo(pts2[1].x,pts2[1].y);
-          ctx.moveTo(pts2[2].x,pts2[2].y); ctx.lineTo(pts2[3].x,pts2[3].y);
-        }
-      }
+  const step=8, cols=Math.floor(W/step), rows=Math.floor(H/step);
+  const vals=[];
+  for (let r=0;r<=rows;r++){vals[r]=new Float64Array(cols+1);for(let c=0;c<=cols;c++) vals[r][c]=fn(c*step,r*step);}
+  function contour(thresh,color,dashed,lw){
+    ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.setLineDash(dashed?[4,4]:[]);ctx.beginPath();
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+      const x=c*step,y=r*step,v1=vals[r][c]-thresh,v2=vals[r][c+1]-thresh,v3=vals[r+1][c+1]-thresh,v4=vals[r+1][c]-thresh;
+      const pp=[];
+      if((v1>0)!==(v2>0)) pp.push({x:x+step*(-v1/(v2-v1)),y});
+      if((v2>0)!==(v3>0)) pp.push({x:x+step,y:y+step*(-v2/(v3-v2))});
+      if((v3>0)!==(v4>0)) pp.push({x:x+step*(-v4/(v3-v4)),y:y+step});
+      if((v4>0)!==(v1>0)) pp.push({x,y:y+step*(-v1/(v4-v1))});
+      if(pp.length===2){ctx.moveTo(pp[0].x,pp[0].y);ctx.lineTo(pp[1].x,pp[1].y);}
+      else if(pp.length===4){ctx.moveTo(pp[0].x,pp[0].y);ctx.lineTo(pp[1].x,pp[1].y);ctx.moveTo(pp[2].x,pp[2].y);ctx.lineTo(pp[3].x,pp[3].y);}
     }
-    ctx.stroke(); ctx.setLineDash([]);
+    ctx.stroke();ctx.setLineDash([]);
   }
-
-  contour(-1, 'rgba(255,107,139,0.72)', true,  1.5);
-  contour( 1, 'rgba(79,209,197,0.72)',  true,  1.5);
-  contour( 0, '#ffd479',               false, 2.5);
+  contour(-1,'rgba(255,107,139,0.72)',true,1.5);
+  contour( 1,'rgba(79,209,197,0.72)',true,1.5);
+  contour( 0,'#ffd479',false,2.5);
 }
 
-// ── Prediction card report ───────────────────────────────
 function report(model, qVal) {
-  const tb = document.getElementById('tbody');
-  const vc = document.getElementById('verdict-card');
-  const warn = document.getElementById('warn');
-  tb.innerHTML = '';
-
-  const svCount = model.svIndices.length;
-  warn.textContent = svCount === 0
-    ? 'Warning: No support vectors found — try adjusting C or regenerating the dataset.'
-    : svCount > pts.length * 0.75
-      ? 'Notice: High support vector count — wide soft-margin or high-variance model.'
-      : '';
-
-  // Empty state
-  if (qVal === null) {
-    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>`;
+  const tb=document.getElementById('tbody'), vc=document.getElementById('verdict-card'), warn=document.getElementById('warn');
+  tb.innerHTML='';
+  const svCount=model.svIndices.length;
+  warn.textContent=svCount===0?'Warning: No support vectors found — try adjusting C or regenerating the dataset.':svCount>pts.length*0.75?'Notice: High support vector count — wide soft-margin or high-variance model.':'';
+  if (qVal===null) {
+    vc.innerHTML=`<div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>`;
   } else {
-    const isPos = qVal >= 0;
-    const classLabel  = isPos ? 'Class +1' : 'Class −1';
-    const classColor  = isPos ? '#4fd1c5'  : '#ff6b8b';
-    const classBg     = isPos ? 'rgba(79,209,197,.1)'   : 'rgba(255,107,139,.1)';
-    const classBorder = isPos ? 'rgba(79,209,197,.28)'  : 'rgba(255,107,139,.28)';
-    const fStr        = (qVal >= 0 ? '+' : '') + qVal.toFixed(3);
-
-    const absF = Math.abs(qVal);
-    let statusLabel, statusColor;
-    if      (absF >= 2.0) { statusLabel = 'Strongly Classified'; statusColor = classColor; }
-    else if (absF >= 1.0) { statusLabel = 'Outside Margin';      statusColor = '#7acc5a'; }
-    else if (absF >= 0.4) { statusLabel = 'Within Margin';       statusColor = '#ffd479'; }
-    else                  { statusLabel = 'Near Boundary \u26a0'; statusColor = '#ff9f9f'; }
-
-    // Gauge: map f(x) ∈ [−3, +3] → [2%, 98%]
-    const pct = Math.min(98, Math.max(2, (qVal + 3) / 6 * 100));
-    const kernelLabel = kernel === 'linear' ? 'Linear Kernel' : 'RBF Kernel';
-    const extra = kernel === 'rbf' ? ` \u00b7 \u03b3 = ${gamma}` : '';
-
-    vc.innerHTML = `
+    const isPos=qVal>=0, classLabel=isPos?'Class +1':'Class &minus;1', classColor=isPos?'#4fd1c5':'#ff6b8b';
+    const classBg=isPos?'rgba(79,209,197,.1)':'rgba(255,107,139,.1)', classBorder=isPos?'rgba(79,209,197,.28)':'rgba(255,107,139,.28)';
+    const fStr=(qVal>=0?'+':'')+qVal.toFixed(3), absF=Math.abs(qVal);
+    let statusLabel,statusColor;
+    if (absF>=2.0){statusLabel='Strongly Classified';statusColor=classColor;}
+    else if(absF>=1.0){statusLabel='Outside Margin';statusColor='#7acc5a';}
+    else if(absF>=0.4){statusLabel='Within Margin';statusColor='#ffd479';}
+    else{statusLabel='Near Boundary \u26a0';statusColor='#ff9f9f';}
+    const pct=Math.min(98,Math.max(2,(qVal+3)/6*100));
+    const kLabel=kernel==='linear'?'Linear Kernel':'RBF Kernel', extra=kernel==='rbf'?` \u00b7 \u03b3 = ${gamma}`:'';
+    vc.innerHTML=`
       <div class="vc-header">
         <span class="vc-section-title">Prediction Result</span>
-        <span class="vc-model-pill">${kernelLabel} &middot; C = ${C.toFixed(2)}${extra}</span>
+        <span class="vc-model-pill">${kLabel} &middot; C = ${C.toFixed(2)}${extra}</span>
       </div>
       <div class="vc-metrics">
         <div class="vc-metric">
@@ -678,64 +533,39 @@ function report(model, qVal) {
         </div>
       </div>`;
   }
-
-  // SV inspection table (up to 5 rows)
-  model.svIndices.slice(0, 5).forEach((idx, i) => {
-    const p = pts[idx];
-    const fv = model.decisionFn(p.x, p.y);
-    const col = p.yVal === 1 ? '#4fd1c5' : '#ff6b8b';
-    const onMarg = Math.abs(Math.abs(fv) - 1.0) < 0.3;
-    tb.innerHTML += `<tr>
-      <td>SV #${i+1}</td>
-      <td>&alpha; = ${model.alpha[idx].toFixed(2)}</td>
-      <td>${fv.toFixed(3)}</td>
-      <td><span class="badge" style="background:${col};color:#0b0d13">Class ${p.yVal>0?'+1':'&minus;1'}</span></td>
-      <td>${onMarg ? 'On margin boundary' : 'Margin violator (&xi; &gt; 0)'}</td>
-    </tr>`;
+  model.svIndices.slice(0,5).forEach((idx,i)=>{
+    const p=pts[idx],fv=model.decisionFn(p.x,p.y),col=p.yVal===1?'#4fd1c5':'#ff6b8b',onM=Math.abs(Math.abs(fv)-1.0)<0.3;
+    tb.innerHTML+=`<tr><td>SV #${i+1}</td><td>&alpha; = ${model.alpha[idx].toFixed(2)}</td><td>${fv.toFixed(3)}</td><td><span class="badge" style="background:${col};color:#0b0d13">Class ${p.yVal>0?'+1':'&minus;1'}</span></td><td>${onM?'On margin boundary':'Margin violator (&xi; &gt; 0)'}</td></tr>`;
   });
 }
 
-// ── Event listeners ──────────────────────────────────────
-cv.addEventListener('click', e => {
-  const r = cv.getBoundingClientRect();
-  const x = (e.clientX - r.left) * (W / r.width);
-  const y = (e.clientY - r.top)  * (H / r.height);
-  if      (addMode === 0) query = { x, y };
-  else if (addMode === 1) pts.push({ x, y, yVal: -1 });
-  else                    pts.push({ x, y, yVal:  1 });
+// Event listeners
+cv.addEventListener('click', e=>{
+  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*(W/r.width),y=(e.clientY-r.top)*(H/r.height);
+  if(addMode===0) query={x,y}; else if(addMode===1) pts.push({x,y,yVal:-1}); else pts.push({x,y,yVal:1});
   draw();
 });
-
-document.getElementById('kernel-toggle').addEventListener('click', e => {
-  kernel = kernel === 'linear' ? 'rbf' : 'linear';
-  e.target.textContent = `Kernel: ${kernel === 'linear' ? 'Linear' : 'RBF'}`;
-  const gl = document.getElementById('gamma-label');
-  const gs = document.getElementById('gamma-slider');
-  gl.style.display = kernel === 'rbf' ? 'inline-block' : 'none';
-  gs.style.display = kernel === 'rbf' ? 'inline-block' : 'none';
+document.getElementById('kernel-toggle').addEventListener('click',e=>{
+  kernel=kernel==='linear'?'rbf':'linear';
+  e.target.textContent=`Kernel: ${kernel==='linear'?'Linear':'RBF'}`;
+  const gl=document.getElementById('gamma-label'),gs=document.getElementById('gamma-slider');
+  gl.style.display=kernel==='rbf'?'inline-block':'none';
+  gs.style.display=kernel==='rbf'?'inline-block':'none';
   seed(); draw();
 });
+document.getElementById('c-slider').addEventListener('input',e=>{ C=Math.pow(10,+e.target.value); document.getElementById('c-val').textContent=C.toFixed(2); draw(); });
+document.getElementById('gamma-slider').addEventListener('input',e=>{ gamma=+e.target.value; document.getElementById('gamma-val').textContent=gamma; draw(); });
+document.getElementById('reseed').addEventListener('click',()=>{ seed(); draw(); });
+document.getElementById('mode-btn').addEventListener('click',e=>{ addMode=(addMode+1)%3; e.target.textContent='Add Mode: '+['Query Point','Class −1 (Red)','Class +1 (Teal)'][addMode]; });
 
-document.getElementById('c-slider').addEventListener('input', e => {
-  C = Math.pow(10, +e.target.value);
-  document.getElementById('c-val').textContent = C.toFixed(2);
+// Theme toggle
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
   draw();
 });
 
-document.getElementById('gamma-slider').addEventListener('input', e => {
-  gamma = +e.target.value;
-  document.getElementById('gamma-val').textContent = gamma;
-  draw();
-});
-
-document.getElementById('reseed').addEventListener('click', () => { seed(); draw(); });
-
-document.getElementById('mode-btn').addEventListener('click', e => {
-  addMode = (addMode + 1) % 3;
-  e.target.textContent = 'Add Mode: ' + ['Query Point', 'Class −1 (Red)', 'Class +1 (Teal)'][addMode];
-});
-
-// ── Init ─────────────────────────────────────────────────
 seed(); draw();
 </script>
 
