@@ -1,0 +1,823 @@
+<html data-type="html" data-identifier="e2f5b8c1-4a7d-4e1b-9c3f-6d0a2e8b5f7c" data-title="XGBoost Classifier — Interactive Explainer" data-version="2" width="1200" height="900"><head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0e1016;
+    color: #e8eaf0;
+    padding: 24px;
+    transition: background .25s, color .25s;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  header.main-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  header.main-header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color .25s; }
+  header.main-header h1 .badge-tag { font-size: 13px; background: #6c8cff; color: #0b0d13; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+  header.main-header p { font-size: 15px; color: #b9c0d0; margin: 0; line-height: 1.6; max-width: 900px; transition: color .25s; }
+
+  h2 { font-size: 18px; margin: 0 0 10px; color: #9fb4ff; border-bottom: 1px solid #262c3d; padding-bottom: 6px; transition: color .25s, border-color .25s; }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: #ffd479; transition: color .25s; }
+  p { line-height: 1.65; color: #b9c0d0; font-size: 14px; margin: 0 0 12px; transition: color .25s; }
+
+  .layout { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .panel { background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 20px; transition: background .25s, border-color .25s; }
+  .left  { flex: 1 1 620px; }
+  .right { flex: 1 1 360px; }
+  .full-width { width: 100%; margin-top: 20px; }
+
+  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; transition: background .25s; }
+  .controls { display: flex; align-items: center; gap: 12px; margin: 10px 0 2px; flex-wrap: wrap; }
+  label { font-size: 13px; color: #8b93a7; transition: color .25s; white-space: nowrap; }
+  input[type=range] { width: 110px; accent-color: #6c8cff; }
+  button { background: #6c8cff; color: #0b0d13; border: 0; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: filter .15s; }
+  button.ghost { background: #262c3d; color: #cfd6e6; transition: background .25s, color .25s; }
+  button:hover { filter: brightness(1.15); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  th { color: #8b93a7; font-weight: 600; transition: color .25s; }
+  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 12px; transition: color .25s; }
+  li { margin-bottom: 6px; }
+  .k-warn { color: #ff9f9f; font-size: 12px; min-height: 16px; margin-top: 2px; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #8b93a7; margin-top: 8px; flex-wrap: wrap; transition: color .25s; }
+  .dot   { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+  .lsamp { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; }
+  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #b9c0d0; margin-top: 14px; transition: background .25s, color .25s; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .card { background: #10141d; border: 1px solid #262c3d; border-radius: 10px; padding: 16px; transition: background .25s, border-color .25s; }
+  .card h3 { margin-top: 0; }
+  pre { background: #0b0d13; padding: 14px; border-radius: 8px; border: 1px solid #262c3d; font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 12.5px; color: #a9b7c6; overflow-x: auto; line-height: 1.5; transition: background .25s, border-color .25s, color .25s; }
+  code { font-family: 'Fira Code', Consolas, Monaco, monospace; background: #10141d; color: #9fb4ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; transition: background .25s, color .25s; }
+  .kw  { color: #cc7832; font-weight: bold; }
+  .fn  { color: #ff2f8b; }
+  .str { color: #6a8759; }
+  .cm  { color: #607080; font-style: italic; }
+  .tag { background: #262c3d; color: #4fd1c5; font-size: 11px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: bold; margin-bottom: 6px; display: inline-block; transition: background .25s; }
+  .warn-box { background: #1a1418; border-left: 3px solid #ff6b8b; padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; transition: background .25s; }
+
+  .verdict-card { background: linear-gradient(140deg,#10141f 0%,#0d1019 100%); border: 1px solid #1e2535; border-radius: 12px; padding: 16px; margin-top: 12px; transition: background .25s, border-color .25s; }
+  .vc-empty { display: flex; align-items: center; justify-content: center; gap: 10px; color: #38415a; font-size: 13px; padding: 12px 0; transition: color .25s; }
+  .vc-empty-ring { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed #38415a; flex-shrink: 0; transition: border-color .25s; }
+  .vc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #181f2e; transition: border-color .25s; }
+  .vc-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #424e6a; font-weight: 700; transition: color .25s; }
+  .vc-model-pill { background: #131826; border: 1px solid #222c3f; padding: 3px 10px; border-radius: 20px; font-size: 11px; color: #5c6e96; font-family: 'Fira Code', Consolas, monospace; transition: background .25s, border-color .25s, color .25s; }
+  .vc-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .vc-metric { display: flex; flex-direction: column; gap: 4px; }
+  .vc-metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #424e6a; font-weight: 600; transition: color .25s; }
+  .vc-metric-value { font-size: 22px; font-weight: 800; font-family: 'Fira Code', Consolas, monospace; line-height: 1; letter-spacing: -.5px; }
+  .vc-class-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 8px; border-radius: 8px; width: fit-content; }
+  .vc-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .vc-chip-label { font-size: 13px; font-weight: 700; letter-spacing: .2px; }
+  .vc-status-row { display: flex; align-items: center; gap: 6px; }
+  .vc-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .vc-status-text { font-size: 12px; font-weight: 600; }
+  .vc-gauge-bar { position: relative; height: 10px; border-radius: 5px; overflow: visible; }
+  .vc-gauge-bar-xgb { background: linear-gradient(to right, #ff6b8b 0%, rgba(255,107,139,.4) 35%, rgba(24,30,46,.95) 45%, rgba(24,30,46,.95) 55%, rgba(79,209,197,.4) 65%, #4fd1c5 100%); }
+  .vc-gauge-tick { position: absolute; top: -4px; width: 1px; height: 18px; background: rgba(255,255,255,.18); transform: translateX(-50%); transition: background .25s; }
+  .vc-gauge-needle { position: absolute; top: -6px; width: 3px; height: 22px; background: #ffd479; border-radius: 3px; transform: translateX(-50%); box-shadow: 0 0 8px rgba(255,212,121,.9),0 0 18px rgba(255,212,121,.3); z-index: 2; transition: left .12s ease; }
+  .vc-gauge-axis { position: relative; height: 16px; margin-top: 5px; }
+  .vc-gauge-axis-label { position: absolute; font-size: 10px; transform: translateX(-50%); font-family: 'Fira Code', Consolas, monospace; }
+  .vc-gauge-zones { display: flex; justify-content: space-between; margin-top: 2px; }
+  .vc-gauge-zone-label { font-size: 10.5px; opacity: .65; }
+
+  #theme-toggle {
+    position: fixed; top: 20px; right: 24px;
+    width: 36px; height: 36px; padding: 0;
+    border-radius: 50%; background: #1e2436;
+    border: 1px solid #333d55; color: inherit;
+    font-size: 16px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; transition: background .25s, border-color .25s, transform .15s;
+  }
+  #theme-toggle:hover { filter: none; transform: scale(1.1); }
+
+  body.light { background: #f0f3fa; color: #1a1f2e; }
+  body.light #theme-toggle { background: #e4e8f5; border-color: #c4cce0; }
+  body.light header.main-header { border-bottom-color: #d4daf0; }
+  body.light header.main-header h1 { color: #1a1f2e; }
+  body.light header.main-header p { color: #4a5270; }
+  body.light h2 { color: #3b5bdb; border-bottom-color: #d4daf0; }
+  body.light h3 { color: #9a7000; }
+  body.light p { color: #4a5270; }
+  body.light ol, body.light ul { color: #4a5270; }
+  body.light .panel { background: #ffffff; border-color: #d4daf0; }
+  body.light .card { background: #f5f7fe; border-color: #d4daf0; }
+  body.light canvas { background: #eaeefc; }
+  body.light pre { background: #f2f4fc; border-color: #d4daf0; color: #2d3660; }
+  body.light code { background: #e8edfb; color: #2d52c4; }
+  body.light .kw  { color: #b05800; }
+  body.light .fn  { color: #b5096a; }
+  body.light .str { color: #3a6e2a; }
+  body.light .cm  { color: #5a6a7a; }
+  body.light th { color: #6878a8; }
+  body.light td, body.light th { border-bottom-color: #d4daf0; }
+  body.light label { color: #6878a8; }
+  body.light .legend { color: #6878a8; }
+  body.light button.ghost { background: #e4e8f5; color: #3a4268; }
+  body.light .tag { background: #e4e8fa; color: #1d7a6a; }
+  body.light .tip { background: #eef2ff; color: #3d4a6e; }
+  body.light .warn-box { background: #fff5f5; }
+  body.light .k-warn { color: #c0392b; }
+  body.light .verdict-card { background: linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color: #d0d8ee; }
+  body.light .vc-header { border-bottom-color: #dce4f4; }
+  body.light .vc-section-title { color: #8594b8; }
+  body.light .vc-model-pill { background: #e8edfb; border-color: #d0d8ee; color: #5868a0; }
+  body.light .vc-metric-label { color: #8594b8; }
+  body.light .vc-empty { color: #a8b2cc; }
+  body.light .vc-empty-ring { border-color: #a8b2cc; }
+  body.light .vc-gauge-bar-xgb { background: linear-gradient(to right, #ff6b8b 0%, rgba(255,107,139,.45) 35%, rgba(198,206,226,.95) 45%, rgba(198,206,226,.95) 55%, rgba(79,209,197,.45) 65%, #4fd1c5 100%); }
+  body.light .vc-gauge-tick { background: rgba(0,0,0,.15); }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
+
+<div class="wrap">
+
+  <header class="main-header">
+    <h1 id="main-title">
+      XGBoost Classifier
+      <span class="badge-tag">Interactive Guide</span>
+    </h1>
+    <p id="main-desc">XGBoost (Extreme Gradient Boosting) builds Decision Trees <strong>sequentially</strong> — each new tree corrects the cumulative errors of all previous trees. Unlike Random Forest (parallel, independent trees), XGBoost uses a second-order Taylor expansion of the loss function to analytically derive optimal leaf weights and split gains, making every tree as informative as possible under regularisation constraints.</p>
+  </header>
+
+  <div class="layout">
+    <div class="panel left">
+      <h2 id="h-canvas">Interactive Playground</h2>
+      <canvas id="plot" width="640" height="420"></canvas>
+
+      <div class="controls">
+        <label for="n-slider" title="n_estimators: number of sequential boosting rounds">Trees (n) = <strong id="n-val">20</strong></label>
+        <input type="range" id="n-slider" min="1" max="80" step="1" value="20">
+        <label for="eta-slider" title="learning_rate (eta): shrinks each tree's contribution">η (eta) = <strong id="eta-val">0.30</strong></label>
+        <input type="range" id="eta-slider" min="0.05" max="1.00" step="0.05" value="0.30">
+        <label for="depth-slider" title="max_depth: depth of each individual tree">Max Depth = <strong id="depth-val">3</strong></label>
+        <input type="range" id="depth-slider" min="1" max="7" step="1" value="3">
+      </div>
+
+      <div class="controls">
+        <button id="reseed" class="ghost">New Dataset</button>
+        <button id="mode-btn">Add Mode: Query Point</button>
+      </div>
+
+      <div class="k-warn" id="warn"></div>
+      <div class="legend">
+        <span><span class="dot" style="background:#ff6b8b"></span>Class A — Cats</span>
+        <span><span class="dot" style="background:#4fd1c5"></span>Class B — Dogs</span>
+        <span><span class="dot" style="background:#ffd479;outline:2px solid #ffd479;outline-offset:2px;"></span>Query Point</span>
+        <span><span class="lsamp" style="background:#ffd479;height:2.5px;"></span>Boundary (P = 0.5)</span>
+        <span><span class="lsamp" style="border-top:1.5px dashed rgba(255,212,121,.6);"></span>P = 0.25 / 0.75</span>
+      </div>
+
+      <div class="verdict-card" id="verdict-card">
+        <div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>
+      </div>
+
+      <table id="tbl">
+        <thead><tr><th>Round</th><th>Score Added (η×w)</th><th>P(Dog)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel right">
+      <h2 id="h-how">How XGBoost Works</h2>
+      <ol>
+        <li><strong>Initialise:</strong> Start all predictions at F(x) = 0, equivalent to P(Dog) = 0.5 (the log-odds base score). Every training point begins with the same uninformed prior.</li>
+        <li><strong>Compute Gradients &amp; Hessians:</strong> For the current predictions, compute the gradient g = P̂ − y (prediction error) and hessian h = P̂(1−P̂) (prediction uncertainty). The hessian is highest near the decision boundary (P̂ ≈ 0.5) — XGBoost naturally focuses each tree on its most uncertain predictions.</li>
+        <li><strong>Build a Regularised Tree:</strong> Fit a new tree that minimises the regularised second-order Taylor objective. Each split is evaluated by the gain formula using G and H sums. The optimal weight for each leaf is w* = −G/(H+λ). Only splits with positive gain are accepted.</li>
+        <li><strong>Update &amp; Repeat Sequentially:</strong> Add this tree's prediction (scaled by η) to the ensemble: F(x) ← F(x) + η·tree(x). Each round focuses on the residuals of the current ensemble. The learning rate η prevents any single tree from dominating.</li>
+      </ol>
+      <div class="tip"><strong>Try it:</strong> Drag <strong>Trees (n)</strong> from 1 to 80 — watch the boundary evolve as each tree corrects the previous ensemble's errors. Lower <strong>η</strong> to 0.05 for slower, more gradual convergence. Increase <strong>Max Depth</strong> to 6 and drag n to 60+ to observe overfitting — unlike Random Forest, XGBoost <em>can</em> overfit with too many rounds.</div>
+    </div>
+  </div>
+
+  <!-- Deep Dive -->
+  <div class="panel full-width">
+    <h2 id="h-deep-dive">Detailed Algorithm Explanation</h2>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-taylor">1. Second-Order Taylor Approximation</h3>
+        <p>XGBoost approximates the loss at each boosting round using a second-order Taylor expansion around the current prediction F<sub>t−1</sub>(x), enabling analytical optimisation of any differentiable loss:</p>
+        <ul>
+          <li><strong>Objective at round t:</strong><br>
+            <code>Obj<sup>(t)</sup> ≈ Σ[g<sub>i</sub>·f<sub>t</sub>(x<sub>i</sub>) + ½h<sub>i</sub>·f<sub>t</sub>(x<sub>i</sub>)<sup>2</sup>] + Ω(f<sub>t</sub>)</code>
+          </li>
+          <li><strong>For binary log-loss:</strong><br>
+            Gradient: <code>g<sub>i</sub> = p̂<sub>i</sub> − y<sub>i</sub></code> (prediction error)<br>
+            Hessian: <code>h<sub>i</sub> = p̂<sub>i</sub>(1 − p̂<sub>i</sub>)</code> (uncertainty)
+          </li>
+          <li><strong>Regularisation term:</strong><br>
+            <code>Ω(f) = γ·T + ½λ·Σ w<sub>j</sub><sup>2</sup></code><br>
+            γ penalises each additional leaf; λ (L2) shrinks leaf weights.
+          </li>
+          <li><strong>Why second-order?</strong> The hessian h captures the curvature of the loss. Points near the boundary (h ≈ 0.25) get the most weight in each new tree's objective. This provides more signal than first-order gradient boosting methods.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-gain">2. Regularised Gain &amp; Optimal Leaf Weights</h3>
+        <p>After finding the best tree structure, the optimal weight for each leaf j is derived analytically:</p>
+        <ul>
+          <li><strong>Optimal leaf weight (closed form):</strong><br>
+            <code>w*<sub>j</sub> = −G<sub>j</sub> / (H<sub>j</sub> + λ)</code><br>
+            where G<sub>j</sub> = Σ g in leaf, H<sub>j</sub> = Σ h in leaf. Mirrors a Newton-Raphson step: −f′(x)/f′′(x).
+          </li>
+          <li><strong>Split Gain (the splitting criterion):</strong><br>
+            <code>Gain = ½[G<sub>L</sub><sup>2</sup>/(H<sub>L</sub>+λ) + G<sub>R</sub><sup>2</sup>/(H<sub>R</sub>+λ) − (G<sub>L</sub>+G<sub>R</sub>)<sup>2</sup>/(H<sub>L</sub>+H<sub>R</sub>+λ)] − γ</code><br>
+            A split is accepted <em>only</em> if Gain &gt; 0. If no split clears this bar, the node becomes a leaf.
+          </li>
+          <li><strong>Compare to Decision Tree:</strong> DT uses Gini/entropy (first-order counts only). XGBoost uses G and H (gradient + curvature), providing richer split information and automatic regularisation via λ and γ.</li>
+          <li><strong>Training complexity:</strong> <i>O(T × N × M × log N)</i> — same structure as DT per round T.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Use Cases -->
+  <div class="panel full-width">
+    <h2 id="h-usecases">Best Use Cases for XGBoost</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">Tabular Data</span>
+        <h3 id="h-kaggle">Structured Data &amp; Competitions</h3>
+        <p>XGBoost dominates structured/tabular data tasks. From 2015 to 2023 it appeared in a majority of winning Kaggle solutions for tabular problems. Its combination of sequential refinement, built-in regularisation, and native handling of sparse features makes it the strongest single algorithm baseline for row-based datasets.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Finance</span>
+        <h3 id="h-credit">Credit Risk &amp; Fraud Detection</h3>
+        <p>Produces calibrated probability scores that directly feed risk-based decision systems. The <code>scale_pos_weight</code> parameter handles extreme class imbalance (1 fraud per 10,000 transactions). SHAP values satisfy regulatory explainability requirements (GDPR, SR 11-7) without sacrificing model performance.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Advertising</span>
+        <h3 id="h-ctr">Click-Through Rate Prediction</h3>
+        <p>XGBoost processes high-dimensional sparse one-hot encoded features efficiently via native sparse matrix support. The histogram-based split finder (<code>tree_method='hist'</code>) scales to billions of ad impression events. Meta, Alibaba, and Tencent have all published XGBoost-based CTR systems.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Healthcare</span>
+        <h3 id="h-medical">Clinical Prognosis &amp; Survival</h3>
+        <p>XGBoost's <code>objective='survival:cox'</code> and <code>'survival:aft'</code> support survival analysis natively. The <code>monotone_constraints</code> parameter enforces domain-known relationships (e.g., increasing age must not decrease risk), satisfying clinical and regulatory logic requirements.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Implementation -->
+  <div class="panel full-width">
+    <h2 id="h-impl">Implementation Details &amp; How XGBoost Works in Python</h2>
+    <p>XGBoost is a separate library (<code>pip install xgboost</code>) that provides a fully sklearn-compatible API. Like all tree-based methods, it is <strong>scale-invariant</strong> when using the default <code>booster='gbtree'</code> — tree splits are value comparisons, so no <code>StandardScaler</code> is needed.</p>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-params">Key Hyperparameters</h3>
+        <ul>
+          <li><strong><code>n_estimators</code>:</strong> Number of sequential boosting rounds. Unlike RF, adding more rounds <em>can</em> overfit. Always use with <code>early_stopping_rounds</code>.</li>
+          <li><strong><code>learning_rate</code> (η):</strong> Shrinks each tree's contribution. Default = 0.3. Smaller η + larger n_estimators is the classic high-accuracy recipe.</li>
+          <li><strong><code>max_depth</code>:</strong> Depth per tree. XGBoost default = 6; shallower trees (3–5) often generalise better.</li>
+          <li><strong><code>reg_lambda</code>:</strong> L2 regularisation on leaf weights (λ). Default = 1.</li>
+          <li><strong><code>reg_alpha</code>:</strong> L1 regularisation on leaf weights (α). Default = 0. Induces sparsity.</li>
+          <li><strong><code>gamma</code>:</strong> Minimum gain required to create a split. Default = 0.</li>
+          <li><strong><code>subsample</code> / <code>colsample_bytree</code>:</strong> Row and column sampling per tree — analogous to RF's bootstrap and max_features.</li>
+          <li><strong><code>scale_pos_weight</code>:</strong> Set to <code>neg/pos</code> ratio for imbalanced binary classification.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-code">XGBoost Python API Example</h3>
+        <pre><code><span class="kw">from</span> xgboost <span class="kw">import</span> XGBClassifier
+
+<span class="cm"># Scale-invariant for gbtree (default booster)</span>
+clf = <span class="fn">XGBClassifier</span>(
+    n_estimators=<span class="str">500</span>,           <span class="cm"># Upper bound; early stopping takes over</span>
+    learning_rate=<span class="str">0.05</span>,         <span class="cm"># Low eta + many rounds = best practice</span>
+    max_depth=<span class="str">4</span>,                <span class="cm"># Default = 6; 3–5 often better</span>
+    subsample=<span class="str">0.8</span>,              <span class="cm"># Row sampling per tree</span>
+    colsample_bytree=<span class="str">0.8</span>,       <span class="cm"># Feature sampling per tree</span>
+    reg_lambda=<span class="str">1.0</span>,             <span class="cm"># L2 regularisation (default)</span>
+    reg_alpha=<span class="str">0.0</span>,              <span class="cm"># L1 regularisation (default)</span>
+    gamma=<span class="str">0.0</span>,                  <span class="cm"># Min gain to split (default)</span>
+    scale_pos_weight=<span class="str">1</span>,         <span class="cm"># Set to neg/pos for imbalance</span>
+    early_stopping_rounds=<span class="str">20</span>,   <span class="cm"># In constructor (XGBoost ≥ 1.6)</span>
+    eval_metric=<span class="str">'logloss'</span>,
+    random_state=<span class="str">42</span>
+)
+
+clf.<span class="fn">fit</span>(X_train, y_train,
+      eval_set=[(X_val, y_val)], verbose=<span class="kw">False</span>)
+
+predictions   = clf.<span class="fn">predict</span>(X_test)
+probabilities = clf.<span class="fn">predict_proba</span>(X_test)  <span class="cm"># shape (N, 2)</span>
+<span class="fn">print</span>(<span class="str">f"Best round: {clf.best_iteration}"</span>)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Common Tweaks -->
+  <div class="panel full-width">
+    <h2 id="h-tweaks">Common Tweaks &amp; Production Improvements</h2>
+    <p>XGBoost's defaults are a reasonable starting point, but these six techniques address the most common production gaps: runaway training, high variance, speed on large datasets, black-box interpretability, regulatory constraints, and class imbalance.</p>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">Essential</span>
+        <h3 id="h-es">1. Early Stopping — The Most Critical Tweak</h3>
+        <p>Unlike Random Forest, XGBoost <em>can</em> overfit with too many trees. Early stopping monitors validation loss and halts training when it stops improving. In modern XGBoost (≥1.6), <code>early_stopping_rounds</code> belongs in the <strong>constructor</strong> so it works correctly inside <code>Pipeline</code> and <code>GridSearchCV</code>.</p>
+        <pre><code><span class="cm"># modern API: in constructor, not fit()</span>
+clf = <span class="fn">XGBClassifier</span>(
+    n_estimators=<span class="str">1000</span>,
+    early_stopping_rounds=<span class="str">20</span>,
+    eval_metric=<span class="str">'logloss'</span>,
+    learning_rate=<span class="str">0.05</span>
+)
+clf.<span class="fn">fit</span>(X_train, y_train,
+      eval_set=[(X_val, y_val)], verbose=<span class="kw">False</span>)
+<span class="fn">print</span>(<span class="str">f"Best round: {clf.best_iteration}"</span>)</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Variance Reduction</span>
+        <h3 id="h-sub">2. Subsampling Rows &amp; Columns</h3>
+        <p>Setting <code>subsample &lt; 1</code> introduces stochasticity (row sampling). Setting <code>colsample_bytree &lt; 1</code> mirrors Random Forest's feature randomness — both decorrelate trees and reduce variance. This is often as impactful as tuning <code>learning_rate</code>.</p>
+        <pre><code>clf = <span class="fn">XGBClassifier</span>(
+    subsample=<span class="str">0.8</span>,         <span class="cm"># 80% of rows per round</span>
+    colsample_bytree=<span class="str">0.8</span>,  <span class="cm"># 80% of features per tree</span>
+    colsample_bylevel=<span class="str">0.8</span>, <span class="cm"># 80% of features per level</span>
+    n_estimators=<span class="str">300</span>,
+    learning_rate=<span class="str">0.05</span>
+)
+<span class="cm"># Typical ranges: subsample 0.6–0.9</span>
+<span class="cm">#                 colsample_bytree 0.4–0.9</span></code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Scalability</span>
+        <h3 id="h-hist">3. Histogram Trees &amp; GPU Acceleration</h3>
+        <p>For datasets with &gt;100k rows, the default exact split algorithm is a bottleneck. <code>tree_method='hist'</code> bins feature values into histograms, providing 10–100× speedup with negligible accuracy loss. For GPU-equipped machines, add <code>device='cuda'</code> (XGBoost ≥2.0).</p>
+        <pre><code>clf = <span class="fn">XGBClassifier</span>(
+    tree_method=<span class="str">'hist'</span>,   <span class="cm"># Major speedup for N &gt; 100k</span>
+    device=<span class="str">'cuda'</span>,        <span class="cm"># GPU (XGBoost ≥ 2.0)</span>
+    max_bin=<span class="str">256</span>,          <span class="cm"># Histogram bins (default)</span>
+    enable_categorical=<span class="kw">True</span>, <span class="cm"># Native categorical support</span>
+    n_estimators=<span class="str">500</span>
+)</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Interpretability</span>
+        <h3 id="h-shap">4. SHAP Values — Native XGBoost Support</h3>
+        <p>XGBoost has built-in C++ TreeSHAP — ~10–100× faster than model-agnostic SHAP on large ensembles. Each value represents the exact contribution of one feature to one prediction, satisfying Shapley fairness axioms for regulatory compliance.</p>
+        <pre><code><span class="kw">import</span> shap
+
+explainer = shap.<span class="fn">TreeExplainer</span>(clf)
+shap_vals = explainer.<span class="fn">shap_values</span>(X_test)
+<span class="cm"># shap_vals[i, j]: feature j's contribution to sample i</span>
+<span class="cm"># sum(shap_vals[i]) + expected_value ≈ F(x_i)</span>
+
+shap.<span class="fn">summary_plot</span>(shap_vals, X_test,
+                 feature_names=feature_names)</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Compliance</span>
+        <h3 id="h-mono">5. Monotonic Constraints for Business Logic</h3>
+        <p>Forces the model to respect known domain relationships (e.g., higher income must never increase predicted default risk). Prevents fitting statistical noise that violates business logic, and satisfies regulatory explainability requirements (SR 11-7, EU AI Act).</p>
+        <pre><code><span class="cm"># +1 = non-decreasing, -1 = non-increasing, 0 = unconstrained</span>
+clf = <span class="fn">XGBClassifier</span>(
+    monotone_constraints={
+        <span class="str">'income'</span>:      <span class="str">-1</span>,  <span class="cm"># Higher income → lower risk</span>
+        <span class="str">'loan_amount'</span>: <span class="str">+1</span>,  <span class="cm"># Larger loan → higher risk</span>
+        <span class="str">'age'</span>:         <span class="str">0</span>,
+    },
+    n_estimators=<span class="str">200</span>
+)</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Class Imbalance</span>
+        <h3 id="h-imb">6. Handling Imbalance with <code>scale_pos_weight</code></h3>
+        <p>Sets the ratio of negative to positive examples, scaling the gradient of minority-class errors upward. More numerically stable than <code>class_weight='balanced'</code> for extreme imbalance. Always pair with <code>eval_metric='aucpr'</code> — PR-AUC is threshold-independent and more informative for skewed classes.</p>
+        <pre><code>neg = (y_train == <span class="str">0</span>).<span class="fn">sum</span>()
+pos = (y_train == <span class="str">1</span>).<span class="fn">sum</span>()
+
+clf = <span class="fn">XGBClassifier</span>(
+    scale_pos_weight=neg / pos, <span class="cm"># e.g. 9.0 for 1:10 imbalance</span>
+    eval_metric=<span class="str">'aucpr'</span>,       <span class="cm"># PR-AUC: better than accuracy</span>
+    early_stopping_rounds=<span class="str">20</span>
+)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pitfalls -->
+  <div class="panel full-width">
+    <h2 id="h-pitfalls">Crucial Considerations When Using XGBoost</h2>
+    <div class="warn-box">
+      <strong style="color:#ff6b8b;">1. XGBoost CAN Overfit — Unlike Random Forest</strong>
+      <p style="margin-top:4px;margin-bottom:0;">Random Forest's variance asymptotes to ρσ² regardless of tree count — adding more trees never hurts. XGBoost's sequential residual fitting means later rounds can memorise training noise. An unconstrained XGBoost with 1,000+ rounds on a small dataset will nearly always overfit. <strong>Always use early stopping</strong> (<code>early_stopping_rounds</code> with a held-out <code>eval_set</code>) in every production training run.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 id="h-sequential">2. Sequential Training Cannot Be Parallelised Across Trees</h3>
+        <p>Because each tree depends on the predictions of all previous trees, XGBoost cannot train trees in parallel across rounds. Random Forest trains all trees independently and saturates all CPU cores trivially. XGBoost parallelises <em>within</em> each tree (finding splits across features), but remains inherently sequential across rounds.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-hyperparam">3. More Hyperparameters — All Interact</h3>
+        <p>XGBoost has more hyperparameters than any algorithm in this series, and many interact non-linearly: <code>learning_rate</code> and <code>n_estimators</code> must be co-tuned; <code>max_depth</code> and <code>gamma</code> both control tree complexity; <code>subsample</code> and <code>colsample_bytree</code> affect variance independently. Use <code>RandomizedSearchCV</code> or Bayesian optimisation rather than manual tuning.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-extrap">4. Cannot Extrapolate Beyond Training Range</h3>
+        <p>Like all tree-based methods, XGBoost predicts the leaf value (a weighted sum of training-data residuals) and cannot produce outputs outside the range seen in training. For scenarios with strong distributional shift or future extrapolation, this is a critical limitation that neural networks and linear models do not share.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-blackbox">5. Reduced Interpretability Without SHAP</h3>
+        <p>A forest of hundreds of sequential trees is not human-readable. Gain-based feature importances (<code>feature_importances_</code>) can mislead. Always use SHAP values for production model explanation — they satisfy mathematical fairness properties (Shapley axioms), and XGBoost computes them natively in C++ at low overhead.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const cv  = document.getElementById('plot');
+const ctx = cv.getContext('2d');
+const W   = cv.width, H = cv.height;
+const COL = ['#ff6b8b', '#4fd1c5'];
+
+let pts = [], query = null, addMode = 0, isDark = true;
+let nTrees   = 20;
+let eta      = 0.30;
+let maxDepth = 3;
+let xgbModel = null;
+let modelDirty = true;
+
+const LAMBDA = 1.0; // reg_lambda default
+const GAMMA  = 0.0; // gamma default
+
+const offCv = document.createElement('canvas');
+const OW = 160, OH = 105;
+offCv.width = OW; offCv.height = OH;
+const offCtx = offCv.getContext('2d');
+
+// ── Core XGBoost Math ─────────────────────────────────
+
+function sigmoid(z) {
+  return 1 / (1 + Math.exp(-Math.max(-50, Math.min(50, z))));
+}
+
+// ── BUG FIX: Use a plain for-loop that builds a regular Array of objects.
+// Previously used Float64Array.map() which returns another Float64Array —
+// trying to store { g, h } objects in a typed array silently coerces them
+// to NaN, breaking every downstream gradient calculation.
+function computeGH(ys, rawScores) {
+  const n = rawScores.length;
+  const result = [];
+  for (let i = 0; i < n; i++) {
+    const p = sigmoid(rawScores[i]);
+    result.push({ g: p - ys[i], h: p * (1 - p) });
+  }
+  return result;
+}
+
+function leafWeight(idxs, gh) {
+  let G = 0, H = 0;
+  for (const i of idxs) { G += gh[i].g; H += gh[i].h; }
+  return -G / (H + LAMBDA);
+}
+
+function buildXGBTree(pts, gh) {
+  function build(idxs, depth) {
+    const w = leafWeight(idxs, gh);
+    if (!idxs.length || depth >= maxDepth || idxs.length < 2)
+      return { isLeaf: true, weight: w };
+
+    let G = 0, H = 0;
+    for (const i of idxs) { G += gh[i].g; H += gh[i].h; }
+    const parentScore = G * G / (H + LAMBDA);
+
+    let bestGain = 0, bestF = null, bestT = null;
+
+    for (const f of ['x', 'y']) {
+      const sorted = idxs.slice().sort((a, b) => pts[a][f] - pts[b][f]);
+      let GL = 0, HL = 0;
+
+      for (let k = 0; k < sorted.length - 1; k++) {
+        GL += gh[sorted[k]].g;
+        HL += gh[sorted[k]].h;
+        if (pts[sorted[k]][f] >= pts[sorted[k+1]][f] - 0.01) continue;
+
+        const GR = G - GL, HR = H - HL;
+        // Gain: ½[GL²/(HL+λ) + GR²/(HR+λ) − (GL+GR)²/(HL+HR+λ)] − γ
+        const gain = 0.5 * (GL*GL/(HL+LAMBDA) + GR*GR/(HR+LAMBDA) - parentScore) - GAMMA;
+
+        if (gain > bestGain) {
+          bestGain = gain;
+          bestF = f;
+          bestT = (pts[sorted[k]][f] + pts[sorted[k+1]][f]) / 2;
+        }
+      }
+    }
+
+    if (bestF === null) return { isLeaf: true, weight: w };
+
+    const L = idxs.filter(i => pts[i][bestF] <= bestT);
+    const R = idxs.filter(i => pts[i][bestF] > bestT);
+    return {
+      isLeaf: false, feature: bestF, threshold: bestT,
+      left:  build(L, depth + 1),
+      right: build(R, depth + 1)
+    };
+  }
+  return build(pts.map((_, i) => i), 0);
+}
+
+function predictTree(node, x, y) {
+  if (node.isLeaf) return node.weight;
+  const val = node.feature === 'x' ? x : y;
+  return predictTree(val <= node.threshold ? node.left : node.right, x, y);
+}
+
+// ── Training ──────────────────────────────────────────
+function trainXGB() {
+  if (!pts.length || !pts.some(p => p.c === 0) || !pts.some(p => p.c === 1)) return null;
+
+  const n   = pts.length;
+  const ys  = pts.map(p => p.c);
+
+  // ── BUG FIX: Use a plain Array (not Float64Array) so computeGH receives
+  // a standard iterable where element access returns plain numbers.
+  const preds = new Array(n).fill(0.0); // base_score = 0.0 (log-odds) → P = 0.5
+
+  const trees = [];
+  for (let t = 0; t < nTrees; t++) {
+    const gh   = computeGH(ys, preds);
+    const tree = buildXGBTree(pts, gh);
+    trees.push(tree);
+    for (let i = 0; i < n; i++) preds[i] += eta * predictTree(tree, pts[i].x, pts[i].y);
+  }
+  return { trees, eta, baseScore: 0.0 };
+}
+
+function scoreXGB(model, x, y) {
+  if (!model) return 0;
+  let s = model.baseScore;
+  for (const tree of model.trees) s += model.eta * predictTree(tree, x, y);
+  return s;
+}
+
+function predictXGB(model, x, y) {
+  return sigmoid(scoreXGB(model, x, y));
+}
+
+function computeXGBPath(model, x, y) {
+  let cumScore = model.baseScore;
+  const path = [];
+  for (let t = 0; t < model.trees.length; t++) {
+    const added = model.eta * predictTree(model.trees[t], x, y);
+    cumScore += added;
+    path.push({ round: t + 1, added, pDog: sigmoid(cumScore) });
+  }
+  return { finalScore: cumScore, pDog: sigmoid(cumScore), path };
+}
+
+// ── Dataset ───────────────────────────────────────────
+function seed() {
+  pts = []; query = null;
+  const clusters = [
+    { cx: 155, cy: 128, c: 0 }, { cx: 490, cy: 308, c: 0 },
+    { cx: 482, cy: 122, c: 1 }, { cx: 148, cy: 302, c: 1 },
+  ];
+  clusters.forEach(({ cx, cy, c }) => {
+    for (let i = 0; i < 18; i++)
+      pts.push({ x: cx + (Math.random() + Math.random() - 1) * 84,
+                 y: cy + (Math.random() + Math.random() - 1) * 68, c });
+  });
+  pts = pts.filter(p => p.x > 12 && p.x < W - 12 && p.y > 12 && p.y < H - 12);
+  modelDirty = true;
+}
+
+// ── Drawing ───────────────────────────────────────────
+function computeProbGrid(model) {
+  const sx = W / OW, sy = H / OH;
+  const grid = [];
+  for (let py = 0; py < OH; py++) {
+    grid[py] = new Float32Array(OW);
+    for (let px = 0; px < OW; px++)
+      grid[py][px] = predictXGB(model, px * sx, py * sy);
+  }
+  return grid;
+}
+
+function drawHeatmap(grid) {
+  const img = offCtx.createImageData(OW, OH);
+  const d   = img.data;
+  for (let py = 0; py < OH; py++) {
+    for (let px = 0; px < OW; px++) {
+      const p   = grid[py][px];
+      const cer = Math.abs(p - 0.5) * 2;
+      const alp = isDark ? Math.round(cer * 56) : Math.round(cer * 72);
+      const i4  = (py * OW + px) * 4;
+      if (p < 0.5) { d[i4]=255; d[i4+1]=107; d[i4+2]=139; d[i4+3]=alp; }
+      else          { d[i4]=79;  d[i4+1]=209; d[i4+2]=197; d[i4+3]=alp; }
+    }
+  }
+  offCtx.putImageData(img, 0, 0);
+  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.drawImage(offCv, 0, 0, W, H); ctx.restore();
+}
+
+function drawContour(grid, pThresh, color, lw, dash) {
+  const sx = W / OW, sy = H / OH;
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash);
+  ctx.beginPath();
+  for (let r = 0; r < OH - 1; r++) {
+    for (let c = 0; c < OW - 1; c++) {
+      const x = c*sx, y = r*sy;
+      const v1 = grid[r][c]-pThresh, v2 = grid[r][c+1]-pThresh;
+      const v3 = grid[r+1][c+1]-pThresh, v4 = grid[r+1][c]-pThresh;
+      const pp = [];
+      if((v1>0)!==(v2>0)) pp.push({x:x+sx*(-v1/(v2-v1)),y});
+      if((v2>0)!==(v3>0)) pp.push({x:x+sx,y:y+sy*(-v2/(v3-v2))});
+      if((v3>0)!==(v4>0)) pp.push({x:x+sx*(-v4/(v3-v4)),y:y+sy});
+      if((v4>0)!==(v1>0)) pp.push({x,y:y+sy*(-v1/(v4-v1))});
+      if(pp.length===2){ctx.moveTo(pp[0].x,pp[0].y);ctx.lineTo(pp[1].x,pp[1].y);}
+      else if(pp.length===4){
+        ctx.moveTo(pp[0].x,pp[0].y);ctx.lineTo(pp[1].x,pp[1].y);
+        ctx.moveTo(pp[2].x,pp[2].y);ctx.lineTo(pp[3].x,pp[3].y);
+      }
+    }
+  }
+  ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = isDark ? '#1a1f2c' : '#d4daf0'; ctx.lineWidth = 1;
+  for (let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for (let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  if (modelDirty) { xgbModel = trainXGB(); modelDirty = false; }
+
+  if (xgbModel && xgbModel.trees.length) {
+    const grid = computeProbGrid(xgbModel);
+    drawHeatmap(grid);
+    drawContour(grid, 0.25, 'rgba(255,107,139,0.48)', 1.2, [4,4]);
+    drawContour(grid, 0.75, 'rgba(79,209,197,0.48)',  1.2, [4,4]);
+    drawContour(grid, 0.50, '#ffd479', 2.5, []);
+  }
+
+  ctx.lineWidth = 1;
+  pts.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = COL[p.c]; ctx.fill();
+    ctx.strokeStyle = isDark ? '#1a1f2c' : '#e0e8f8'; ctx.lineWidth = 1; ctx.stroke();
+  });
+
+  if (query) {
+    ctx.beginPath(); ctx.arc(query.x, query.y, 9, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffd479'; ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineWidth = 1;
+  }
+
+  report(query);
+}
+
+// ── Prediction Card ───────────────────────────────────
+function report(qry) {
+  const tb = document.getElementById('tbody');
+  const vc = document.getElementById('verdict-card');
+  tb.innerHTML = '';
+
+  const wp = [];
+  if (nTrees === 1)     wp.push('n=1: single tree \u2014 not yet a boosting ensemble.');
+  else if(nTrees >= 60) wp.push(`n=${nTrees}: high overfitting risk \u2014 use early stopping in production.`);
+  if (eta >= 0.5)       wp.push(`\u03b7=${eta.toFixed(2)}: large learning rate \u2014 boundary may be unstable.`);
+  else if(eta <= 0.05)  wp.push(`\u03b7=${eta.toFixed(2)}: small \u03b7 \u2014 needs many more trees to converge.`);
+  if (maxDepth >= 6)    wp.push(`Depth ${maxDepth}: XGBoost overfits quickly with deep trees.`);
+  document.getElementById('warn').textContent = wp.join('  \u00b7  ');
+
+  if (!xgbModel || !xgbModel.trees.length) {
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>${pts.length < 4 ? 'Add more training points' : 'Need both Cats and Dogs'}</div>`;
+    return;
+  }
+  if (!qry) {
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>`;
+    return;
+  }
+
+  const { finalScore, pDog, path } = computeXGBPath(xgbModel, qry.x, qry.y);
+  const isDog     = pDog >= 0.5;
+  const classLabel = isDog ? 'Dog' : 'Cat';
+  const winColor  = isDog ? COL[1] : COL[0];
+  const winBg     = isDog ? 'rgba(79,209,197,.1)'   : 'rgba(255,107,139,.1)';
+  const winBorder = isDog ? 'rgba(79,209,197,.28)'  : 'rgba(255,107,139,.28)';
+  const scoreStr  = (finalScore >= 0 ? '+' : '') + finalScore.toFixed(3);
+  const pDogStr   = pDog.toFixed(3);
+
+  const certainty = Math.abs(pDog - 0.5) * 2;
+  let statusLabel, statusColor;
+  if      (certainty >= 0.80) { statusLabel = 'High Confidence'; statusColor = winColor;  }
+  else if (certainty >= 0.50) { statusLabel = 'Confident';       statusColor = '#7acc5a'; }
+  else if (certainty >= 0.20) { statusLabel = 'Low Confidence';  statusColor = '#ffd479'; }
+  else                        { statusLabel = 'Near Boundary \u26a0'; statusColor = '#ff9f9f'; }
+
+  const gaugePct = Math.min(98, Math.max(2, pDog * 100));
+  const tieColor = isDark ? 'rgba(255,255,255,.28)' : 'rgba(50,60,100,.4)';
+  const pillText = `${xgbModel.trees.length} Trees \u00b7 \u03b7=${eta.toFixed(2)} \u00b7 d=${maxDepth}`;
+
+  vc.innerHTML = `
+    <div class="vc-header">
+      <span class="vc-section-title">Prediction Result</span>
+      <span class="vc-model-pill">${pillText}</span>
+    </div>
+    <div class="vc-metrics">
+      <div class="vc-metric">
+        <span class="vc-metric-label">F(x) Score</span>
+        <span class="vc-metric-value" style="color:${winColor}">${scoreStr}</span>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Predicted Class</span>
+        <div class="vc-class-chip" style="background:${winBg};border:1px solid ${winBorder};">
+          <span class="vc-chip-dot" style="background:${winColor};box-shadow:0 0 5px ${winColor}70;"></span>
+          <span class="vc-chip-label" style="color:${winColor}">${classLabel}</span>
+        </div>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">P(Dog) = &sigma;(F)</span>
+        <span class="vc-metric-value" style="color:${winColor};font-size:18px;">${pDogStr}</span>
+        <div class="vc-status-row">
+          <span class="vc-status-dot" style="background:${statusColor};box-shadow:0 0 4px ${statusColor}80;"></span>
+          <span class="vc-status-text" style="color:${statusColor}">${statusLabel}</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="vc-gauge-bar vc-gauge-bar-xgb">
+        <div class="vc-gauge-tick" style="left:50%"></div>
+        <div class="vc-gauge-needle" style="left:${gaugePct}%"></div>
+      </div>
+      <div class="vc-gauge-axis">
+        <span class="vc-gauge-axis-label" style="left:50%;color:${tieColor};">P = 0.5</span>
+      </div>
+      <div class="vc-gauge-zones">
+        <span class="vc-gauge-zone-label" style="color:#ff6b8b;">&larr; Cats (P = 0)</span>
+        <span class="vc-gauge-zone-label" style="color:#4fd1c5;">Dogs (P = 1) &rarr;</span>
+      </div>
+    </div>`;
+
+  // Sequential boosting table: shows how each round's contribution accumulates
+  const showN = Math.min(path.length, 8);
+  for (let t = 0; t < showN; t++) {
+    const a     = path[t].added;
+    const aStr  = (a >= 0 ? '+' : '') + a.toFixed(3);
+    const aCol  = a >= 0 ? COL[1] : COL[0];
+    tb.innerHTML += `<tr>
+      <td>${path[t].round}</td>
+      <td style="color:${aCol};font-family:'Fira Code',monospace;font-size:12px;">${aStr}</td>
+      <td>${path[t].pDog.toFixed(3)}</td>
+    </tr>`;
+  }
+  if (path.length > 8)
+    tb.innerHTML += `<tr><td colspan="3" style="color:#4a5268;font-style:italic;font-size:11.5px;">\u2026 ${path.length - 8} more rounds hidden</td></tr>`;
+
+  tb.innerHTML += `<tr style="background:rgba(255,212,121,0.08);">
+    <td><strong>Final</strong></td>
+    <td style="font-family:'Fira Code',monospace;font-size:12px;"><strong>F = ${scoreStr}</strong></td>
+    <td><span class="badge" style="background:${winColor};color:#0b0d13">${classLabel} (${pDogStr})</span></td>
+  </tr>`;
+}
+
+// ── Event Listeners ───────────────────────────────────
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * (W / r.width);
+  const y = (e.clientY - r.top)  * (H / r.height);
+  if (addMode === 0) { query = { x, y }; }
+  else { pts.push({ x, y, c: addMode - 1 }); modelDirty = true; }
+  draw();
+});
+document.getElementById('n-slider').addEventListener('input', e => {
+  nTrees = +e.target.value; document.getElementById('n-val').textContent = nTrees;
+  modelDirty = true; draw();
+});
+document.getElementById('eta-slider').addEventListener('input', e => {
+  eta = +e.target.value; document.getElementById('eta-val').textContent = eta.toFixed(2);
+  modelDirty = true; draw();
+});
+document.getElementById('depth-slider').addEventListener('input', e => {
+  maxDepth = +e.target.value; document.getElementById('depth-val').textContent = maxDepth;
+  modelDirty = true; draw();
+});
+document.getElementById('reseed').addEventListener('click', () => { seed(); draw(); });
+document.getElementById('mode-btn').addEventListener('click', e => {
+  addMode = (addMode + 1) % 3;
+  e.target.textContent = 'Add Mode: ' + ['Query Point','Cats','Dogs'][addMode];
+});
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
+  draw();
+});
+
+seed(); draw();
+</script>
+
+</body></html>
