@@ -1,0 +1,806 @@
+<html data-type="html" data-identifier="7e4a8c3d-9f6b-4e2a-b8c1-5d3f2a1e9b7c" data-title="Random Forest Classifier — Interactive Explainer" data-version="2" width="1200" height="900"><head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0e1016;
+    color: #e8eaf0;
+    padding: 24px;
+    transition: background .25s, color .25s;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  header.main-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  header.main-header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color .25s; }
+  header.main-header h1 .badge-tag { font-size: 13px; background: #6c8cff; color: #0b0d13; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+  header.main-header p { font-size: 15px; color: #b9c0d0; margin: 0; line-height: 1.6; max-width: 900px; transition: color .25s; }
+
+  h2 { font-size: 18px; margin: 0 0 10px; color: #9fb4ff; border-bottom: 1px solid #262c3d; padding-bottom: 6px; transition: color .25s, border-color .25s; }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: #ffd479; transition: color .25s; }
+  p { line-height: 1.65; color: #b9c0d0; font-size: 14px; margin: 0 0 12px; transition: color .25s; }
+
+  .layout { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .panel { background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 20px; transition: background .25s, border-color .25s; }
+  .left  { flex: 1 1 620px; }
+  .right { flex: 1 1 360px; }
+  .full-width { width: 100%; margin-top: 20px; }
+
+  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; transition: background .25s; }
+  .controls { display: flex; align-items: center; gap: 12px; margin: 10px 0 2px; flex-wrap: wrap; }
+  label { font-size: 13px; color: #8b93a7; transition: color .25s; white-space: nowrap; }
+  input[type=range] { width: 110px; accent-color: #6c8cff; }
+  button { background: #6c8cff; color: #0b0d13; border: 0; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: filter .15s; }
+  button.ghost { background: #262c3d; color: #cfd6e6; transition: background .25s, color .25s; }
+  button:hover { filter: brightness(1.15); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  th { color: #8b93a7; font-weight: 600; transition: color .25s; }
+  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 12px; transition: color .25s; }
+  li { margin-bottom: 6px; }
+  .k-warn { color: #ff9f9f; font-size: 12px; min-height: 16px; margin-top: 2px; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #8b93a7; margin-top: 8px; flex-wrap: wrap; transition: color .25s; }
+  .dot   { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+  .lsamp { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; }
+  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #b9c0d0; margin-top: 14px; transition: background .25s, color .25s; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .card { background: #10141d; border: 1px solid #262c3d; border-radius: 10px; padding: 16px; transition: background .25s, border-color .25s; }
+  .card h3 { margin-top: 0; }
+  pre { background: #0b0d13; padding: 14px; border-radius: 8px; border: 1px solid #262c3d; font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 12.5px; color: #a9b7c6; overflow-x: auto; line-height: 1.5; transition: background .25s, border-color .25s, color .25s; }
+  code { font-family: 'Fira Code', Consolas, Monaco, monospace; background: #10141d; color: #9fb4ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; transition: background .25s, color .25s; }
+  .kw  { color: #cc7832; font-weight: bold; }
+  .fn  { color: #ff2f8b; }
+  .str { color: #6a8759; }
+  .cm  { color: #607080; font-style: italic; }
+  .tag { background: #262c3d; color: #4fd1c5; font-size: 11px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: bold; margin-bottom: 6px; display: inline-block; transition: background .25s; }
+  .warn-box { background: #1a1418; border-left: 3px solid #ff6b8b; padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; transition: background .25s; }
+
+  /* ── Verdict Card ─── */
+  .verdict-card { background: linear-gradient(140deg,#10141f 0%,#0d1019 100%); border: 1px solid #1e2535; border-radius: 12px; padding: 16px; margin-top: 12px; transition: background .25s, border-color .25s; }
+  .vc-empty { display: flex; align-items: center; justify-content: center; gap: 10px; color: #38415a; font-size: 13px; padding: 12px 0; transition: color .25s; }
+  .vc-empty-ring { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed #38415a; flex-shrink: 0; transition: border-color .25s; }
+  .vc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #181f2e; transition: border-color .25s; }
+  .vc-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #424e6a; font-weight: 700; transition: color .25s; }
+  .vc-model-pill { background: #131826; border: 1px solid #222c3f; padding: 3px 10px; border-radius: 20px; font-size: 11px; color: #5c6e96; font-family: 'Fira Code', Consolas, monospace; transition: background .25s, border-color .25s, color .25s; }
+  .vc-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .vc-metric { display: flex; flex-direction: column; gap: 4px; }
+  .vc-metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #424e6a; font-weight: 600; transition: color .25s; }
+  .vc-metric-value { font-size: 22px; font-weight: 800; font-family: 'Fira Code', Consolas, monospace; line-height: 1; letter-spacing: -.5px; }
+  .vc-class-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 8px; border-radius: 8px; width: fit-content; }
+  .vc-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .vc-chip-label { font-size: 13px; font-weight: 700; letter-spacing: .2px; }
+  .vc-status-row { display: flex; align-items: center; gap: 6px; }
+  .vc-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .vc-status-text { font-size: 12px; font-weight: 600; }
+  .vc-gauge-bar { position: relative; height: 10px; border-radius: 5px; overflow: visible; }
+  .vc-gauge-bar-rf { background: linear-gradient(to right, #ff6b8b 0%, rgba(255,107,139,.4) 35%, rgba(24,30,46,.95) 45%, rgba(24,30,46,.95) 55%, rgba(79,209,197,.4) 65%, #4fd1c5 100%); }
+  .vc-gauge-tick { position: absolute; top: -4px; width: 1px; height: 18px; background: rgba(255,255,255,.18); transform: translateX(-50%); transition: background .25s; }
+  .vc-gauge-needle { position: absolute; top: -6px; width: 3px; height: 22px; background: #ffd479; border-radius: 3px; transform: translateX(-50%); box-shadow: 0 0 8px rgba(255,212,121,.9),0 0 18px rgba(255,212,121,.3); z-index: 2; transition: left .12s ease; }
+  .vc-gauge-axis { position: relative; height: 16px; margin-top: 5px; }
+  .vc-gauge-axis-label { position: absolute; font-size: 10px; transform: translateX(-50%); font-family: 'Fira Code', Consolas, monospace; }
+  .vc-gauge-zones { display: flex; justify-content: space-between; margin-top: 2px; }
+  .vc-gauge-zone-label { font-size: 10.5px; opacity: .65; }
+
+  /* ── Theme Toggle ── */
+  #theme-toggle {
+    position: fixed; top: 20px; right: 24px;
+    width: 36px; height: 36px; padding: 0;
+    border-radius: 50%; background: #1e2436;
+    border: 1px solid #333d55; color: inherit;
+    font-size: 16px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; transition: background .25s, border-color .25s, transform .15s;
+  }
+  #theme-toggle:hover { filter: none; transform: scale(1.1); }
+
+  /* ── Light Mode ── */
+  body.light { background: #f0f3fa; color: #1a1f2e; }
+  body.light #theme-toggle { background: #e4e8f5; border-color: #c4cce0; }
+  body.light header.main-header { border-bottom-color: #d4daf0; }
+  body.light header.main-header h1 { color: #1a1f2e; }
+  body.light header.main-header p { color: #4a5270; }
+  body.light h2 { color: #3b5bdb; border-bottom-color: #d4daf0; }
+  body.light h3 { color: #9a7000; }
+  body.light p { color: #4a5270; }
+  body.light ol, body.light ul { color: #4a5270; }
+  body.light .panel { background: #ffffff; border-color: #d4daf0; }
+  body.light .card { background: #f5f7fe; border-color: #d4daf0; }
+  body.light canvas { background: #eaeefc; }
+  body.light pre { background: #f2f4fc; border-color: #d4daf0; color: #2d3660; }
+  body.light code { background: #e8edfb; color: #2d52c4; }
+  body.light .kw  { color: #b05800; }
+  body.light .fn  { color: #b5096a; }
+  body.light .str { color: #3a6e2a; }
+  body.light .cm  { color: #5a6a7a; }
+  body.light th { color: #6878a8; }
+  body.light td, body.light th { border-bottom-color: #d4daf0; }
+  body.light label { color: #6878a8; }
+  body.light .legend { color: #6878a8; }
+  body.light button.ghost { background: #e4e8f5; color: #3a4268; }
+  body.light .tag { background: #e4e8fa; color: #1d7a6a; }
+  body.light .tip { background: #eef2ff; color: #3d4a6e; }
+  body.light .warn-box { background: #fff5f5; }
+  body.light .k-warn { color: #c0392b; }
+  body.light .verdict-card { background: linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color: #d0d8ee; }
+  body.light .vc-header { border-bottom-color: #dce4f4; }
+  body.light .vc-section-title { color: #8594b8; }
+  body.light .vc-model-pill { background: #e8edfb; border-color: #d0d8ee; color: #5868a0; }
+  body.light .vc-metric-label { color: #8594b8; }
+  body.light .vc-empty { color: #a8b2cc; }
+  body.light .vc-empty-ring { border-color: #a8b2cc; }
+  body.light .vc-gauge-bar-rf { background: linear-gradient(to right, #ff6b8b 0%, rgba(255,107,139,.45) 35%, rgba(198,206,226,.95) 45%, rgba(198,206,226,.95) 55%, rgba(79,209,197,.45) 65%, #4fd1c5 100%); }
+  body.light .vc-gauge-tick { background: rgba(0,0,0,.15); }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
+
+<div class="wrap">
+
+  <header class="main-header">
+    <h1 id="main-title">
+      Random Forest Classifier
+      <span class="badge-tag">Interactive Guide</span>
+    </h1>
+    <p id="main-desc">Random Forest trains many Decision Trees on different random subsets of data and features, then combines their votes. The intentional randomness <em>decorrelates</em> the trees, enabling the ensemble to achieve far lower variance than any single tree — without increasing bias. Drag the sliders to see the ensemble stabilise in real time.</p>
+  </header>
+
+  <div class="layout">
+    <div class="panel left">
+      <h2 id="h-canvas">Interactive Playground</h2>
+      <canvas id="plot" width="640" height="420"></canvas>
+      <div class="controls">
+        <label for="n-slider" title="n_estimators: number of trees in the forest">Trees (n) = <strong id="n-val">15</strong></label>
+        <input type="range" id="n-slider" min="1" max="50" step="1" value="15" title="n_estimators">
+        <label for="depth-slider" title="max_depth: maximum depth of each individual tree">Max Depth = <strong id="depth-val">4</strong></label>
+        <input type="range" id="depth-slider" min="1" max="7" step="1" value="4" title="max_depth per tree">
+      </div>
+      <div class="controls">
+        <button id="features-btn" title="max_features: features considered at each split">Max Features: √M</button>
+        <button id="reseed" class="ghost">New Dataset</button>
+        <button id="mode-btn">Add Mode: Query Point</button>
+      </div>
+      <div class="k-warn" id="warn"></div>
+      <div class="legend">
+        <span><span class="dot" style="background:#ff6b8b"></span>Class A — Cats</span>
+        <span><span class="dot" style="background:#4fd1c5"></span>Class B — Dogs</span>
+        <span><span class="dot" style="background:#ffd479;outline:2px solid #ffd479;outline-offset:2px;"></span>Query Point</span>
+        <span><span class="lsamp" style="background:#ffd479;height:2.5px;"></span>Ensemble Boundary (P = 0.5)</span>
+      </div>
+      <div class="verdict-card" id="verdict-card">
+        <div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>
+      </div>
+      <table id="tbl">
+        <thead><tr><th>Tree #</th><th>Vote</th><th>Leaf P(Dog)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel right">
+      <h2 id="h-how">How Random Forest Works</h2>
+      <ol>
+        <li><strong>Bootstrap Sampling:</strong> For each tree, draw N samples <em>with replacement</em> from the training data. About 63.2% of unique points appear per tree; the remaining ~36.8% are "Out-of-Bag" (OOB) — a free, built-in validation set requiring no separate split.</li>
+        <li><strong>Random Feature Subsets:</strong> At each split, only √M randomly chosen features are considered (M = total features). Even if one feature dominates, trees are sometimes forced to split on others — creating diverse, decorrelated trees. This is the key innovation that separates RF from plain bagging.</li>
+        <li><strong>Independent Tree Growth:</strong> Each tree grows fully on its bootstrap sample using CART (Gini impurity) with the randomly constrained features. Both the data <em>and</em> the splits differ for every tree.</li>
+        <li><strong>Majority Vote / Probability Averaging:</strong> Each tree independently predicts a class (hard vote). The forest predicts the majority class. Probabilities use <em>soft voting</em>: average P(class) across all trees — a smoother signal than any single tree, and the basis for <code>predict_proba()</code>.</li>
+      </ol>
+      <div class="tip"><strong>Try it:</strong> Drag <strong>Trees (n)</strong> from 1 to 50 — watch one noisy Decision Tree boundary transform into a smooth, stable ensemble. Toggle <strong>Max Features</strong> to "All" to remove feature randomness: trees become more correlated and the boundary gets noisier even with many trees, demonstrating why √M matters.</div>
+    </div>
+  </div>
+
+  <!-- Deep Dive -->
+  <div class="panel full-width">
+    <h2 id="h-deep-dive">Detailed Algorithm Explanation</h2>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-variance">1. Ensemble Variance Reduction (The Mathematical Why)</h3>
+        <p>For B trees each with variance σ² and average pairwise correlation ρ, the ensemble variance is:</p>
+        <ul>
+          <li><strong>Ensemble variance formula:</strong><br>
+            <code>Var(ensemble) = ρσ² + (1−ρ)σ² / B</code>
+          </li>
+          <li><strong>As B → ∞:</strong> the second term vanishes, leaving the hard floor <code>ρσ²</code>. Adding more trees <em>never overfits</em> — but cannot reduce variance below this floor.</li>
+          <li><strong>Why ρ must be small:</strong> If trees are highly correlated (ρ = 1), the formula reduces to Var = σ² — no ensemble benefit at all, regardless of how many trees you add. Decorrelation is everything.</li>
+          <li><strong>Bootstrap reduces ρ partly</strong> (different training subsets), but dominant features can still make trees structurally similar. <strong>Feature randomness (√M)</strong> is the second lever that drives ρ toward zero, enabling genuine variance reduction.</li>
+          <li><strong>Bias is unchanged:</strong> averaging unbiased estimators gives an unbiased estimator. RF inherits the low bias of deep trees while dramatically cutting variance.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-bootstrap">2. Bootstrap Sampling &amp; OOB Error</h3>
+        <p>Each tree sees a random <em>bootstrap</em> sample — N draws with replacement from N training points:</p>
+        <ul>
+          <li><strong>63.2% unique samples:</strong> P(not selected in one draw) = 1 − 1/N. P(never selected in N draws) = (1 − 1/N)<sup>N</sup> → e<sup>−1</sup> ≈ 0.368 as N → ∞. Therefore ~63.2% unique points appear per tree.</li>
+          <li><strong>Out-of-Bag (OOB) samples:</strong> The ~36.8% of training points <em>not</em> in a given tree's bootstrap are OOB for that tree. Each sample is OOB for roughly 37% of all trees.</li>
+          <li><strong>OOB error estimate:</strong> For each training point, predict using <em>only</em> the trees for which it was OOB. The aggregate OOB accuracy is a nearly unbiased generalisation estimate — no separate validation split needed. Enable with <code>oob_score=True</code>.</li>
+          <li><strong>Feature importance:</strong> <code>feature_importances_</code> aggregates the mean Gini decrease across all splits in all trees — the same metric as a single Decision Tree, but averaged over the entire forest for greater stability.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Use Cases -->
+  <div class="panel full-width">
+    <h2 id="h-usecases">Best Use Cases for Random Forest</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">Bioinformatics</span>
+        <h3 id="h-genomics">Genomics &amp; High-Dimensional Data</h3>
+        <p>Random Forest excels when features far outnumber samples (e.g., 20,000 gene expression values across 100 patients). Built-in feature selection via <code>feature_importances_</code> and OOB error evaluation make it a standard first-choice model for genomic classification without requiring a separate validation split.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Finance</span>
+        <h3 id="h-fraud">Fraud Detection &amp; Credit Scoring</h3>
+        <p>Captures complex non-linear interaction effects between features (e.g., transaction amount × time of day × location) that linear models miss. The ensemble's robustness to outliers and noisy features — combined with threshold adjustment via <code>predict_proba()</code> — makes it highly reliable on messy financial data.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Ecology</span>
+        <h3 id="h-ecology">Species Distribution Modelling</h3>
+        <p>Handles mixed feature types (categorical, continuous, ordered), missing values, and skewed class distributions well. It is the standard tool for predicting species presence/absence from remote sensing and climate data across thousands of locations.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Feature Selection</span>
+        <h3 id="h-importance">Robust Feature Importance</h3>
+        <p>Unlike single Decision Trees where importance estimates are unstable, RF averages Gini decreases over hundreds of trees, yielding stable rankings. For production, <code>permutation_importance</code> (evaluated on the test set) provides an even more reliable estimate, unbiased by high-cardinality features.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Implementation -->
+  <div class="panel full-width">
+    <h2 id="h-impl">Implementation Details &amp; How Scikit-Learn Does It</h2>
+    <p>sklearn's <code>RandomForestClassifier</code> trains all trees in <strong>parallel</strong> using <code>joblib</code> (via <code>n_jobs=-1</code>). Like single Decision Trees, it is <strong>scale-invariant</strong> — no <code>StandardScaler</code> is needed. Training complexity scales as <i>O(B × N × M' × log N)</i> where B = n_estimators and M' = max_features.</p>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-params">Key Hyperparameters</h3>
+        <ul>
+          <li><strong><code>n_estimators</code>:</strong> Number of trees (default = 100). More trees = lower variance, diminishing returns past ~100–200. Never causes overfitting — variance asymptotes to the floor ρσ².</li>
+          <li><strong><code>max_features</code>:</strong> Features considered per split. <code>'sqrt'</code> (default for classifiers): √M; <code>'log2'</code>: log&amp;sub2;M; <code>None</code>: all M. Reducing this lowers ρ and improves ensemble diversity.</li>
+          <li><strong><code>max_depth</code>:</strong> Depth of each individual tree. Default = <code>None</code> (fully grown). Deeper trees = lower bias, higher σ²; the ensemble averages out the increased variance.</li>
+          <li><strong><code>min_samples_leaf</code>:</strong> Minimum samples in each leaf. Higher values produce smoother probability estimates per tree.</li>
+          <li><strong><code>oob_score</code>:</strong> <code>True</code> enables the free OOB accuracy estimate, exposing <code>.oob_score_</code> after fitting — a reliable proxy for test accuracy without cross-validation.</li>
+          <li><strong><code>n_jobs</code>:</strong> <code>-1</code> uses all CPU cores. RF is embarrassingly parallel — each tree is independent.</li>
+          <li><strong><code>bootstrap</code>:</strong> Default <code>True</code>. Setting <code>False</code> trains each tree on the full dataset — removes OOB estimation and reduces ensemble diversity.</li>
+        </ul>
+      </div>
+      <div>
+        <!-- FIX: permutation_importance is now properly imported AND used -->
+        <h3 id="h-code">Scikit-Learn Example Code</h3>
+        <pre><code><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+<span class="kw">from</span> sklearn.inspection <span class="kw">import</span> permutation_importance
+
+<span class="cm"># Scale-invariant: no StandardScaler needed</span>
+clf = <span class="fn">RandomForestClassifier</span>(
+    n_estimators=<span class="str">200</span>,       <span class="cm"># More trees → stabler boundary</span>
+    max_features=<span class="str">'sqrt'</span>,    <span class="cm"># Key to decorrelation (default)</span>
+    max_depth=<span class="kw">None</span>,         <span class="cm"># Fully grown trees (low bias)</span>
+    min_samples_leaf=<span class="str">1</span>,     <span class="cm"># Raise to smooth leaf probabilities</span>
+    oob_score=<span class="kw">True</span>,         <span class="cm"># Free generalisation estimate</span>
+    n_jobs=<span class="str">-1</span>,              <span class="cm"># Parallel: use all CPU cores</span>
+    random_state=<span class="str">42</span>
+)
+
+clf.<span class="fn">fit</span>(X_train, y_train)
+predictions   = clf.<span class="fn">predict</span>(X_test)
+probabilities = clf.<span class="fn">predict_proba</span>(X_test) <span class="cm"># shape (N, 2)</span>
+
+<span class="cm"># Free OOB accuracy — no held-out validation set needed</span>
+<span class="fn">print</span>(<span class="str">f"OOB Score: {clf.oob_score_:.3f}"</span>)
+
+<span class="cm"># Gini importances: fast but can be biased toward high-cardinality</span>
+gini_importances = clf.feature_importances_
+
+<span class="cm"># Permutation importances: evaluated on TEST set — more reliable</span>
+perm = <span class="fn">permutation_importance</span>(
+    clf, X_test, y_test,
+    n_repeats=<span class="str">20</span>, n_jobs=<span class="str">-1</span>, random_state=<span class="str">42</span>
+)
+<span class="cm"># perm.importances_mean: mean accuracy drop per shuffled feature</span>
+<span class="cm"># perm.importances_std:  stability across the 20 repetitions</span></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW SECTION: Common Tweaks & Production Improvements -->
+  <div class="panel full-width">
+    <h2 id="h-tweaks">Common Tweaks &amp; Production Improvements</h2>
+    <p>A default Random Forest is already a strong baseline — but these six targeted techniques address the most common production gaps: misaligned decision thresholds, unreliable probability estimates, biased feature rankings, slow hyperparameter search, class imbalance distortion, and expensive full retraining.</p>
+    <div class="grid-2">
+
+      <div class="card">
+        <span class="tag">Threshold Tuning</span>
+        <h3 id="h-tweak-threshold">1. Adjust the Decision Threshold via <code>predict_proba()</code></h3>
+        <p>The default <code>predict()</code> uses a hard 0.5 cut-off. In practice, the cost of a false negative rarely equals a false positive. Use <code>predict_proba()[:, 1]</code> to access raw probabilities and apply the threshold that fits your business metric — e.g., lowering to 0.30 to maximise recall for fraud detection. The <code>precision_recall_curve</code> utility finds the mathematically optimal threshold automatically.</p>
+        <pre><code><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> precision_recall_curve
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># predict_proba columns match clf.classes_ order (sorted ascending)</span>
+<span class="cm"># [:, 1] = P(class 1 = Dog) for binary {0, 1}</span>
+probas = clf.<span class="fn">predict_proba</span>(X_test)[:, <span class="str">1</span>]
+
+<span class="cm"># Apply a custom threshold (e.g. 0.30 for high recall)</span>
+predictions = (probas &gt;= <span class="str">0.30</span>).astype(<span class="str">int</span>)
+
+<span class="cm"># Find the threshold that maximises F1 score</span>
+prec, rec, thr = <span class="fn">precision_recall_curve</span>(y_test, probas)
+<span class="cm"># prec/rec have one more element than thr (sentinel); align with [:-1]</span>
+f1 = <span class="str">2</span> * prec[:<span class="str">-1</span>] * rec[:<span class="str">-1</span>] / (prec[:<span class="str">-1</span>] + rec[:<span class="str">-1</span>] + <span class="str">1e-9</span>)
+optimal_thr = thr[np.<span class="fn">argmax</span>(f1)]</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Feature Importance</span>
+        <h3 id="h-tweak-perm">2. Replace Gini Importance with Permutation Importance</h3>
+        <p>The built-in <code>feature_importances_</code> (mean Gini decrease) is biased toward features with many unique values (high-cardinality features like IDs or continuous variables can appear important simply because the tree can split on them more often). <strong>Permutation importance</strong>, computed on the held-out <em>test</em> set, shuffles each feature independently and measures the actual accuracy drop — providing a reliable, model-agnostic, and unbiased ranking.</p>
+        <pre><code><span class="kw">from</span> sklearn.inspection <span class="kw">import</span> permutation_importance
+
+<span class="cm"># Must run on TEST set, NOT training set</span>
+perm = <span class="fn">permutation_importance</span>(
+    clf, X_test, y_test,
+    n_repeats=<span class="str">30</span>,  <span class="cm"># Shuffle each feature 30 times</span>
+    n_jobs=<span class="str">-1</span>,
+    random_state=<span class="str">42</span>
+)
+<span class="cm"># perm.importances_mean: average accuracy drop per feature</span>
+<span class="cm"># perm.importances_std:  stability across the 30 shuffles</span>
+<span class="kw">for</span> i, (m, s) <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="fn">zip</span>(perm.importances_mean, perm.importances_std)):
+    <span class="fn">print</span>(<span class="str">f"Feature {i}: {m:.4f} ± {s:.4f}"</span>)</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Calibration</span>
+        <h3 id="h-tweak-calib">3. Calibrate Probabilities with <code>CalibratedClassifierCV</code></h3>
+        <p>Random Forest probabilities cluster near 0 and 1 by design (averaging many overconfident binary votes). If you use these probabilities directly for risk scoring or expected-value calculations, you may significantly over- or under-state confidence. <code>CalibratedClassifierCV</code> with isotonic regression maps the raw outputs to a true probability scale — where a score of 0.8 actually means an 80% event probability.</p>
+        <pre><code><span class="kw">from</span> sklearn.calibration <span class="kw">import</span> CalibratedClassifierCV, calibration_curve
+
+<span class="cm"># cv='prefit' uses the already-trained clf; fits calibrator on X_val</span>
+cal_clf = <span class="fn">CalibratedClassifierCV</span>(clf, method=<span class="str">'isotonic'</span>, cv=<span class="str">'prefit'</span>)
+cal_clf.<span class="fn">fit</span>(X_val, y_val)  <span class="cm"># Fit calibrator on held-out validation data</span>
+
+calibrated_probs = cal_clf.<span class="fn">predict_proba</span>(X_test)[:, <span class="str">1</span>]
+
+<span class="cm"># Verify: perfect calibration = diagonal line on this plot</span>
+prob_true, prob_pred = <span class="fn">calibration_curve</span>(
+    y_test, calibrated_probs, n_bins=<span class="str">10</span>
+)</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Hyperparameter Search</span>
+        <h3 id="h-tweak-search">4. Tune with <code>RandomizedSearchCV</code></h3>
+        <p>The four most impactful RF hyperparameters are <code>n_estimators</code>, <code>max_depth</code>, <code>max_features</code>, and <code>min_samples_leaf</code>. <code>RandomizedSearchCV</code> is strongly preferred over <code>GridSearchCV</code> for RF: the search space is large, and performance typically plateaus early, making exhaustive grid search wasteful. Score with <code>'roc_auc'</code> for imbalanced problems — it is threshold-independent.</p>
+        <pre><code><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> RandomizedSearchCV
+
+param_dist = {
+    <span class="str">'n_estimators'</span>:     [<span class="str">50</span>, <span class="str">100</span>, <span class="str">200</span>, <span class="str">400</span>],
+    <span class="str">'max_depth'</span>:        [<span class="kw">None</span>, <span class="str">4</span>, <span class="str">8</span>, <span class="str">16</span>],
+    <span class="str">'max_features'</span>:     [<span class="str">'sqrt'</span>, <span class="str">'log2'</span>, <span class="str">0.3</span>, <span class="str">0.5</span>],
+    <span class="str">'min_samples_leaf'</span>: [<span class="str">1</span>, <span class="str">2</span>, <span class="str">4</span>, <span class="str">8</span>],
+    <span class="str">'class_weight'</span>:     [<span class="kw">None</span>, <span class="str">'balanced'</span>, <span class="str">'balanced_subsample'</span>]
+}
+search = <span class="fn">RandomizedSearchCV</span>(
+    <span class="fn">RandomForestClassifier</span>(n_jobs=<span class="str">-1</span>, random_state=<span class="str">42</span>),
+    param_dist, n_iter=<span class="str">60</span>, cv=<span class="str">5</span>,
+    scoring=<span class="str">'roc_auc'</span>, n_jobs=<span class="str">-1</span>, random_state=<span class="str">42</span>
+)
+search.<span class="fn">fit</span>(X_train, y_train)
+<span class="fn">print</span>(<span class="str">f"Best params: {search.best_params_}"</span>)</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Class Imbalance</span>
+        <h3 id="h-tweak-imbalance">5. Address Class Imbalance with <code>balanced_subsample</code></h3>
+        <p><code>class_weight='balanced_subsample'</code> recalculates class weights <em>within each bootstrap sample independently</em> — stronger than the global <code>'balanced'</code> because it accounts for the random variation in each tree's draw. For extreme imbalance (1:50+), combine with <code>SelectFromModel</code> to drop uninformative features that bias the splits further toward the majority class.</p>
+        <pre><code><span class="kw">from</span> sklearn.feature_selection <span class="kw">import</span> SelectFromModel
+
+<span class="cm"># 'balanced_subsample' re-weights per bootstrap, not globally</span>
+clf_imb = <span class="fn">RandomForestClassifier</span>(
+    class_weight=<span class="str">'balanced_subsample'</span>,
+    n_estimators=<span class="str">200</span>, n_jobs=<span class="str">-1</span>, random_state=<span class="str">42</span>
+)
+clf_imb.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="cm"># Drop features with importance below the median — removes noise</span>
+<span class="cm"># that biases splits toward the majority class</span>
+selector = <span class="fn">SelectFromModel</span>(clf_imb, threshold=<span class="str">'median'</span>, prefit=<span class="kw">True</span>)
+X_train_sel = selector.<span class="fn">transform</span>(X_train)
+X_test_sel  = selector.<span class="fn">transform</span>(X_test)</code></pre>
+      </div>
+
+      <div class="card">
+        <span class="tag">Efficiency</span>
+        <h3 id="h-tweak-warmstart">6. Add Trees Incrementally with <code>warm_start</code></h3>
+        <p>By default, every call to <code>fit()</code> rebuilds the entire forest from scratch. Setting <code>warm_start=True</code> retains existing trees and only trains the <em>newly added</em> ones, making it ideal for two tasks: (1) monitoring the OOB score convergence curve to find the minimum viable <code>n_estimators</code> without wasting compute, and (2) cheaply updating a deployed model as new training data arrives.</p>
+        <pre><code>clf = <span class="fn">RandomForestClassifier</span>(
+    warm_start=<span class="kw">True</span>, oob_score=<span class="kw">True</span>,
+    n_estimators=<span class="str">10</span>, n_jobs=<span class="str">-1</span>
+)
+oob_scores = []
+
+<span class="kw">for</span> n <span class="kw">in</span> <span class="fn">range</span>(<span class="str">10</span>, <span class="str">210</span>, <span class="str">10</span>):   <span class="cm"># Add 10 trees at a time</span>
+    clf.n_estimators = n
+    clf.<span class="fn">fit</span>(X_train, y_train)   <span class="cm"># Only trains the NEW trees</span>
+    oob_scores.<span class="fn">append</span>(clf.oob_score_)
+    <span class="cm"># Stop once OOB score plateau detected (saves compute)</span>
+    <span class="kw">if</span> <span class="fn">len</span>(oob_scores) &gt; <span class="str">5</span>:
+        spread = <span class="fn">max</span>(oob_scores[<span class="str">-5</span>:]) - <span class="fn">min</span>(oob_scores[<span class="str">-5</span>:])
+        <span class="kw">if</span> spread &lt; <span class="str">0.001</span>: <span class="kw">break</span></code></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Pitfalls -->
+  <div class="panel full-width">
+    <h2 id="h-pitfalls">Crucial Considerations When Using Random Forest</h2>
+    <div class="warn-box">
+      <strong style="color:#ff6b8b;">1. Memory &amp; Inference Cost Scale with Tree Count</strong>
+      <p style="margin-top:4px;margin-bottom:0;">Unlike a single Decision Tree, a Random Forest must store every tree in memory and traverse all B trees for every prediction. At n=200 with max_depth=None, models can be hundreds of megabytes and prediction significantly slower than a single tree. For memory-constrained inference, reduce <code>n_estimators</code>, limit <code>max_depth</code>, or consider distilling the forest into a single tree via model compression.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 id="h-interpret">2. Reduced Interpretability vs. Single Tree</h3>
+        <p>A single Decision Tree exports a human-readable set of if/then rules. A forest of 200 trees does not. The ensemble is a black box — you can rank feature importances but cannot extract a single traceable decision path. Use <code>sklearn.tree.export_text</code> on a few representative individual trees or SHAP values for partial insight into ensemble reasoning.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-extrap">3. Cannot Extrapolate Beyond Training Range</h3>
+        <p>All tree-based methods predict the majority class of a training-data leaf — they can never predict values outside the range seen during training. A Random Forest on house prices will never predict a price higher than the most expensive training example. Linear models and neural networks can extrapolate; tree ensembles cannot.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-cardinality">4. Gini Importance Bias Toward High-Cardinality Features</h3>
+        <p>The default <code>feature_importances_</code> can overestimate the importance of features with many unique values simply because those features provide more split opportunities. For reliable, production-grade importance rankings, always prefer <code>permutation_importance</code> computed on a held-out test set, as described in the tweaks section above.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-imbalance">5. Class Imbalance Still Distorts Predictions</h3>
+        <p>Majority voting across trees amplifies bias toward the dominant class. An imbalanced training set (e.g., 95% Class A) means each individual tree already favours Class A, and majority vote makes it worse. Use <code>class_weight='balanced_subsample'</code>, adjust the decision threshold via <code>predict_proba()</code>, or oversample the minority class with SMOTE before training.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const cv  = document.getElementById('plot');
+const ctx = cv.getContext('2d');
+const W   = cv.width, H = cv.height;
+const COL = ['#ff6b8b', '#4fd1c5'];
+
+let pts = [], query = null, addMode = 0, isDark = true;
+let nEstimators   = 15;
+let maxDepthRF    = 4;
+let maxFeaturesRF = 'sqrt';
+
+const POOL_SIZE = 50;
+let treePool  = [];
+let poolDirty = true;
+
+const offCv = document.createElement('canvas');
+const OW = 160, OH = 105;
+offCv.width = OW; offCv.height = OH;
+const offCtx = offCv.getContext('2d');
+
+// ── CART tree node builder for each RF tree ───────────
+function getCounts(arr) {
+  const n0 = arr.reduce((s, p) => s + (p.c === 0 ? 1 : 0), 0);
+  return { 0: n0, 1: arr.length - n0 };
+}
+function majority(counts) { return counts[0] >= counts[1] ? 0 : 1; }
+
+function buildNodeRF(arr, depth) {
+  const counts = getCounts(arr);
+  const makeLeaf = () => ({ isLeaf: true, cls: majority(counts), counts });
+
+  if (!arr.length || depth >= maxDepthRF || counts[0] === 0 || counts[1] === 0 || arr.length < 2)
+    return makeLeaf();
+
+  // max_features: 'sqrt' → 1 random feature (√2 ≈ 1.41 → 1), 'all' → both
+  const features = maxFeaturesRF === 'sqrt'
+    ? [Math.random() < 0.5 ? 'x' : 'y']
+    : ['x', 'y'];
+
+  let bestImp = Infinity, bestF = null, bestT = null;
+  const n = arr.length, n0T = counts[0], n1T = counts[1];
+
+  for (const f of features) {
+    const sorted = arr.slice().sort((a, b) => a[f] - b[f]);
+    let n0L = 0, n1L = 0;
+    for (let i = 0; i < n - 1; i++) {
+      if (sorted[i].c === 0) n0L++; else n1L++;
+      if (sorted[i][f] >= sorted[i+1][f] - 0.01) continue;
+      const nL = i + 1, nR = n - nL;
+      const n0R = n0T - n0L, n1R = n1T - n1L;
+      const gL  = 1 - (n0L/nL)**2 - (n1L/nL)**2;
+      const gR  = 1 - (n0R/nR)**2 - (n1R/nR)**2;
+      const imp = (nL * gL + nR * gR) / n;
+      if (imp < bestImp) { bestImp = imp; bestF = f; bestT = (sorted[i][f] + sorted[i+1][f]) / 2; }
+    }
+  }
+
+  if (bestF === null) return makeLeaf();
+  const L = arr.filter(p => p[bestF] <= bestT);
+  const R = arr.filter(p => p[bestF] > bestT);
+  return { isLeaf: false, cls: majority(counts), counts, feature: bestF, threshold: bestT,
+           left: buildNodeRF(L, depth + 1), right: buildNodeRF(R, depth + 1) };
+}
+
+function getLeaf(node, x, y) {
+  if (node.isLeaf) return node;
+  const val = node.feature === 'x' ? x : y;
+  return getLeaf(val <= node.threshold ? node.left : node.right, x, y);
+}
+
+// ── Bootstrap sampling (N draws with replacement) ─────
+function bootstrapSample() {
+  const n = pts.length, sample = [];
+  for (let i = 0; i < n; i++) sample.push(pts[Math.floor(Math.random() * n)]);
+  return sample;
+}
+
+// ── Tree pool: pre-trained POOL_SIZE trees ─────────────
+function rebuildPool() {
+  treePool = [];
+  if (!pts.length || !pts.some(p => p.c === 0) || !pts.some(p => p.c === 1)) { poolDirty = false; return; }
+  for (let t = 0; t < POOL_SIZE; t++) treePool.push(buildNodeRF(bootstrapSample(), 0));
+  poolDirty = false;
+}
+function getForest() {
+  if (poolDirty) rebuildPool();
+  return treePool.slice(0, Math.min(nEstimators, treePool.length));
+}
+
+// ── Ensemble prediction: hard vote + soft vote ─────────
+function predictEnsemble(forest, x, y) {
+  if (!forest.length) return { dogVotes: 0, catVotes: 0, pDog: 0.5 };
+  let dogVotes = 0, totalDogProb = 0;
+  for (const tree of forest) {
+    const leaf = getLeaf(tree, x, y);
+    const tot  = leaf.counts[0] + leaf.counts[1];
+    if (leaf.cls === 1) dogVotes++;
+    totalDogProb += tot > 0 ? leaf.counts[1] / tot : 0.5;
+  }
+  return { dogVotes, catVotes: forest.length - dogVotes, pDog: totalDogProb / forest.length };
+}
+
+// ── Dataset: XOR-like 4-cluster ────────────────────────
+function seed() {
+  pts = []; query = null;
+  const clusters = [
+    { cx: 155, cy: 128, c: 0 }, { cx: 490, cy: 308, c: 0 },
+    { cx: 482, cy: 122, c: 1 }, { cx: 148, cy: 302, c: 1 },
+  ];
+  clusters.forEach(({ cx, cy, c }) => {
+    for (let i = 0; i < 18; i++)
+      pts.push({ x: cx + (Math.random() + Math.random() - 1) * 84,
+                 y: cy + (Math.random() + Math.random() - 1) * 68, c });
+  });
+  pts = pts.filter(p => p.x > 12 && p.x < W - 12 && p.y > 12 && p.y < H - 12);
+  poolDirty = true;
+}
+
+// ── Compute probability grid (reused for heatmap + boundary) ──
+function computeProbGrid(forest) {
+  const sx = W / OW, sy = H / OH;
+  const grid = [];
+  for (let py = 0; py < OH; py++) {
+    grid[py] = new Float32Array(OW);
+    for (let px = 0; px < OW; px++)
+      grid[py][px] = predictEnsemble(forest, px * sx, py * sy).pDog;
+  }
+  return grid;
+}
+
+function drawHeatmap(grid) {
+  const img = offCtx.createImageData(OW, OH);
+  const d   = img.data;
+  for (let py = 0; py < OH; py++) {
+    for (let px = 0; px < OW; px++) {
+      const pDog      = grid[py][px];
+      const certainty = Math.abs(pDog - 0.5) * 2;
+      const alpha     = isDark ? Math.round(certainty * 56) : Math.round(certainty * 72);
+      const i4 = (py * OW + px) * 4;
+      if (pDog < 0.5) { d[i4]=255; d[i4+1]=107; d[i4+2]=139; d[i4+3]=alpha; }
+      else            { d[i4]=79;  d[i4+1]=209; d[i4+2]=197; d[i4+3]=alpha; }
+    }
+  }
+  offCtx.putImageData(img, 0, 0);
+  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.drawImage(offCv, 0, 0, W, H); ctx.restore();
+}
+
+function drawBoundary(grid) {
+  const sx = W / OW, sy = H / OH;
+  ctx.strokeStyle = '#ffd479'; ctx.lineWidth = 2.5; ctx.setLineDash([]);
+  ctx.beginPath();
+  for (let r = 0; r < OH - 1; r++) {
+    for (let c = 0; c < OW - 1; c++) {
+      const x = c*sx, y = r*sy;
+      const v1=grid[r][c]-0.5, v2=grid[r][c+1]-0.5, v3=grid[r+1][c+1]-0.5, v4=grid[r+1][c]-0.5;
+      const pp = [];
+      if((v1>0)!==(v2>0)) pp.push({x:x+sx*(-v1/(v2-v1)),y});
+      if((v2>0)!==(v3>0)) pp.push({x:x+sx,y:y+sy*(-v2/(v3-v2))});
+      if((v3>0)!==(v4>0)) pp.push({x:x+sx*(-v4/(v3-v4)),y:y+sy});
+      if((v4>0)!==(v1>0)) pp.push({x,y:y+sy*(-v1/(v4-v1))});
+      if(pp.length===2){ctx.moveTo(pp[0].x,pp[0].y);ctx.lineTo(pp[1].x,pp[1].y);}
+      else if(pp.length===4){ctx.moveTo(pp[0].x,pp[0].y);ctx.lineTo(pp[1].x,pp[1].y);ctx.moveTo(pp[2].x,pp[2].y);ctx.lineTo(pp[3].x,pp[3].y);}
+    }
+  }
+  ctx.stroke();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = isDark ? '#1a1f2c' : '#d4daf0'; ctx.lineWidth = 1;
+  for (let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for (let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  const forest = getForest();
+  if (forest.length) {
+    const grid = computeProbGrid(forest);
+    drawHeatmap(grid);
+    drawBoundary(grid);
+  }
+
+  ctx.lineWidth = 1;
+  pts.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, Math.PI*2);
+    ctx.fillStyle = COL[p.c]; ctx.fill();
+    ctx.strokeStyle = isDark ? '#1a1f2c' : '#e0e8f8'; ctx.lineWidth = 1; ctx.stroke();
+  });
+
+  if (query) {
+    ctx.beginPath(); ctx.arc(query.x, query.y, 9, 0, Math.PI*2);
+    ctx.fillStyle = '#ffd479'; ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineWidth = 1;
+  }
+
+  report(query, forest);
+}
+
+// ── Prediction Card + Tree Vote Table ─────────────────
+function report(qry, forest) {
+  const tb = document.getElementById('tbody');
+  const vc = document.getElementById('verdict-card');
+  tb.innerHTML = '';
+
+  const warnParts = [];
+  if (nEstimators === 1)       warnParts.push('n=1: single tree \u2014 no ensemble benefit.');
+  else if (nEstimators >= 40)  warnParts.push(`n=${nEstimators}: approaching variance floor \u03c1\u03c3\u00b2 \u2014 diminishing returns.`);
+  if (maxDepthRF === 1)        warnParts.push('Depth 1: stumps \u2014 high bias per tree.');
+  if (maxFeaturesRF === 'all') warnParts.push('Max features = All: trees more correlated, less ensemble diversity.');
+  document.getElementById('warn').textContent = warnParts.join('  \u00b7  ');
+
+  if (!forest.length) {
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>${pts.length < 4 ? 'Add more training points' : 'Need both Cats and Dogs'}</div>`;
+    return;
+  }
+  if (!qry) {
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>`;
+    return;
+  }
+
+  const { dogVotes, catVotes, pDog } = predictEnsemble(forest, qry.x, qry.y);
+  const isDog       = dogVotes > catVotes;
+  const isTie       = dogVotes === catVotes;
+  const winnerVotes = isTie ? dogVotes : Math.max(dogVotes, catVotes);
+  const classLabel  = isTie ? 'Tie!' : (isDog ? 'Dog' : 'Cat');
+  const winColor    = isTie ? '#ffd479' : (isDog ? COL[1] : COL[0]);
+  const winBg       = isTie ? 'rgba(255,212,121,.1)' : (isDog ? 'rgba(79,209,197,.1)'   : 'rgba(255,107,139,.1)');
+  const winBorder   = isTie ? 'rgba(255,212,121,.28)': (isDog ? 'rgba(79,209,197,.28)'  : 'rgba(255,107,139,.28)');
+
+  const frac = winnerVotes / forest.length;
+  let statusLabel, statusColor;
+  if (isTie)           { statusLabel = 'Tied Vote \u26a0';   statusColor = '#ff9f9f'; }
+  else if (frac===1.0) { statusLabel = 'Unanimous';          statusColor = winColor;  }
+  else if (frac>=0.75) { statusLabel = 'Strong Majority';    statusColor = '#7acc5a'; }
+  else                 { statusLabel = 'Majority Vote';      statusColor = '#ffd479'; }
+
+  const gaugePct = Math.min(98, Math.max(2, (dogVotes / forest.length) * 100));
+  const tieColor = isDark ? 'rgba(255,255,255,.28)' : 'rgba(50,60,100,.4)';
+  const pillText = `${forest.length} Trees \u00b7 d=${maxDepthRF} \u00b7 feat=${maxFeaturesRF==='sqrt'?'\u221aM':'All'}`;
+
+  vc.innerHTML = `
+    <div class="vc-header">
+      <span class="vc-section-title">Prediction Result</span>
+      <span class="vc-model-pill">${pillText}</span>
+    </div>
+    <div class="vc-metrics">
+      <div class="vc-metric">
+        <span class="vc-metric-label">${isTie ? 'Vote Split' : 'Winning Votes'}</span>
+        <span class="vc-metric-value" style="color:${winColor}">${winnerVotes} / ${forest.length}</span>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Predicted Class</span>
+        <div class="vc-class-chip" style="background:${winBg};border:1px solid ${winBorder};">
+          <span class="vc-chip-dot" style="background:${winColor};box-shadow:0 0 5px ${winColor}70;"></span>
+          <span class="vc-chip-label" style="color:${winColor}">${classLabel}</span>
+        </div>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Confidence</span>
+        <div class="vc-status-row">
+          <span class="vc-status-dot" style="background:${statusColor};box-shadow:0 0 4px ${statusColor}80;"></span>
+          <span class="vc-status-text" style="color:${statusColor}">${statusLabel}</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="vc-gauge-bar vc-gauge-bar-rf">
+        <div class="vc-gauge-tick" style="left:50%"></div>
+        <div class="vc-gauge-needle" style="left:${gaugePct}%"></div>
+      </div>
+      <div class="vc-gauge-axis">
+        <span class="vc-gauge-axis-label" style="left:50%;color:${tieColor};">Tie</span>
+      </div>
+      <div class="vc-gauge-zones">
+        <span class="vc-gauge-zone-label" style="color:#ff6b8b;">&larr; Cats (Class A)</span>
+        <span class="vc-gauge-zone-label" style="color:#4fd1c5;">Dogs (Class B) &rarr;</span>
+      </div>
+    </div>`;
+
+  const showN = Math.min(forest.length, 8);
+  for (let t = 0; t < showN; t++) {
+    const leaf  = getLeaf(forest[t], qry.x, qry.y);
+    const tot   = leaf.counts[0] + leaf.counts[1];
+    const lpDog = tot > 0 ? leaf.counts[1] / tot : 0.5;
+    const vc_   = leaf.cls === 1 ? COL[1] : COL[0];
+    tb.innerHTML += `<tr>
+      <td>#${t+1}</td>
+      <td><span class="badge" style="background:${vc_};color:#0b0d13">${leaf.cls===1?'Dog':'Cat'}</span></td>
+      <td>${lpDog.toFixed(3)}</td>
+    </tr>`;
+  }
+  if (forest.length > 8)
+    tb.innerHTML += `<tr><td colspan="3" style="color:#4a5268;font-style:italic;font-size:11.5px;">\u2026 ${forest.length-8} more trees hidden</td></tr>`;
+
+  tb.innerHTML += `<tr style="background:rgba(255,212,121,0.08);">
+    <td><strong>Ensemble</strong></td>
+    <td><span class="badge" style="background:${winColor};color:#0b0d13">${classLabel} (${winnerVotes}/${forest.length})</span></td>
+    <td>${pDog.toFixed(3)} avg</td>
+  </tr>`;
+}
+
+// ── Event Listeners ───────────────────────────────────
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * (W / r.width);
+  const y = (e.clientY - r.top)  * (H / r.height);
+  if (addMode === 0) { query = { x, y }; }
+  else { pts.push({ x, y, c: addMode - 1 }); poolDirty = true; }
+  draw();
+});
+
+// n slider: just slices pool → instant, no rebuild
+document.getElementById('n-slider').addEventListener('input', e => {
+  nEstimators = +e.target.value;
+  document.getElementById('n-val').textContent = nEstimators;
+  draw();
+});
+// depth slider: changes tree structure → must rebuild
+document.getElementById('depth-slider').addEventListener('input', e => {
+  maxDepthRF = +e.target.value;
+  document.getElementById('depth-val').textContent = maxDepthRF;
+  poolDirty = true; draw();
+});
+// features toggle: changes split logic → must rebuild
+document.getElementById('features-btn').addEventListener('click', e => {
+  maxFeaturesRF = maxFeaturesRF === 'sqrt' ? 'all' : 'sqrt';
+  e.target.innerHTML = `Max Features: ${maxFeaturesRF === 'sqrt' ? '&radic;M' : 'All'}`;
+  poolDirty = true; draw();
+});
+document.getElementById('reseed').addEventListener('click', () => { seed(); draw(); });
+document.getElementById('mode-btn').addEventListener('click', e => {
+  addMode = (addMode + 1) % 3;
+  e.target.textContent = 'Add Mode: ' + ['Query Point','Cats','Dogs'][addMode];
+});
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
+  draw();
+});
+
+seed(); draw();
+</script>
+
+</body></html>
