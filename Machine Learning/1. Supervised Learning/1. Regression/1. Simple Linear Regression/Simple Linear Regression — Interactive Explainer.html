@@ -1,0 +1,774 @@
+<html data-type="html" data-identifier="a3f8b2e1-4c7d-4e5f-9a1b-2c3d4e5f6a7b" data-title="Simple Linear Regression — Interactive Explainer" data-version="2" width="1200" height="900"><head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0e1016;
+    color: #e8eaf0;
+    padding: 24px;
+    transition: background .25s, color .25s;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  header.main-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  header.main-header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color .25s; }
+  header.main-header h1 .badge-tag { font-size: 13px; background: #6c8cff; color: #0b0d13; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+  header.main-header p { font-size: 15px; color: #b9c0d0; margin: 0; line-height: 1.6; max-width: 900px; transition: color .25s; }
+
+  h2 { font-size: 18px; margin: 0 0 10px; color: #9fb4ff; border-bottom: 1px solid #262c3d; padding-bottom: 6px; transition: color .25s, border-color .25s; }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: #ffd479; transition: color .25s; }
+  p { line-height: 1.65; color: #b9c0d0; font-size: 14px; margin: 0 0 12px; transition: color .25s; }
+
+  .layout { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .panel { background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 20px; transition: background .25s, border-color .25s; }
+  .left  { flex: 1 1 620px; }
+  .right { flex: 1 1 360px; }
+  .full-width { width: 100%; margin-top: 20px; }
+
+  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; transition: background .25s; }
+  .controls { display: flex; align-items: center; gap: 12px; margin: 10px 0 2px; flex-wrap: wrap; }
+  label { font-size: 13px; color: #8b93a7; transition: color .25s; white-space: nowrap; }
+  input[type=range] { width: 130px; accent-color: #6c8cff; }
+  button { background: #6c8cff; color: #0b0d13; border: 0; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: filter .15s; }
+  button.ghost { background: #262c3d; color: #cfd6e6; transition: background .25s, color .25s; }
+  button:hover { filter: brightness(1.15); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  th { color: #8b93a7; font-weight: 600; transition: color .25s; }
+  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 12px; transition: color .25s; }
+  li { margin-bottom: 6px; }
+  .k-warn { color: #ff9f9f; font-size: 12px; min-height: 16px; margin-top: 2px; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #8b93a7; margin-top: 8px; flex-wrap: wrap; transition: color .25s; }
+  .dot   { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+  .lsamp { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; }
+  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #b9c0d0; margin-top: 14px; transition: background .25s, color .25s; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .card { background: #10141d; border: 1px solid #262c3d; border-radius: 10px; padding: 16px; transition: background .25s, border-color .25s; }
+  .card h3 { margin-top: 0; }
+  pre { background: #0b0d13; padding: 14px; border-radius: 8px; border: 1px solid #262c3d; font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 12.5px; color: #a9b7c6; overflow-x: auto; line-height: 1.5; transition: background .25s, border-color .25s, color .25s; }
+  code { font-family: 'Fira Code', Consolas, Monaco, monospace; background: #10141d; color: #9fb4ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; transition: background .25s, color .25s; }
+  .kw  { color: #cc7832; font-weight: bold; }
+  .fn  { color: #ff2f8b; }
+  .str { color: #6a8759; }
+  .cm  { color: #607080; font-style: italic; }
+  .tag { background: #262c3d; color: #4fd1c5; font-size: 11px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: bold; margin-bottom: 6px; display: inline-block; transition: background .25s; }
+  .warn-box { background: #1a1418; border-left: 3px solid #ff6b8b; padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; transition: background .25s; }
+
+  .verdict-card { background: linear-gradient(140deg,#10141f 0%,#0d1019 100%); border: 1px solid #1e2535; border-radius: 12px; padding: 16px; margin-top: 12px; transition: background .25s, border-color .25s; }
+  .vc-empty { display: flex; align-items: center; justify-content: center; gap: 10px; color: #38415a; font-size: 13px; padding: 12px 0; transition: color .25s; }
+  .vc-empty-ring { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed #38415a; flex-shrink: 0; transition: border-color .25s; }
+  .vc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #181f2e; transition: border-color .25s; }
+  .vc-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #424e6a; font-weight: 700; transition: color .25s; }
+  .vc-model-pill { background: #131826; border: 1px solid #222c3f; padding: 3px 10px; border-radius: 20px; font-size: 11px; color: #5c6e96; font-family: 'Fira Code', Consolas, monospace; transition: background .25s, border-color .25s, color .25s; }
+  .vc-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .vc-metric { display: flex; flex-direction: column; gap: 4px; }
+  .vc-metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #424e6a; font-weight: 600; transition: color .25s; }
+  .vc-metric-value { font-size: 22px; font-weight: 800; font-family: 'Fira Code', Consolas, monospace; line-height: 1; letter-spacing: -.5px; }
+  .vc-status-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .vc-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .vc-status-text { font-size: 12px; font-weight: 600; }
+  .vc-gauge-bar { position: relative; height: 10px; border-radius: 5px; overflow: visible; }
+  .vc-gauge-bar-slr { background: linear-gradient(to right, #4a90e2 0%, rgba(74,144,226,.4) 35%, rgba(24,30,46,.95) 45%, rgba(24,30,46,.95) 55%, rgba(255,154,60,.4) 65%, #ff9a3c 100%); }
+  .vc-gauge-tick { position: absolute; top: -4px; width: 1px; height: 18px; background: rgba(255,255,255,.18); transform: translateX(-50%); transition: background .25s; }
+  .vc-gauge-needle { position: absolute; top: -6px; width: 3px; height: 22px; background: #ffd479; border-radius: 3px; transform: translateX(-50%); box-shadow: 0 0 8px rgba(255,212,121,.9),0 0 18px rgba(255,212,121,.3); z-index: 2; transition: left .12s ease; }
+  .vc-gauge-axis { position: relative; height: 16px; margin-top: 5px; }
+  .vc-gauge-axis-label { position: absolute; font-size: 10px; transform: translateX(-50%); font-family: 'Fira Code', Consolas, monospace; }
+  .vc-gauge-zones { display: flex; justify-content: space-between; margin-top: 2px; }
+  .vc-gauge-zone-label { font-size: 10.5px; opacity: .65; }
+
+  #theme-toggle {
+    position: fixed; top: 20px; right: 24px;
+    width: 36px; height: 36px; padding: 0;
+    border-radius: 50%; background: #1e2436;
+    border: 1px solid #333d55; color: inherit;
+    font-size: 16px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; transition: background .25s, border-color .25s, transform .15s;
+  }
+  #theme-toggle:hover { filter: none; transform: scale(1.1); }
+
+  body.light { background: #f0f3fa; color: #1a1f2e; }
+  body.light #theme-toggle { background: #e4e8f5; border-color: #c4cce0; }
+  body.light header.main-header { border-bottom-color: #d4daf0; }
+  body.light header.main-header h1 { color: #1a1f2e; }
+  body.light header.main-header p { color: #4a5270; }
+  body.light h2 { color: #3b5bdb; border-bottom-color: #d4daf0; }
+  body.light h3 { color: #9a7000; }
+  body.light p { color: #4a5270; }
+  body.light ol, body.light ul { color: #4a5270; }
+  body.light .panel { background: #ffffff; border-color: #d4daf0; }
+  body.light .card { background: #f5f7fe; border-color: #d4daf0; }
+  body.light canvas { background: #eaeefc; }
+  body.light pre { background: #f2f4fc; border-color: #d4daf0; color: #2d3660; }
+  body.light code { background: #e8edfb; color: #2d52c4; }
+  body.light .kw  { color: #b05800; }
+  body.light .fn  { color: #b5096a; }
+  body.light .str { color: #3a6e2a; }
+  body.light .cm  { color: #5a6a7a; }
+  body.light th { color: #6878a8; }
+  body.light td, body.light th { border-bottom-color: #d4daf0; }
+  body.light label { color: #6878a8; }
+  body.light .legend { color: #6878a8; }
+  body.light button.ghost { background: #e4e8f5; color: #3a4268; }
+  body.light .tag { background: #e4e8fa; color: #1d7a6a; }
+  body.light .tip { background: #eef2ff; color: #3d4a6e; }
+  body.light .warn-box { background: #fff5f5; }
+  body.light .k-warn { color: #c0392b; }
+  body.light .verdict-card { background: linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color: #d0d8ee; }
+  body.light .vc-header { border-bottom-color: #dce4f4; }
+  body.light .vc-section-title { color: #8594b8; }
+  body.light .vc-model-pill { background: #e8edfb; border-color: #d0d8ee; color: #5868a0; }
+  body.light .vc-metric-label { color: #8594b8; }
+  body.light .vc-empty { color: #a8b2cc; }
+  body.light .vc-empty-ring { border-color: #a8b2cc; }
+  body.light .vc-gauge-bar-slr { background: linear-gradient(to right, #4a90e2 0%, rgba(74,144,226,.45) 35%, rgba(198,206,226,.95) 45%, rgba(198,206,226,.95) 55%, rgba(255,154,60,.45) 65%, #ff9a3c 100%); }
+  body.light .vc-gauge-tick { background: rgba(0,0,0,.15); }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
+
+<div class="wrap">
+
+  <header class="main-header">
+    <h1 id="main-title">
+      Simple Linear Regression
+      <span class="badge-tag">Interactive Guide</span>
+    </h1>
+    <p id="main-desc">Simple Linear Regression models the relationship between one input feature (x) and one continuous output (y) as a straight line: <strong>ŷ = w·x + b</strong>. The slope w and intercept b are found by minimising the Mean Squared Error using <strong>Gradient Descent</strong> — an iterative optimisation algorithm that nudges the line step-by-step toward the best fit. This is the foundational building block of all of deep learning.</p>
+  </header>
+
+  <div class="layout">
+    <div class="panel left">
+      <h2 id="h-canvas">Interactive Playground — Gradient Descent Live</h2>
+      <canvas id="plot" width="640" height="420"></canvas>
+
+      <div class="controls">
+        <label for="lr-slider" title="Learning rate η: controls how large each gradient descent step is">η (Learning Rate) = <strong id="lr-val">0.050</strong></label>
+        <input type="range" id="lr-slider" min="0.001" max="0.400" step="0.001" value="0.050">
+        <label style="color:#8b93a7;">Step: <strong id="iter-val" style="color:#ffd479;">0</strong></label>
+        <label style="color:#8b93a7;">MSE: <strong id="mse-val" style="color:#ffd479;">—</strong></label>
+      </div>
+
+      <div class="controls">
+        <button id="step-btn" title="Perform exactly one gradient descent step">Step →</button>
+        <button id="run-btn" title="Animate gradient descent until convergence">▶ Run GD</button>
+        <button id="reset-btn" class="ghost" title="Reset weights to zero and restart">Reset</button>
+        <button id="reseed-btn" class="ghost">New Dataset</button>
+        <button id="mode-btn">Add Mode: Query</button>
+      </div>
+
+      <div class="k-warn" id="warn"></div>
+      <div class="legend">
+        <span><span class="dot" style="background:#7b93db;"></span>Data Points</span>
+        <span><span class="lsamp" style="background:#ffd479;height:2.5px;"></span>Regression Line (current)</span>
+        <span><span class="lsamp" style="border-top:1.5px dashed rgba(255,212,121,0.25);"></span>Starting Line</span>
+        <span><span class="lsamp" style="border-top:2px solid rgba(255,107,139,0.7);"></span>Residuals (ŷ&gt;y)</span>
+        <span><span class="lsamp" style="border-top:2px solid rgba(79,209,197,0.7);"></span>Residuals (ŷ&lt;y)</span>
+      </div>
+
+      <div class="verdict-card" id="verdict-card">
+        <div class="vc-empty"><div class="vc-empty-ring"></div>Click Run GD or Step to train — then click the canvas to query a prediction</div>
+      </div>
+
+      <table id="tbl">
+        <thead id="tbl-head">
+          <tr><th>Parameter</th><th>Value</th><th>Interpretation</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel right">
+      <h2 id="h-how">How Simple Linear Regression Works</h2>
+      <ol>
+        <li><strong>The Model — A Straight Line:</strong> We predict y using ŷ = w·x + b. The slope w tells us: "for every 1 unit increase in x, y changes by w units." The intercept b is the predicted y when x = 0. We start with w = 0, b = 0 (the flat line at zero) and use gradient descent to improve these parameters.</li>
+        <li><strong>The Loss — Mean Squared Error:</strong> To measure how wrong our current line is, we compute the vertical gap between each data point and the line (the <em>residual</em> = ŷ−y), square it (penalises large errors more), and average all N of them. MSE = (1/N)Σ(ŷ<sub>i</sub>−y<sub>i</sub>)². Lower is better; 0 = perfect fit.</li>
+        <li><strong>The Gradient — Which Direction to Move?</strong> The gradient of MSE tells us the direction of steepest increase for each parameter:
+          <ul style="margin-top:6px;">
+            <li>∂MSE/∂w = (2/N)Σ(ŷ<sub>i</sub>−y<sub>i</sub>)·x<sub>i</sub></li>
+            <li>∂MSE/∂b = (2/N)Σ(ŷ<sub>i</sub>−y<sub>i</sub>)</li>
+          </ul>
+          Moving in the <em>opposite</em> direction decreases MSE.
+        </li>
+        <li><strong>Gradient Descent — Iterative Refinement:</strong> Update w ← w − η·∂MSE/∂w and b ← b − η·∂MSE/∂b. Repeat. Each step moves the line closer to the best fit. The learning rate η controls how large each step is — too large and the line overshoots, too small and convergence is very slow.</li>
+      </ol>
+      <div class="tip"><strong>Try it:</strong> Click <strong>Step →</strong> a few times to see each gradient descent update move the line. Then click <strong>▶ Run GD</strong> to watch full convergence. After it converges, click <strong>Reset</strong> and raise η to 0.4 — watch the line oscillate and overshoot! Then try η = 0.001 to see slow convergence. Finally, click the canvas to query a prediction for any x value.</div>
+    </div>
+  </div>
+
+  <!-- Deep Dive -->
+  <div class="panel full-width">
+    <h2 id="h-deep-dive">Detailed Algorithm Explanation</h2>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-mse">1. Why MSE? The Loss Function Explained</h3>
+        <p>We need a single number that measures how wrong our current line is across all data points. MSE is the standard choice — here's why each design decision matters:</p>
+        <ul>
+          <li><strong>MSE formula:</strong><br>
+            <code>MSE = (1/N) Σ(ŷ<sub>i</sub> − y<sub>i</sub>)<sup>2</sup></code>
+          </li>
+          <li><strong>Why squared (not absolute)?</strong> Squaring makes large errors <em>disproportionately expensive</em> — a residual of 10 contributes 100 to MSE, forcing the model to prioritise reducing its worst mistakes. It also makes the loss function smooth and differentiable everywhere, which is essential for gradient descent.</li>
+          <li><strong>Why (1/N)?</strong> Averaging over N points makes MSE independent of dataset size — doubling the data doesn't double the loss.</li>
+          <li><strong>RMSE = √MSE</strong> is often reported because it is in the <em>same units as y</em>, making it directly interpretable as the typical prediction error.</li>
+          <li><strong>Why GD is guaranteed to work here:</strong> MSE is a <em>strictly convex</em> function of w and b (a quadratic bowl with one unique minimum). There are no local minima — gradient descent always finds the global optimum.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-gd">2. Gradient Descent — The Maths Behind Each Step</h3>
+        <p>Gradient descent uses calculus to find which direction to nudge each parameter to decrease MSE. Here is the full derivation for one step:</p>
+        <ul>
+          <li><strong>Step 1 — Compute residuals:</strong> For the current w and b, compute err<sub>i</sub> = ŷ<sub>i</sub> − y<sub>i</sub> = (w·x<sub>i</sub> + b) − y<sub>i</sub> for each training point.</li>
+          <li><strong>Step 2 — Compute gradients (chain rule):</strong><br>
+            <code>∂MSE/∂w = (2/N) Σ err<sub>i</sub> · x<sub>i</sub></code><br>
+            <code>∂MSE/∂b = (2/N) Σ err<sub>i</sub></code>
+          </li>
+          <li><strong>Step 3 — Update parameters (step opposite the gradient):</strong><br>
+            <code>w ← w − η · ∂MSE/∂w</code><br>
+            <code>b ← b − η · ∂MSE/∂b</code>
+          </li>
+          <li><strong>Learning rate η:</strong> Controls step size. If η is too large, the update overshoots the minimum and MSE oscillates. If too small, convergence is very slow. The "Goldilocks" value is typically found by tuning.</li>
+          <li><strong>Convergence:</strong> Stop when the gradient magnitude falls below a threshold (∇J ≈ 0) or after a fixed number of iterations. At the minimum, ∂MSE/∂w = 0 and ∂MSE/∂b = 0 exactly.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Use Cases -->
+  <div class="panel full-width">
+    <h2 id="h-usecases">Best Use Cases for Linear Regression</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">Real Estate</span>
+        <h3 id="h-housing">House Price Prediction</h3>
+        <p>Predicting sale price from a single strong predictor — floor area, number of rooms, or distance to city centre. Linear regression is the first baseline every housing analyst runs before trying complex tree-based or neural-network models. Its coefficients are directly interpretable: "each additional square metre adds £2,300 to the price."</p>
+      </div>
+      <div class="card">
+        <span class="tag">Marketing</span>
+        <h3 id="h-sales">Sales &amp; Advertising Forecasting</h3>
+        <p>Modelling how TV spend, online ad budget, or store footfall linearly drives revenue. The slope directly quantifies the return on investment: "each £1,000 increase in ad spend yields £4,200 in incremental revenue." This interpretability makes linear regression the standard tool for marketing mix modelling.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Medicine</span>
+        <h3 id="h-dosage">Drug Dosage Calibration</h3>
+        <p>Relating patient body weight or surface area to the correct drug dosage. The linear relationship is often pharmacologically motivated — clearance rates scale linearly with body mass. Here, interpretability and simplicity are critical for regulatory approval and clinical adoption.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Climate Science</span>
+        <h3 id="h-climate">Trend Analysis &amp; Forecasting</h3>
+        <p>Fitting a linear trend to time-series data: CO&amp;sub2; concentration rising over decades, global temperature anomalies, or sea-level rise. The slope becomes the <em>rate of change</em> — a scientifically meaningful quantity. Linear regression on log-transformed data models exponential growth.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Implementation — FIXED: both methods now have identical steps -->
+  <div class="panel full-width">
+    <h2 id="h-impl">Implementation in Scikit-Learn</h2>
+    <p>There are two distinct ways to fit a linear regression in sklearn: <strong>Ordinary Least Squares</strong> (exact closed-form solution — no gradient descent) and <strong>Stochastic Gradient Descent</strong> (iterative, required for very large datasets). They solve the same problem but with different algorithms and different sensitivity to feature scaling.</p>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-params">OLS vs SGD — When to Use Which</h3>
+        <ul>
+          <li><strong><code>LinearRegression</code> (OLS):</strong> Uses Singular Value Decomposition to find the mathematically exact optimal w and b in a <em>single computation</em>. Not iterative — no learning rate, no convergence concerns. <strong>Scale-invariant: no StandardScaler needed.</strong> Best for small-to-medium datasets (&lt;100k rows).</li>
+          <li><strong><code>SGDRegressor</code> (Gradient Descent):</strong> Updates parameters iteratively on mini-batches (stochastic). <strong>Requires StandardScaler</strong> — unscaled features make gradient magnitudes wildly unequal, causing divergence. Best for very large datasets or online learning where data arrives incrementally.</li>
+          <li><strong>Key parameters for SGDRegressor:</strong>
+            <ul>
+              <li><code>eta0</code>: initial learning rate (default 0.01)</li>
+              <li><code>learning_rate</code>: schedule — <code>'constant'</code>, <code>'invscaling'</code> (decreases over time), <code>'adaptive'</code></li>
+              <li><code>max_iter</code>: maximum passes over the data</li>
+              <li><code>tol</code>: convergence tolerance (stop when improvement &lt; tol)</li>
+              <li><code>penalty</code>: <code>'l2'</code> (Ridge), <code>'l1'</code> (Lasso), <code>'elasticnet'</code></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- FIXED: both methods now follow create → fit → predict → coefficients → evaluate -->
+      <div>
+        <h3 id="h-code">Scikit-Learn Code</h3>
+        <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.linear_model  <span class="kw">import</span> LinearRegression, SGDRegressor
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline      <span class="kw">import</span> make_pipeline
+<span class="kw">from</span> sklearn.metrics       <span class="kw">import</span> mean_squared_error, r2_score
+
+<span class="cm"># ── Method 1: Ordinary Least Squares ────────────────────
+# Exact SVD solution — no iterations, no scaling required</span>
+
+<span class="cm"># 1. Create</span>
+ols = <span class="fn">LinearRegression</span>()
+<span class="cm"># 2. Fit</span>
+ols.<span class="fn">fit</span>(X_train, y_train)
+<span class="cm"># 3. Predict</span>
+y_pred_ols = ols.<span class="fn">predict</span>(X_test)
+<span class="cm"># 4. Extract coefficients</span>
+<span class="fn">print</span>(<span class="str">f"Slope:     {ols.coef_[0]:.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"Intercept: {ols.intercept_:.4f}"</span>)
+<span class="cm"># 5. Evaluate</span>
+<span class="fn">print</span>(<span class="str">f"R²:        {r2_score(y_test, y_pred_ols):.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"RMSE:      {np.sqrt(mean_squared_error(y_test, y_pred_ols)):.4f}"</span>)
+
+<span class="cm"># ── Method 2: SGD Regressor ─────────────────────────────
+# Gradient descent — StandardScaler is mandatory; omitting it causes divergence</span>
+
+<span class="cm"># 1. Create (StandardScaler must be inside the pipeline)</span>
+sgd = <span class="fn">make_pipeline</span>(
+    <span class="fn">StandardScaler</span>(),
+    <span class="fn">SGDRegressor</span>(
+        eta0=<span class="str">0.01</span>,                  <span class="cm"># Initial learning rate</span>
+        learning_rate=<span class="str">'invscaling'</span>,  <span class="cm"># LR decreases each step</span>
+        max_iter=<span class="str">1000</span>,
+        tol=<span class="str">1e-4</span>,                   <span class="cm"># Stop when improvement &lt; tol</span>
+        penalty=<span class="str">'l2'</span>,               <span class="cm"># Ridge regularisation</span>
+        random_state=<span class="str">42</span>
+    )
+)
+<span class="cm"># 2. Fit</span>
+sgd.<span class="fn">fit</span>(X_train, y_train)
+<span class="cm"># 3. Predict</span>
+y_pred_sgd = sgd.<span class="fn">predict</span>(X_test)
+<span class="cm"># 4. Extract coefficients (stored in normalised feature space)</span>
+sgd_reg = sgd.named_steps[<span class="str">'sgdregressor'</span>]
+<span class="fn">print</span>(<span class="str">f"Slope (normalised): {sgd_reg.coef_[0]:.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"Intercept:          {sgd_reg.intercept_[0]:.4f}"</span>)
+<span class="cm"># 5. Evaluate</span>
+<span class="fn">print</span>(<span class="str">f"R²:                 {r2_score(y_test, y_pred_sgd):.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"RMSE:               {np.sqrt(mean_squared_error(y_test, y_pred_sgd)):.4f}"</span>)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pitfalls -->
+  <div class="panel full-width">
+    <h2 id="h-pitfalls">Crucial Considerations for Linear Regression</h2>
+    <div class="warn-box">
+      <strong style="color:#ff6b8b;">1. SGD Diverges Without Feature Scaling — OLS Does Not</strong>
+      <p style="margin-top:4px;margin-bottom:0;">If you use gradient descent (<code>SGDRegressor</code>) with unscaled features, gradient magnitudes will be wildly different in each dimension — a feature measured in thousands will produce gradients thousands of times larger than a feature measured in single digits. The update step sizes become unbalanced, causing the algorithm to bounce chaotically rather than converge. <strong>Always use <code>StandardScaler</code> inside a pipeline with any gradient-based linear model.</strong> <code>LinearRegression</code> (OLS) is immune to this — it computes the exact algebraic solution regardless of feature scale.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 id="h-linearity">2. Linearity Assumption May Not Hold</h3>
+        <p>Linear regression assumes y and x have a linear relationship. In reality, many real-world relationships are non-linear (e.g., diminishing returns in advertising, exponential disease spread). Always plot your data first (residuals vs. fitted values). If you see a clear curved pattern in the residuals, the linear model is fundamentally misspecified — consider polynomial features (<code>PolynomialFeatures</code>), log transformations, or a non-linear model.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-outliers">3. Squared Loss Amplifies Outlier Influence</h3>
+        <p>Because MSE <em>squares</em> the residuals, a single outlier with a residual of 50 contributes 2,500 to the loss — potentially more than dozens of normal points combined. The fitted line gets pulled disproportionately toward outliers. For outlier-robust regression, use <strong>Huber loss</strong> (<code>HuberRegressor</code> in sklearn), which behaves like squared loss for small residuals but linearly for large ones.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-underfit">4. Model May Underfit Non-Linear Data</h3>
+        <p>Simple linear regression has only two parameters (w, b) — a very low capacity model. If the true relationship involves interactions, curvature, or thresholds, the linear model will systematically underfit. Check the R² score: values below 0.7 often signal that a more flexible model (polynomial regression, decision tree, or neural network) would better capture the underlying pattern.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-extrap">5. Extrapolation Is Unreliable</h3>
+        <p>A linear model confidently predicts values far outside the training range — but these extrapolated predictions may be physically impossible or wildly wrong. A model trained on house sizes 50–200 m² will predict a 0 m² house has a positive (nonsensical) value, or a 1,000 m² house has an astronomically high price. Always flag when a prediction falls outside the training range and treat it with caution.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const cv  = document.getElementById('plot');
+const ctx = cv.getContext('2d');
+const W   = cv.width, H = cv.height;
+
+const MAR = { L: 60, R: 20, T: 24, B: 50 };
+const PW  = W - MAR.L - MAR.R;
+const PH  = H - MAR.T - MAR.B;
+
+let pts = [], query = null, addMode = false, isDark = true;
+let isRunning = false, animId = null;
+const MAX_ITER = 600;
+
+let lr = 0.05;
+let w = 0, b = 0;
+let iteration = 0, lossHistory = [];
+let xMean = 0, xStd = 1;
+let dxMin = 0, dxMax = 10, dyMin = 0, dyMax = 60;
+
+function toScreen(dx, dy) {
+  return {
+    x: MAR.L + (dx - dxMin) / (dxMax - dxMin) * PW,
+    y: MAR.T + (1 - (dy - dyMin) / (dyMax - dyMin)) * PH
+  };
+}
+function fromScreen(sx, sy) {
+  return {
+    x: (sx - MAR.L) / PW * (dxMax - dxMin) + dxMin,
+    y: (1 - (sy - MAR.T) / PH) * (dyMax - dyMin) + dyMin
+  };
+}
+
+function niceTicks(lo, hi, n) {
+  const range = hi - lo;
+  const rawStep = range / n;
+  const exp = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const niceStep = [1,2,2.5,5,10].map(f => f*exp).find(s => s >= rawStep) || exp;
+  const start = Math.ceil(lo / niceStep) * niceStep;
+  const ticks = [];
+  for (let v = start; v <= hi + niceStep * 0.01; v += niceStep)
+    ticks.push(parseFloat(v.toFixed(10)));
+  return ticks;
+}
+
+function updateNorm() {
+  if (!pts.length) { xMean = 0; xStd = 1; return; }
+  const xs = pts.map(p => p.x);
+  xMean = xs.reduce((s,v) => s+v, 0) / xs.length;
+  const vr = xs.reduce((s,v) => s+(v-xMean)**2, 0) / xs.length;
+  xStd = Math.sqrt(vr) || 1;
+}
+
+function predictY(x) { return w * ((x - xMean) / xStd) + b; }
+function dispSlope()     { return w / xStd; }
+function dispIntercept() { return b - w * xMean / xStd; }
+function computeMSE() {
+  if (!pts.length) return 0;
+  return pts.reduce((s, p) => s + (predictY(p.x) - p.y)**2, 0) / pts.length;
+}
+
+function updateDataRange() {
+  if (!pts.length) { dxMin=0; dxMax=10; dyMin=0; dyMax=60; return; }
+  const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+  const xr = Math.max(...xs) - Math.min(...xs);
+  const yr = Math.max(...ys) - Math.min(...ys);
+  dxMin = Math.min(...xs) - xr * 0.12;
+  dxMax = Math.max(...xs) + xr * 0.12;
+  dyMin = Math.min(...ys) - yr * 0.15;
+  dyMax = Math.max(...ys) + yr * 0.20;
+}
+
+function seed() {
+  stopAnim();
+  pts = [];
+  const trueW = 5.5 + (Math.random() - 0.5) * 2;
+  const trueB = 28 + (Math.random() - 0.5) * 12;
+  for (let i = 0; i < 28; i++) {
+    const x = 1 + Math.random() * 8.5;
+    const noise = (Math.random() + Math.random() + Math.random() - 1.5) * 7;
+    pts.push({ x, y: trueW * x + trueB + noise });
+  }
+  query = null;
+  updateNorm();
+  updateDataRange();
+  resetGD();
+}
+
+function resetGD() {
+  stopAnim();
+  w = 0; b = 0; iteration = 0; lossHistory = [];
+  updateIterDisplay();
+}
+
+function doOneStep() {
+  if (!pts.length || iteration >= MAX_ITER) { stopAnim(); return; }
+  const n = pts.length;
+  let dw = 0, db = 0;
+  for (const p of pts) {
+    const xn = (p.x - xMean) / xStd;
+    const err = w * xn + b - p.y;
+    dw += err * xn;
+    db += err;
+  }
+  w -= lr * (2 / n) * dw;
+  b -= lr * (2 / n) * db;
+  iteration++;
+  lossHistory.push(computeMSE());
+  updateIterDisplay();
+}
+
+function updateIterDisplay() {
+  document.getElementById('iter-val').textContent = iteration;
+  const mse = computeMSE();
+  document.getElementById('mse-val').textContent = pts.length ? mse.toFixed(2) : '—';
+}
+
+function stopAnim() {
+  isRunning = false;
+  clearTimeout(animId);
+  const btn = document.getElementById('run-btn');
+  if (btn) btn.textContent = '\u25b6 Run GD';
+}
+
+function startAnim() {
+  isRunning = true;
+  document.getElementById('run-btn').textContent = '\u23f8 Pause';
+  function step() {
+    if (!isRunning) return;
+    doOneStep();
+    draw();
+    if (iteration < MAX_ITER) animId = setTimeout(step, 30);
+    else stopAnim();
+  }
+  animId = setTimeout(step, 30);
+}
+
+function drawAxes() {
+  const axisCol = isDark ? 'rgba(200,215,235,0.45)' : 'rgba(30,45,90,0.4)';
+  const tickCol = isDark ? 'rgba(200,215,235,0.25)' : 'rgba(30,45,90,0.2)';
+  const labelCol = isDark ? 'rgba(180,195,220,0.70)' : 'rgba(40,55,95,0.65)';
+  const gridCol = isDark ? 'rgba(30,38,58,0.9)' : 'rgba(200,210,230,0.7)';
+  const xTicks = niceTicks(dxMin, dxMax, 6);
+  const yTicks = niceTicks(dyMin, dyMax, 5);
+
+  ctx.strokeStyle = gridCol; ctx.lineWidth = 1;
+  xTicks.forEach(tx => { const sx = toScreen(tx, dyMin).x; ctx.beginPath(); ctx.moveTo(sx, MAR.T); ctx.lineTo(sx, H - MAR.B); ctx.stroke(); });
+  yTicks.forEach(ty => { const sy = toScreen(dxMin, ty).y; ctx.beginPath(); ctx.moveTo(MAR.L, sy); ctx.lineTo(W - MAR.R, sy); ctx.stroke(); });
+
+  ctx.strokeStyle = axisCol; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(MAR.L, MAR.T); ctx.lineTo(MAR.L, H - MAR.B); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(MAR.L, H - MAR.B); ctx.lineTo(W - MAR.R, H - MAR.B); ctx.stroke();
+
+  ctx.strokeStyle = tickCol; ctx.lineWidth = 1;
+  ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = labelCol;
+  xTicks.forEach(tx => {
+    const sx = toScreen(tx, dyMin).x;
+    ctx.beginPath(); ctx.moveTo(sx, H - MAR.B); ctx.lineTo(sx, H - MAR.B + 5); ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.fillText(Number.isInteger(tx) ? tx : tx.toFixed(1), sx, H - MAR.B + 17);
+  });
+  yTicks.forEach(ty => {
+    const sy = toScreen(dxMin, ty).y;
+    ctx.beginPath(); ctx.moveTo(MAR.L - 5, sy); ctx.lineTo(MAR.L, sy); ctx.stroke();
+    ctx.textAlign = 'right';
+    ctx.fillText(Number.isInteger(ty) ? ty : ty.toFixed(1), MAR.L - 8, sy + 4);
+  });
+
+  ctx.fillStyle = isDark ? 'rgba(150,170,205,0.65)' : 'rgba(50,65,105,0.6)';
+  ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('x  (Feature)', MAR.L + PW / 2, H - 4);
+  ctx.save();
+  ctx.translate(12, MAR.T + PH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('y  (Target)', 0, 0);
+  ctx.restore();
+}
+
+function drawGhostLine() {
+  if (iteration === 0) return;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(MAR.L, MAR.T, PW, PH); ctx.clip();
+  ctx.strokeStyle = isDark ? 'rgba(255,212,121,0.12)' : 'rgba(180,140,0,0.12)';
+  ctx.lineWidth = 1.5; ctx.setLineDash([4, 6]);
+  ctx.beginPath();
+  ctx.moveTo(toScreen(dxMin, 0).x, toScreen(dxMin, 0).y);
+  ctx.lineTo(toScreen(dxMax, 0).x, toScreen(dxMax, 0).y);
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawRegressionLine() {
+  if (!pts.length) return;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(MAR.L, MAR.T, PW, PH); ctx.clip();
+  ctx.strokeStyle = '#ffd479'; ctx.lineWidth = 2.5; ctx.setLineDash([]);
+  const s0 = toScreen(dxMin, predictY(dxMin));
+  const s1 = toScreen(dxMax, predictY(dxMax));
+  ctx.beginPath(); ctx.moveTo(s0.x, s0.y); ctx.lineTo(s1.x, s1.y); ctx.stroke();
+  ctx.restore();
+}
+
+function drawResiduals() {
+  if (!pts.length) return;
+  pts.forEach(p => {
+    const yh = predictY(p.x);
+    const sp = toScreen(p.x, p.y), sl = toScreen(p.x, yh);
+    ctx.strokeStyle = yh > p.y ? 'rgba(79,209,197,0.55)' : 'rgba(255,107,139,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sl.x, sl.y); ctx.stroke();
+  });
+}
+
+function drawDataPoints() {
+  pts.forEach(p => {
+    const s = toScreen(p.x, p.y);
+    ctx.beginPath(); ctx.arc(s.x, s.y, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#7b93db'; ctx.fill();
+    ctx.strokeStyle = isDark ? '#0b0d13' : '#dce4f8'; ctx.lineWidth = 1.2; ctx.stroke();
+  });
+}
+
+function drawQuery() {
+  if (query === null) return;
+  const yPred = predictY(query);
+  const sx = toScreen(query, dyMin).x;
+  const syp = toScreen(query, yPred).y;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(MAR.L, MAR.T, PW, PH); ctx.clip();
+  ctx.strokeStyle = 'rgba(255,212,121,0.6)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(sx, MAR.T); ctx.lineTo(sx, H - MAR.B); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(MAR.L, syp); ctx.lineTo(sx, syp); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(sx, syp, 7, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffd479'; ctx.fill();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.restore();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  drawAxes();
+  if (pts.length) {
+    drawGhostLine();
+    drawResiduals();
+    drawRegressionLine();
+    drawDataPoints();
+    drawQuery();
+  }
+  report();
+}
+
+function report() {
+  const tb   = document.getElementById('tbody');
+  const vc   = document.getElementById('verdict-card');
+  const head = document.getElementById('tbl-head');
+  tb.innerHTML = '';
+
+  const wp = [];
+  if (!pts.length) wp.push('Generate a dataset first.');
+  else if (iteration === 0) wp.push('Click Step or Run GD to start gradient descent.');
+  if (lr >= 0.25)  wp.push(`\u03b7=${lr.toFixed(3)}: large \u2014 watch for oscillation.`);
+  if (lr <= 0.003) wp.push(`\u03b7=${lr.toFixed(3)}: very small \u2014 convergence will be slow.`);
+  document.getElementById('warn').textContent = wp.join('  \u00b7  ');
+
+  if (!pts.length) {
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>Click "New Dataset" to generate training data</div>`;
+    return;
+  }
+
+  const mse = computeMSE(), rmse = Math.sqrt(mse);
+  const wD  = dispSlope(), bD = dispIntercept();
+  let mseColor = '#7acc5a';
+  if (mse > 200) mseColor = '#ff9f9f';
+  else if (mse > 80) mseColor = '#ffd479';
+
+  const pillText = `Step ${iteration} \u00b7 \u03b7=${lr.toFixed(3)} \u00b7 MSE=${mse.toFixed(1)}`;
+
+  if (query === null) {
+    head.innerHTML = '<tr><th>Parameter</th><th>Value</th><th>Interpretation</th></tr>';
+    vc.innerHTML = `
+      <div class="vc-header">
+        <span class="vc-section-title">Current Model State</span>
+        <span class="vc-model-pill">${pillText}</span>
+      </div>
+      <div class="vc-metrics">
+        <div class="vc-metric">
+          <span class="vc-metric-label">Slope (w)</span>
+          <span class="vc-metric-value" style="color:#ffd479">${(wD>=0?'+':'')}${wD.toFixed(3)}</span>
+        </div>
+        <div class="vc-metric">
+          <span class="vc-metric-label">Intercept (b)</span>
+          <span class="vc-metric-value" style="color:#9fb4ff">${(bD>=0?'+':'')}${bD.toFixed(2)}</span>
+        </div>
+        <div class="vc-metric">
+          <span class="vc-metric-label">RMSE</span>
+          <span class="vc-metric-value" style="color:${mseColor}">${rmse.toFixed(2)}</span>
+          <div class="vc-status-row">
+            <span class="vc-status-dot" style="background:${mseColor};"></span>
+            <span class="vc-status-text" style="color:${mseColor}">${iteration===0?'Not trained':mse<30?'Good fit':mse<80?'Converging':'Still training'}</span>
+          </div>
+        </div>
+      </div>`;
+    tb.innerHTML = `
+      <tr><td>Slope w</td><td>${(wD>=0?'+':'')}${wD.toFixed(3)}</td><td>&Delta;y per unit x</td></tr>
+      <tr><td>Intercept b</td><td>${(bD>=0?'+':'')}${bD.toFixed(2)}</td><td>ŷ when x = 0</td></tr>
+      <tr><td>MSE</td><td>${mse.toFixed(3)}</td><td>(1/N)&Sigma;(ŷ&minus;y)&sup2;</td></tr>
+      <tr><td>RMSE</td><td>${rmse.toFixed(3)}</td><td>&radic;MSE (same units as y)</td></tr>
+      <tr><td>Iterations</td><td>${iteration}</td><td>GD steps taken</td></tr>`;
+    return;
+  }
+
+  const yPred  = predictY(query);
+  const normPct = Math.min(98, Math.max(2, (yPred - dyMin) / (dyMax - dyMin) * 100));
+  const midY   = (dyMin + dyMax) / 2;
+  const tieColor = isDark ? 'rgba(255,255,255,.28)' : 'rgba(50,60,100,.4)';
+
+  head.innerHTML = '<tr><th>Step</th><th>Computation</th><th>Result</th></tr>';
+  vc.innerHTML = `
+    <div class="vc-header">
+      <span class="vc-section-title">Prediction for x = ${query.toFixed(2)}</span>
+      <span class="vc-model-pill">${pillText}</span>
+    </div>
+    <div class="vc-metrics">
+      <div class="vc-metric">
+        <span class="vc-metric-label">Predicted ŷ</span>
+        <span class="vc-metric-value" style="color:#ffd479">${yPred.toFixed(2)}</span>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Slope w</span>
+        <span class="vc-metric-value" style="color:#9fb4ff;font-size:18px;">${(wD>=0?'+':'')}${wD.toFixed(3)}</span>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Model MSE</span>
+        <span class="vc-metric-value" style="color:${mseColor};font-size:18px;">${mse.toFixed(1)}</span>
+        <div class="vc-status-row">
+          <span class="vc-status-dot" style="background:${mseColor};"></span>
+          <span class="vc-status-text" style="color:${mseColor}">${mse<30?'Good fit':mse<80?'Improving':'High error'}</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="vc-gauge-bar vc-gauge-bar-slr">
+        <div class="vc-gauge-tick" style="left:50%"></div>
+        <div class="vc-gauge-needle" style="left:${normPct}%"></div>
+      </div>
+      <div class="vc-gauge-axis">
+        <span class="vc-gauge-axis-label" style="left:50%;color:${tieColor};">${midY.toFixed(0)}</span>
+      </div>
+      <div class="vc-gauge-zones">
+        <span class="vc-gauge-zone-label" style="color:#4a90e2;">&larr; Low (${dyMin.toFixed(0)})</span>
+        <span class="vc-gauge-zone-label" style="color:#ff9a3c;">High (${dyMax.toFixed(0)}) &rarr;</span>
+      </div>
+    </div>`;
+
+  tb.innerHTML = `
+    <tr><td>Input</td><td>x =</td><td>${query.toFixed(3)}</td></tr>
+    <tr><td>Slope &times; x</td><td>w &times; ${query.toFixed(2)} = ${wD.toFixed(3)} &times; ${query.toFixed(2)}</td><td>${(wD*query).toFixed(3)}</td></tr>
+    <tr><td>+ Intercept</td><td>+ b =</td><td>+ ${bD.toFixed(3)}</td></tr>
+    <tr style="background:rgba(255,212,121,0.08);"><td><strong>Prediction</strong></td><td><strong>ŷ = w&middot;x + b</strong></td><td><strong>${yPred.toFixed(3)}</strong></td></tr>`;
+}
+
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect();
+  const sx = (e.clientX - r.left) * (W / r.width);
+  const sy = (e.clientY - r.top)  * (H / r.height);
+  if (sx < MAR.L || sx > W - MAR.R || sy < MAR.T || sy > H - MAR.B) return;
+  const {x, y} = fromScreen(sx, sy);
+  if (addMode) { pts.push({x, y}); updateNorm(); updateDataRange(); resetGD(); }
+  else { query = x; }
+  draw();
+});
+
+document.getElementById('lr-slider').addEventListener('input', e => {
+  lr = +e.target.value;
+  document.getElementById('lr-val').textContent = lr.toFixed(3);
+  draw();
+});
+document.getElementById('step-btn').addEventListener('click', () => { if (!pts.length) return; stopAnim(); doOneStep(); draw(); });
+document.getElementById('run-btn').addEventListener('click', () => { if (!pts.length) return; isRunning ? (stopAnim(), draw()) : startAnim(); });
+document.getElementById('reset-btn').addEventListener('click', () => { query = null; resetGD(); draw(); });
+document.getElementById('reseed-btn').addEventListener('click', () => { query = null; seed(); draw(); });
+document.getElementById('mode-btn').addEventListener('click', e => {
+  addMode = !addMode;
+  e.target.textContent = addMode ? 'Add Mode: Point' : 'Add Mode: Query';
+  if (addMode) query = null;
+  draw();
+});
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
+  draw();
+});
+
+seed(); draw();
+</script>
+
+</body></html>
