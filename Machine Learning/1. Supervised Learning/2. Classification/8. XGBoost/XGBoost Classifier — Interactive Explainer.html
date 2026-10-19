@@ -1,4 +1,4 @@
-<html data-type="html" data-identifier="e2f5b8c1-4a7d-4e1b-9c3f-6d0a2e8b5f7c" data-title="XGBoost Classifier — Interactive Explainer" data-version="2" width="1200" height="900"><head>
+<html data-type="html" data-identifier="e2f5b8c1-4a7d-4e1b-9c3f-6d0a2e8b5f7c" data-title="XGBoost Classifier — Interactive Explainer" data-version="3" width="1200" height="900"><head>
 <meta charset="utf-8">
 <style>
   * { box-sizing: border-box; }
@@ -142,7 +142,7 @@
       XGBoost Classifier
       <span class="badge-tag">Interactive Guide</span>
     </h1>
-    <p id="main-desc">XGBoost (Extreme Gradient Boosting) builds Decision Trees <strong>sequentially</strong> — each new tree corrects the cumulative errors of all previous trees. Unlike Random Forest (parallel, independent trees), XGBoost uses a second-order Taylor expansion of the loss function to analytically derive optimal leaf weights and split gains, making every tree as informative as possible under regularisation constraints.</p>
+    <p id="main-desc">XGBoost (Extreme Gradient Boosting) builds Decision Trees <strong>one at a time, sequentially</strong>. Think of it like a student re-sitting exams, each time studying only the questions they got wrong before — each new tree focuses specifically on the mistakes of the current ensemble. This is fundamentally different from Random Forest, which trains all trees independently in parallel. XGBoost also uses second-order calculus (gradients <em>and</em> curvature) to find more informative splits and analytically optimal leaf values, with regularisation built directly into every split decision.</p>
   </header>
 
   <div class="layout">
@@ -150,15 +150,17 @@
       <h2 id="h-canvas">Interactive Playground</h2>
       <canvas id="plot" width="640" height="420"></canvas>
 
+      <!-- Row 1: Sliders -->
       <div class="controls">
-        <label for="n-slider" title="n_estimators: number of sequential boosting rounds">Trees (n) = <strong id="n-val">20</strong></label>
+        <label for="n-slider" title="n_estimators: how many correction rounds to run">Trees (n) = <strong id="n-val">20</strong></label>
         <input type="range" id="n-slider" min="1" max="80" step="1" value="20">
-        <label for="eta-slider" title="learning_rate (eta): shrinks each tree's contribution">η (eta) = <strong id="eta-val">0.30</strong></label>
+        <label for="eta-slider" title="learning_rate (eta): how much each tree contributes — smaller = more cautious">η (eta) = <strong id="eta-val">0.30</strong></label>
         <input type="range" id="eta-slider" min="0.05" max="1.00" step="0.05" value="0.30">
-        <label for="depth-slider" title="max_depth: depth of each individual tree">Max Depth = <strong id="depth-val">3</strong></label>
+        <label for="depth-slider" title="max_depth: complexity of each individual correction tree">Max Depth = <strong id="depth-val">3</strong></label>
         <input type="range" id="depth-slider" min="1" max="7" step="1" value="3">
       </div>
 
+      <!-- Row 2: Buttons -->
       <div class="controls">
         <button id="reseed" class="ghost">New Dataset</button>
         <button id="mode-btn">Add Mode: Query Point</button>
@@ -169,16 +171,23 @@
         <span><span class="dot" style="background:#ff6b8b"></span>Class A — Cats</span>
         <span><span class="dot" style="background:#4fd1c5"></span>Class B — Dogs</span>
         <span><span class="dot" style="background:#ffd479;outline:2px solid #ffd479;outline-offset:2px;"></span>Query Point</span>
-        <span><span class="lsamp" style="background:#ffd479;height:2.5px;"></span>Boundary (P = 0.5)</span>
-        <span><span class="lsamp" style="border-top:1.5px dashed rgba(255,212,121,.6);"></span>P = 0.25 / 0.75</span>
+        <span><span class="lsamp" style="background:#ffd479;height:2.5px;"></span>Decision Boundary (P = 0.5)</span>
+        <span><span class="lsamp" style="border-top:1.5px dashed rgba(255,212,121,.6);"></span>P = 0.25 / 0.75 zones</span>
       </div>
 
       <div class="verdict-card" id="verdict-card">
         <div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>
       </div>
 
+      <!-- Table shows each round's contribution — the sequential boosting in action -->
       <table id="tbl">
-        <thead><tr><th>Round</th><th>Score Added (η×w)</th><th>P(Dog)</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Round</th>
+            <th title="Positive = pushes toward Dog; Negative = pushes toward Cat">Score Added (η×w)</th>
+            <th>P(Dog) after round</th>
+          </tr>
+        </thead>
         <tbody id="tbody"></tbody>
       </table>
     </div>
@@ -186,12 +195,12 @@
     <div class="panel right">
       <h2 id="h-how">How XGBoost Works</h2>
       <ol>
-        <li><strong>Initialise:</strong> Start all predictions at F(x) = 0, equivalent to P(Dog) = 0.5 (the log-odds base score). Every training point begins with the same uninformed prior.</li>
-        <li><strong>Compute Gradients &amp; Hessians:</strong> For the current predictions, compute the gradient g = P̂ − y (prediction error) and hessian h = P̂(1−P̂) (prediction uncertainty). The hessian is highest near the decision boundary (P̂ ≈ 0.5) — XGBoost naturally focuses each tree on its most uncertain predictions.</li>
-        <li><strong>Build a Regularised Tree:</strong> Fit a new tree that minimises the regularised second-order Taylor objective. Each split is evaluated by the gain formula using G and H sums. The optimal weight for each leaf is w* = −G/(H+λ). Only splits with positive gain are accepted.</li>
-        <li><strong>Update &amp; Repeat Sequentially:</strong> Add this tree's prediction (scaled by η) to the ensemble: F(x) ← F(x) + η·tree(x). Each round focuses on the residuals of the current ensemble. The learning rate η prevents any single tree from dominating.</li>
+        <li><strong>Start with a Neutral Guess:</strong> Every training point begins with the same prediction — F(x) = 0 in log-odds space, which means P(Dog) = 0.5 ("I have no opinion yet"). This is the base score. The model will build from here by accumulating corrections.</li>
+        <li><strong>Measure Current Errors (Gradients &amp; Hessians):</strong> For each training point, compute two things: the <em>gradient</em> g = P̂ − y, which is simply how wrong the current prediction is (positive = over-predicted Dog, negative = under-predicted Dog); and the <em>hessian</em> h = P̂(1−P̂), which is largest (0.25) when P̂ ≈ 0.5, making the model pay extra attention to points near the decision boundary where it is most uncertain.</li>
+        <li><strong>Build One Correction Tree:</strong> Fit a new Decision Tree whose job is to correct the current errors. Each leaf's optimal correction value is derived analytically as w* = −G/(H+λ), where G = total error flowing into that leaf and λ is regularisation. This tree's corrections are scaled by η and added to the ensemble: F(x) ← F(x) + η·tree(x).</li>
+        <li><strong>Repeat — Each Round Refines the Boundary:</strong> Recompute errors on the updated predictions and train the next correction tree. Early rounds make large, coarse corrections; later rounds make smaller, finer adjustments. The table below shows exactly this accumulation for your query point — teal values push toward Dog, red values push toward Cat.</li>
       </ol>
-      <div class="tip"><strong>Try it:</strong> Drag <strong>Trees (n)</strong> from 1 to 80 — watch the boundary evolve as each tree corrects the previous ensemble's errors. Lower <strong>η</strong> to 0.05 for slower, more gradual convergence. Increase <strong>Max Depth</strong> to 6 and drag n to 60+ to observe overfitting — unlike Random Forest, XGBoost <em>can</em> overfit with too many rounds.</div>
+      <div class="tip"><strong>Try it:</strong> Drag <strong>Trees (n)</strong> from 1 to 50 and watch the boundary progressively sharpen — early trees draw rough shapes, later ones refine the edges. Then lower <strong>η</strong> to 0.05: with a small learning rate, you need many more trees to converge but the final boundary is often smoother. Finally, set Depth = 6 and n = 70+: watch the boundary fragment into overfitting islands that a single tree never creates — proving XGBoost <em>can</em> overfit, unlike Random Forest.</div>
     </div>
   </div>
 
@@ -200,37 +209,37 @@
     <h2 id="h-deep-dive">Detailed Algorithm Explanation</h2>
     <div class="grid-2">
       <div>
-        <h3 id="h-taylor">1. Second-Order Taylor Approximation</h3>
-        <p>XGBoost approximates the loss at each boosting round using a second-order Taylor expansion around the current prediction F<sub>t−1</sub>(x), enabling analytical optimisation of any differentiable loss:</p>
+        <h3 id="h-taylor">1. Why Second-Order? The Taylor Approximation</h3>
+        <p>Most gradient boosting methods (like sklearn's GradientBoostingClassifier) use only the <em>first derivative</em> of the loss — the gradient, which gives the direction of error. XGBoost additionally uses the <em>second derivative</em> — the hessian, which captures the <em>curvature</em> of the error landscape. This extra information means each split decision is more precisely informed, and leaf values can be set analytically rather than requiring an additional line-search step.</p>
         <ul>
-          <li><strong>Objective at round t:</strong><br>
-            <code>Obj<sup>(t)</sup> ≈ Σ[g<sub>i</sub>·f<sub>t</sub>(x<sub>i</sub>) + ½h<sub>i</sub>·f<sub>t</sub>(x<sub>i</sub>)<sup>2</sup>] + Ω(f<sub>t</sub>)</code>
+          <li><strong>Simplified objective at round t:</strong><br>
+            <code>Σ[g<sub>i</sub>·f<sub>t</sub>(x<sub>i</sub>) + ½h<sub>i</sub>·f<sub>t</sub>(x<sub>i</sub>)<sup>2</sup>] + Ω(f<sub>t</sub>)</code>
           </li>
-          <li><strong>For binary log-loss:</strong><br>
-            Gradient: <code>g<sub>i</sub> = p̂<sub>i</sub> − y<sub>i</sub></code> (prediction error)<br>
-            Hessian: <code>h<sub>i</sub> = p̂<sub>i</sub>(1 − p̂<sub>i</sub>)</code> (uncertainty)
+          <li><strong>For binary log-loss — the derivations:</strong><br>
+            Gradient: <code>g<sub>i</sub> = p̂<sub>i</sub> − y<sub>i</sub></code><br>
+            Hessian: <code>h<sub>i</sub> = p̂<sub>i</sub>(1 − p̂<sub>i</sub>)</code><br>
+            <em>h is maximised at 0.25 when p̂ = 0.5 — uncertain predictions are weighted more heavily.</em>
           </li>
           <li><strong>Regularisation term:</strong><br>
             <code>Ω(f) = γ·T + ½λ·Σ w<sub>j</sub><sup>2</sup></code><br>
-            γ penalises each additional leaf; λ (L2) shrinks leaf weights.
+            γ adds a cost for creating each new leaf (tree pruning). λ shrinks leaf values toward zero (weight decay). Both are tunable hyperparameters with defaults γ = 0, λ = 1.
           </li>
-          <li><strong>Why second-order?</strong> The hessian h captures the curvature of the loss. Points near the boundary (h ≈ 0.25) get the most weight in each new tree's objective. This provides more signal than first-order gradient boosting methods.</li>
         </ul>
       </div>
       <div>
-        <h3 id="h-gain">2. Regularised Gain &amp; Optimal Leaf Weights</h3>
-        <p>After finding the best tree structure, the optimal weight for each leaf j is derived analytically:</p>
+        <h3 id="h-gain">2. Optimal Leaf Weights &amp; the Split Gain Formula</h3>
+        <p>Once the tree structure is fixed, XGBoost analytically solves for the <em>best possible</em> weight for each leaf by setting the derivative of the objective to zero (a Newton-Raphson step). No grid search or line search is needed — the answer is exact.</p>
         <ul>
-          <li><strong>Optimal leaf weight (closed form):</strong><br>
+          <li><strong>Optimal leaf weight (exact closed form):</strong><br>
             <code>w*<sub>j</sub> = −G<sub>j</sub> / (H<sub>j</sub> + λ)</code><br>
-            where G<sub>j</sub> = Σ g in leaf, H<sub>j</sub> = Σ h in leaf. Mirrors a Newton-Raphson step: −f′(x)/f′′(x).
+            where G<sub>j</sub> = Σ g in leaf (total error), H<sub>j</sub> = Σ h in leaf (total uncertainty). The λ term prevents leaf weights from growing too large.
           </li>
-          <li><strong>Split Gain (the splitting criterion):</strong><br>
+          <li><strong>Split Gain — how XGBoost scores each candidate split:</strong><br>
             <code>Gain = ½[G<sub>L</sub><sup>2</sup>/(H<sub>L</sub>+λ) + G<sub>R</sub><sup>2</sup>/(H<sub>R</sub>+λ) − (G<sub>L</sub>+G<sub>R</sub>)<sup>2</sup>/(H<sub>L</sub>+H<sub>R</sub>+λ)] − γ</code><br>
-            A split is accepted <em>only</em> if Gain &gt; 0. If no split clears this bar, the node becomes a leaf.
+            <em>A split is accepted only if Gain &gt; 0. The γ term means more complex splits must earn their keep.</em>
           </li>
-          <li><strong>Compare to Decision Tree:</strong> DT uses Gini/entropy (first-order counts only). XGBoost uses G and H (gradient + curvature), providing richer split information and automatic regularisation via λ and γ.</li>
-          <li><strong>Training complexity:</strong> <i>O(T × N × M × log N)</i> — same structure as DT per round T.</li>
+          <li><strong>How this compares to a regular Decision Tree:</strong> DT uses Gini/entropy (based only on class counts). XGBoost uses the gain formula above, which uses gradient and hessian sums — it knows not just <em>which class</em> samples belong to, but <em>how wrong</em> the current predictions are for each sample in that region.</li>
+          <li><strong>Prediction for a new point:</strong> F(x) = base_score + Σ<sub>t</sub> η·tree<sub>t</sub>(x). Then P(Dog) = σ(F(x)).</li>
         </ul>
       </div>
     </div>
@@ -243,22 +252,22 @@
       <div class="card">
         <span class="tag">Tabular Data</span>
         <h3 id="h-kaggle">Structured Data &amp; Competitions</h3>
-        <p>XGBoost dominates structured/tabular data tasks. From 2015 to 2023 it appeared in a majority of winning Kaggle solutions for tabular problems. Its combination of sequential refinement, built-in regularisation, and native handling of sparse features makes it the strongest single algorithm baseline for row-based datasets.</p>
+        <p>XGBoost dominates structured/tabular data tasks and has appeared in a majority of winning Kaggle solutions for tabular problems since 2015. Its combination of sequential refinement, built-in regularisation, and native handling of sparse features makes it the strongest single-algorithm baseline for row-based datasets with numerical and categorical features.</p>
       </div>
       <div class="card">
         <span class="tag">Finance</span>
         <h3 id="h-credit">Credit Risk &amp; Fraud Detection</h3>
-        <p>Produces calibrated probability scores that directly feed risk-based decision systems. The <code>scale_pos_weight</code> parameter handles extreme class imbalance (1 fraud per 10,000 transactions). SHAP values satisfy regulatory explainability requirements (GDPR, SR 11-7) without sacrificing model performance.</p>
+        <p>Produces calibrated probability scores that directly feed risk-based decision systems. The <code>scale_pos_weight</code> parameter handles extreme class imbalance (e.g., 1 fraud per 10,000 transactions). SHAP values provide feature-level explanations that satisfy regulatory requirements (GDPR, SR 11-7) without sacrificing model accuracy.</p>
       </div>
       <div class="card">
         <span class="tag">Advertising</span>
         <h3 id="h-ctr">Click-Through Rate Prediction</h3>
-        <p>XGBoost processes high-dimensional sparse one-hot encoded features efficiently via native sparse matrix support. The histogram-based split finder (<code>tree_method='hist'</code>) scales to billions of ad impression events. Meta, Alibaba, and Tencent have all published XGBoost-based CTR systems.</p>
+        <p>XGBoost handles high-dimensional, sparse one-hot encoded features efficiently via native sparse matrix support. The histogram-based split finder (<code>tree_method='hist'</code>) scales to billions of ad impression events. Meta, Alibaba, and Tencent have all published XGBoost-based production CTR systems.</p>
       </div>
       <div class="card">
         <span class="tag">Healthcare</span>
-        <h3 id="h-medical">Clinical Prognosis &amp; Survival</h3>
-        <p>XGBoost's <code>objective='survival:cox'</code> and <code>'survival:aft'</code> support survival analysis natively. The <code>monotone_constraints</code> parameter enforces domain-known relationships (e.g., increasing age must not decrease risk), satisfying clinical and regulatory logic requirements.</p>
+        <h3 id="h-medical">Clinical Prognosis &amp; Survival Analysis</h3>
+        <p>XGBoost's <code>objective='survival:cox'</code> and <code>'survival:aft'</code> modes support survival analysis natively, making it applicable to time-to-event outcomes (e.g., hospital readmission). The <code>monotone_constraints</code> parameter enforces domain logic (e.g., older age must not decrease predicted risk), satisfying clinical guidelines and regulatory requirements.</p>
       </div>
     </div>
   </div>
@@ -266,37 +275,38 @@
   <!-- Implementation -->
   <div class="panel full-width">
     <h2 id="h-impl">Implementation Details &amp; How XGBoost Works in Python</h2>
-    <p>XGBoost is a separate library (<code>pip install xgboost</code>) that provides a fully sklearn-compatible API. Like all tree-based methods, it is <strong>scale-invariant</strong> when using the default <code>booster='gbtree'</code> — tree splits are value comparisons, so no <code>StandardScaler</code> is needed.</p>
+    <p>XGBoost is a separate library (<code>pip install xgboost</code>) that provides a fully sklearn-compatible API via <code>XGBClassifier</code>. Like all tree-based methods, it is <strong>scale-invariant</strong> when using the default <code>booster='gbtree'</code> — tree splits are value comparisons, not distance calculations, so <code>StandardScaler</code> is not needed. For the less common <code>booster='gblinear'</code>, scaling does matter.</p>
     <div class="grid-2">
       <div>
-        <h3 id="h-params">Key Hyperparameters</h3>
+        <h3 id="h-params">Key Hyperparameters Explained</h3>
         <ul>
-          <li><strong><code>n_estimators</code>:</strong> Number of sequential boosting rounds. Unlike RF, adding more rounds <em>can</em> overfit. Always use with <code>early_stopping_rounds</code>.</li>
-          <li><strong><code>learning_rate</code> (η):</strong> Shrinks each tree's contribution. Default = 0.3. Smaller η + larger n_estimators is the classic high-accuracy recipe.</li>
-          <li><strong><code>max_depth</code>:</strong> Depth per tree. XGBoost default = 6; shallower trees (3–5) often generalise better.</li>
-          <li><strong><code>reg_lambda</code>:</strong> L2 regularisation on leaf weights (λ). Default = 1.</li>
-          <li><strong><code>reg_alpha</code>:</strong> L1 regularisation on leaf weights (α). Default = 0. Induces sparsity.</li>
-          <li><strong><code>gamma</code>:</strong> Minimum gain required to create a split. Default = 0.</li>
-          <li><strong><code>subsample</code> / <code>colsample_bytree</code>:</strong> Row and column sampling per tree — analogous to RF's bootstrap and max_features.</li>
-          <li><strong><code>scale_pos_weight</code>:</strong> Set to <code>neg/pos</code> ratio for imbalanced binary classification.</li>
+          <li><strong><code>n_estimators</code>:</strong> Number of sequential boosting rounds. Unlike Random Forest, too many rounds <em>can</em> overfit. Always pair with <code>early_stopping_rounds</code> in production.</li>
+          <li><strong><code>learning_rate</code> (η):</strong> How much each tree's prediction is added to the ensemble. Default = 0.3. A smaller η (0.01–0.1) combined with a large <code>n_estimators</code> + early stopping is the classic high-accuracy recipe.</li>
+          <li><strong><code>max_depth</code>:</strong> Depth of each correction tree. XGBoost default = 6; using 3–5 often gives better generalisation. Shallower trees are less likely to memorise training noise.</li>
+          <li><strong><code>reg_lambda</code>:</strong> L2 regularisation on leaf weights (λ). Default = 1. Larger values prevent individual leaves from correcting too aggressively.</li>
+          <li><strong><code>reg_alpha</code>:</strong> L1 regularisation on leaf weights (α). Default = 0. Induces sparsity — useful when many features are irrelevant.</li>
+          <li><strong><code>gamma</code>:</strong> Minimum gain a split must achieve to be accepted. Default = 0 (all positive-gain splits accepted). Increasing this is equivalent to post-pruning each tree.</li>
+          <li><strong><code>subsample</code> / <code>colsample_bytree</code>:</strong> Row and column sampling per tree — introduces randomness like Random Forest, reducing variance and correlation between trees.</li>
+          <li><strong><code>scale_pos_weight</code>:</strong> Upscales the gradient of minority-class errors. Set to <code>neg/pos</code> count ratio for class-imbalanced problems.</li>
         </ul>
       </div>
       <div>
         <h3 id="h-code">XGBoost Python API Example</h3>
         <pre><code><span class="kw">from</span> xgboost <span class="kw">import</span> XGBClassifier
 
-<span class="cm"># Scale-invariant for gbtree (default booster)</span>
+<span class="cm"># XGBoost with gbtree booster is scale-invariant</span>
+<span class="cm"># — no StandardScaler needed (unlike SVM, LR, KNN)</span>
 clf = <span class="fn">XGBClassifier</span>(
     n_estimators=<span class="str">500</span>,           <span class="cm"># Upper bound; early stopping takes over</span>
     learning_rate=<span class="str">0.05</span>,         <span class="cm"># Low eta + many rounds = best practice</span>
-    max_depth=<span class="str">4</span>,                <span class="cm"># Default = 6; 3–5 often better</span>
+    max_depth=<span class="str">4</span>,                <span class="cm"># XGBoost default=6; 3–5 often better</span>
     subsample=<span class="str">0.8</span>,              <span class="cm"># Row sampling per tree</span>
     colsample_bytree=<span class="str">0.8</span>,       <span class="cm"># Feature sampling per tree</span>
     reg_lambda=<span class="str">1.0</span>,             <span class="cm"># L2 regularisation (default)</span>
     reg_alpha=<span class="str">0.0</span>,              <span class="cm"># L1 regularisation (default)</span>
-    gamma=<span class="str">0.0</span>,                  <span class="cm"># Min gain to split (default)</span>
-    scale_pos_weight=<span class="str">1</span>,         <span class="cm"># Set to neg/pos for imbalance</span>
-    early_stopping_rounds=<span class="str">20</span>,   <span class="cm"># In constructor (XGBoost ≥ 1.6)</span>
+    gamma=<span class="str">0.0</span>,                  <span class="cm"># Min gain to accept a split (default)</span>
+    scale_pos_weight=<span class="str">1</span>,         <span class="cm"># Set to neg/pos ratio for imbalance</span>
+    early_stopping_rounds=<span class="str">20</span>,   <span class="cm"># In constructor — modern XGBoost ≥ 1.6</span>
     eval_metric=<span class="str">'logloss'</span>,
     random_state=<span class="str">42</span>
 )
@@ -305,7 +315,9 @@ clf.<span class="fn">fit</span>(X_train, y_train,
       eval_set=[(X_val, y_val)], verbose=<span class="kw">False</span>)
 
 predictions   = clf.<span class="fn">predict</span>(X_test)
-probabilities = clf.<span class="fn">predict_proba</span>(X_test)  <span class="cm"># shape (N, 2)</span>
+probabilities = clf.<span class="fn">predict_proba</span>(X_test) <span class="cm"># shape (N, 2): [P(Cat), P(Dog)]</span>
+
+<span class="cm"># Best round found by early stopping</span>
 <span class="fn">print</span>(<span class="str">f"Best round: {clf.best_iteration}"</span>)</code></pre>
       </div>
     </div>
@@ -314,62 +326,67 @@ probabilities = clf.<span class="fn">predict_proba</span>(X_test)  <span class="
   <!-- Common Tweaks -->
   <div class="panel full-width">
     <h2 id="h-tweaks">Common Tweaks &amp; Production Improvements</h2>
-    <p>XGBoost's defaults are a reasonable starting point, but these six techniques address the most common production gaps: runaway training, high variance, speed on large datasets, black-box interpretability, regulatory constraints, and class imbalance.</p>
+    <p>XGBoost's defaults are a reasonable starting point, but these six targeted techniques address the most common production gaps: runaway training that overfits, high variance from correlated trees, speed bottlenecks on large datasets, black-box interpretability requirements, regulatory monotonicity constraints, and class imbalance distortion.</p>
     <div class="grid-2">
+
       <div class="card">
         <span class="tag">Essential</span>
-        <h3 id="h-es">1. Early Stopping — The Most Critical Tweak</h3>
-        <p>Unlike Random Forest, XGBoost <em>can</em> overfit with too many trees. Early stopping monitors validation loss and halts training when it stops improving. In modern XGBoost (≥1.6), <code>early_stopping_rounds</code> belongs in the <strong>constructor</strong> so it works correctly inside <code>Pipeline</code> and <code>GridSearchCV</code>.</p>
-        <pre><code><span class="cm"># modern API: in constructor, not fit()</span>
+        <h3 id="h-es">1. Early Stopping — Use This Every Time</h3>
+        <p>This is the single most important XGBoost practice. Set <code>n_estimators</code> to a large upper bound and let early stopping halt training when validation loss stops improving. In modern XGBoost (≥1.6), <code>early_stopping_rounds</code> belongs in the <strong>constructor</strong> (not <code>fit()</code>) so it integrates correctly with <code>Pipeline</code> and <code>GridSearchCV</code>.</p>
+        <pre><code><span class="cm"># early_stopping_rounds goes in constructor (XGBoost ≥ 1.6)</span>
 clf = <span class="fn">XGBClassifier</span>(
-    n_estimators=<span class="str">1000</span>,
-    early_stopping_rounds=<span class="str">20</span>,
-    eval_metric=<span class="str">'logloss'</span>,
+    n_estimators=<span class="str">1000</span>,          <span class="cm"># Large upper bound</span>
+    early_stopping_rounds=<span class="str">20</span>,   <span class="cm"># Stop if no improvement for 20 rounds</span>
+    eval_metric=<span class="str">'logloss'</span>,      <span class="cm"># Or 'auc', 'aucpr', 'error'</span>
     learning_rate=<span class="str">0.05</span>
 )
 clf.<span class="fn">fit</span>(X_train, y_train,
       eval_set=[(X_val, y_val)], verbose=<span class="kw">False</span>)
-<span class="fn">print</span>(<span class="str">f"Best round: {clf.best_iteration}"</span>)</code></pre>
+<span class="fn">print</span>(<span class="str">f"Optimal rounds: {clf.best_iteration}"</span>)</code></pre>
       </div>
 
       <div class="card">
         <span class="tag">Variance Reduction</span>
-        <h3 id="h-sub">2. Subsampling Rows &amp; Columns</h3>
-        <p>Setting <code>subsample &lt; 1</code> introduces stochasticity (row sampling). Setting <code>colsample_bytree &lt; 1</code> mirrors Random Forest's feature randomness — both decorrelate trees and reduce variance. This is often as impactful as tuning <code>learning_rate</code>.</p>
+        <h3 id="h-sub">2. Subsampling Rows &amp; Columns per Tree</h3>
+        <p>Setting <code>subsample &lt; 1</code> introduces row-level stochasticity (each tree sees a random 80% of training samples). Setting <code>colsample_bytree &lt; 1</code> mirrors Random Forest's feature randomness — both decorrelate successive trees and reduce variance. These are often as impactful as tuning <code>learning_rate</code>, and they also speed up training.</p>
         <pre><code>clf = <span class="fn">XGBClassifier</span>(
-    subsample=<span class="str">0.8</span>,         <span class="cm"># 80% of rows per round</span>
+    subsample=<span class="str">0.8</span>,         <span class="cm"># 80% of rows per boosting round</span>
     colsample_bytree=<span class="str">0.8</span>,  <span class="cm"># 80% of features per tree</span>
-    colsample_bylevel=<span class="str">0.8</span>, <span class="cm"># 80% of features per level</span>
+    colsample_bylevel=<span class="str">0.8</span>, <span class="cm"># 80% of features per depth level</span>
     n_estimators=<span class="str">300</span>,
     learning_rate=<span class="str">0.05</span>
 )
-<span class="cm"># Typical ranges: subsample 0.6–0.9</span>
-<span class="cm">#                 colsample_bytree 0.4–0.9</span></code></pre>
+<span class="cm"># Recommended ranges to try:</span>
+<span class="cm"># subsample:        0.6 – 0.9</span>
+<span class="cm"># colsample_bytree: 0.4 – 0.9</span></code></pre>
       </div>
 
       <div class="card">
         <span class="tag">Scalability</span>
         <h3 id="h-hist">3. Histogram Trees &amp; GPU Acceleration</h3>
-        <p>For datasets with &gt;100k rows, the default exact split algorithm is a bottleneck. <code>tree_method='hist'</code> bins feature values into histograms, providing 10–100× speedup with negligible accuracy loss. For GPU-equipped machines, add <code>device='cuda'</code> (XGBoost ≥2.0).</p>
-        <pre><code>clf = <span class="fn">XGBClassifier</span>(
-    tree_method=<span class="str">'hist'</span>,   <span class="cm"># Major speedup for N &gt; 100k</span>
-    device=<span class="str">'cuda'</span>,        <span class="cm"># GPU (XGBoost ≥ 2.0)</span>
-    max_bin=<span class="str">256</span>,          <span class="cm"># Histogram bins (default)</span>
-    enable_categorical=<span class="kw">True</span>, <span class="cm"># Native categorical support</span>
+        <p>For datasets with &gt;100k rows, the default exact split algorithm becomes the training bottleneck. <code>tree_method='hist'</code> bins feature values into histograms and is now the <strong>default in XGBoost 2.0</strong>, providing 10–100× speedup with negligible accuracy loss. For GPU-equipped machines, add <code>device='cuda'</code> (XGBoost ≥2.0; the old <code>tree_method='gpu_hist'</code> is deprecated).</p>
+        <pre><code><span class="cm"># tree_method='hist' is the XGBoost 2.0 default</span>
+clf = <span class="fn">XGBClassifier</span>(
+    tree_method=<span class="str">'hist'</span>,      <span class="cm"># Fast histogram splits</span>
+    device=<span class="str">'cuda'</span>,           <span class="cm"># GPU (XGBoost ≥ 2.0; replaces gpu_hist)</span>
+    max_bin=<span class="str">256</span>,             <span class="cm"># Histogram bins; default = 256</span>
+    <span class="cm"># Native categoricals: columns MUST be pandas 'category' dtype</span>
+    enable_categorical=<span class="kw">True</span>, <span class="cm"># df['col'] = df['col'].astype('category')</span>
     n_estimators=<span class="str">500</span>
 )</code></pre>
       </div>
 
       <div class="card">
         <span class="tag">Interpretability</span>
-        <h3 id="h-shap">4. SHAP Values — Native XGBoost Support</h3>
-        <p>XGBoost has built-in C++ TreeSHAP — ~10–100× faster than model-agnostic SHAP on large ensembles. Each value represents the exact contribution of one feature to one prediction, satisfying Shapley fairness axioms for regulatory compliance.</p>
+        <h3 id="h-shap">4. SHAP Values — Built-In, Ultra-Fast</h3>
+        <p>XGBoost has a native C++ implementation of TreeSHAP — roughly 10–100× faster than model-agnostic SHAP on large ensembles. Each SHAP value represents the exact contribution of one feature to one prediction, satisfying the Shapley fairness axioms. This is the recommended approach for any production system that requires model explainability.</p>
         <pre><code><span class="kw">import</span> shap
 
+<span class="cm"># TreeExplainer uses XGBoost's native fast SHAP path</span>
 explainer = shap.<span class="fn">TreeExplainer</span>(clf)
 shap_vals = explainer.<span class="fn">shap_values</span>(X_test)
 <span class="cm"># shap_vals[i, j]: feature j's contribution to sample i</span>
-<span class="cm"># sum(shap_vals[i]) + expected_value ≈ F(x_i)</span>
+<span class="cm"># Additive property: sum(shap_vals[i]) + expected_value ≈ F(x_i)</span>
 
 shap.<span class="fn">summary_plot</span>(shap_vals, X_test,
                  feature_names=feature_names)</code></pre>
@@ -378,13 +395,13 @@ shap.<span class="fn">summary_plot</span>(shap_vals, X_test,
       <div class="card">
         <span class="tag">Compliance</span>
         <h3 id="h-mono">5. Monotonic Constraints for Business Logic</h3>
-        <p>Forces the model to respect known domain relationships (e.g., higher income must never increase predicted default risk). Prevents fitting statistical noise that violates business logic, and satisfies regulatory explainability requirements (SR 11-7, EU AI Act).</p>
+        <p>Forces the model to respect known domain relationships — for example, a higher salary must never <em>increase</em> predicted loan default probability. This prevents the model from fitting spurious statistical noise that violates business logic, improves robustness to distribution shift, and is required under regulations such as SR 11-7 in banking and the EU AI Act.</p>
         <pre><code><span class="cm"># +1 = non-decreasing, -1 = non-increasing, 0 = unconstrained</span>
 clf = <span class="fn">XGBClassifier</span>(
     monotone_constraints={
-        <span class="str">'income'</span>:      <span class="str">-1</span>,  <span class="cm"># Higher income → lower risk</span>
-        <span class="str">'loan_amount'</span>: <span class="str">+1</span>,  <span class="cm"># Larger loan → higher risk</span>
-        <span class="str">'age'</span>:         <span class="str">0</span>,
+        <span class="str">'income'</span>:      <span class="str">-1</span>,  <span class="cm"># Higher income → lower default risk</span>
+        <span class="str">'loan_amount'</span>: <span class="str">+1</span>,  <span class="cm"># Larger loan → higher default risk</span>
+        <span class="str">'age'</span>:         <span class="str">0</span>,   <span class="cm"># No constraint on age</span>
     },
     n_estimators=<span class="str">200</span>
 )</code></pre>
@@ -393,42 +410,46 @@ clf = <span class="fn">XGBClassifier</span>(
       <div class="card">
         <span class="tag">Class Imbalance</span>
         <h3 id="h-imb">6. Handling Imbalance with <code>scale_pos_weight</code></h3>
-        <p>Sets the ratio of negative to positive examples, scaling the gradient of minority-class errors upward. More numerically stable than <code>class_weight='balanced'</code> for extreme imbalance. Always pair with <code>eval_metric='aucpr'</code> — PR-AUC is threshold-independent and more informative for skewed classes.</p>
-        <pre><code>neg = (y_train == <span class="str">0</span>).<span class="fn">sum</span>()
-pos = (y_train == <span class="str">1</span>).<span class="fn">sum</span>()
+        <p>Upscales the gradient of minority-class errors so the model cannot simply predict "majority class always" and achieve low loss. More numerically stable for extreme imbalance than <code>class_weight='balanced'</code>. Always combine with <code>eval_metric='aucpr'</code> — PR-AUC measures performance at all thresholds and is far more informative than accuracy for skewed datasets.</p>
+        <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+neg = np.<span class="fn">sum</span>(y_train == <span class="str">0</span>)
+pos = np.<span class="fn">sum</span>(y_train == <span class="str">1</span>)
 
 clf = <span class="fn">XGBClassifier</span>(
-    scale_pos_weight=neg / pos, <span class="cm"># e.g. 9.0 for 1:10 imbalance</span>
-    eval_metric=<span class="str">'aucpr'</span>,       <span class="cm"># PR-AUC: better than accuracy</span>
+    scale_pos_weight=neg / pos,  <span class="cm"># e.g. 9.0 for 1:10 imbalance</span>
+    eval_metric=<span class="str">'aucpr'</span>,        <span class="cm"># PR-AUC: better than accuracy here</span>
+    n_estimators=<span class="str">500</span>,
     early_stopping_rounds=<span class="str">20</span>
 )</code></pre>
       </div>
+
     </div>
   </div>
 
-  <!-- Pitfalls -->
+  <!-- Pitfalls — fixed numbering: was 2,3,3,4 → now correctly 2,3,4,5 -->
   <div class="panel full-width">
     <h2 id="h-pitfalls">Crucial Considerations When Using XGBoost</h2>
     <div class="warn-box">
-      <strong style="color:#ff6b8b;">1. XGBoost CAN Overfit — Unlike Random Forest</strong>
-      <p style="margin-top:4px;margin-bottom:0;">Random Forest's variance asymptotes to ρσ² regardless of tree count — adding more trees never hurts. XGBoost's sequential residual fitting means later rounds can memorise training noise. An unconstrained XGBoost with 1,000+ rounds on a small dataset will nearly always overfit. <strong>Always use early stopping</strong> (<code>early_stopping_rounds</code> with a held-out <code>eval_set</code>) in every production training run.</p>
+      <strong style="color:#ff6b8b;">1. XGBoost CAN Overfit — This is the #1 Mistake New Users Make</strong>
+      <p style="margin-top:4px;margin-bottom:0;">Random Forest's variance asymptotes to a floor ρσ² regardless of tree count — more trees can never hurt. XGBoost is completely different: because each new tree is <em>specifically</em> trained to correct the current errors, later rounds progressively fit noise in the training data. A model with 2,000 rounds and no validation check will memorise the training set almost perfectly while failing on new data. The fix is simple and mandatory: <strong>always use <code>early_stopping_rounds</code> with a held-out <code>eval_set</code></strong>. This costs nothing and prevents the most common failure mode.</p>
     </div>
     <div class="grid-2">
       <div class="card">
-        <h3 id="h-sequential">2. Sequential Training Cannot Be Parallelised Across Trees</h3>
-        <p>Because each tree depends on the predictions of all previous trees, XGBoost cannot train trees in parallel across rounds. Random Forest trains all trees independently and saturates all CPU cores trivially. XGBoost parallelises <em>within</em> each tree (finding splits across features), but remains inherently sequential across rounds.</p>
+        <h3 id="h-sequential">2. Training Is Sequential — Cannot Parallelise Across Trees</h3>
+        <p>Because each tree depends on the mistakes of all previous trees, XGBoost cannot train rounds in parallel. Random Forest trains all trees simultaneously, saturating every CPU core. XGBoost does parallelise <em>within</em> each tree (evaluating split candidates across features simultaneously), but the round-by-round dependency means that very large <code>n_estimators</code> values are inherently slower than equivalent Random Forest configurations.</p>
       </div>
       <div class="card">
-        <h3 id="h-hyperparam">3. More Hyperparameters — All Interact</h3>
-        <p>XGBoost has more hyperparameters than any algorithm in this series, and many interact non-linearly: <code>learning_rate</code> and <code>n_estimators</code> must be co-tuned; <code>max_depth</code> and <code>gamma</code> both control tree complexity; <code>subsample</code> and <code>colsample_bytree</code> affect variance independently. Use <code>RandomizedSearchCV</code> or Bayesian optimisation rather than manual tuning.</p>
+        <h3 id="h-hyperparam">3. More Hyperparameters — Many Interact Non-Linearly</h3>
+        <p>XGBoost has more hyperparameters than any algorithm in this series, and many interact: <code>learning_rate</code> and <code>n_estimators</code> must be co-tuned; <code>max_depth</code> and <code>gamma</code> both control tree complexity from different angles; <code>subsample</code> and <code>colsample_bytree</code> affect variance independently. Manual tuning is rarely effective — use <code>RandomizedSearchCV</code> or Bayesian optimisation (e.g., Optuna) instead.</p>
       </div>
       <div class="card">
         <h3 id="h-extrap">4. Cannot Extrapolate Beyond Training Range</h3>
-        <p>Like all tree-based methods, XGBoost predicts the leaf value (a weighted sum of training-data residuals) and cannot produce outputs outside the range seen in training. For scenarios with strong distributional shift or future extrapolation, this is a critical limitation that neural networks and linear models do not share.</p>
+        <p>Like all tree-based methods, XGBoost predicts the leaf weight (a sum of weighted residuals from training data) and cannot generate outputs outside the range seen during training. For datasets where feature values will shift significantly in production (e.g., macroeconomic forecasting), this is a critical limitation that linear models and neural networks do not share.</p>
       </div>
       <div class="card">
-        <h3 id="h-blackbox">5. Reduced Interpretability Without SHAP</h3>
-        <p>A forest of hundreds of sequential trees is not human-readable. Gain-based feature importances (<code>feature_importances_</code>) can mislead. Always use SHAP values for production model explanation — they satisfy mathematical fairness properties (Shapley axioms), and XGBoost computes them natively in C++ at low overhead.</p>
+        <h3 id="h-blackbox">5. Ensemble Is Opaque — Require SHAP for Explanations</h3>
+        <p>Hundreds of sequential correction trees cannot be read like a single Decision Tree's if/then rules. The built-in gain-based <code>feature_importances_</code> attribute can mislead (it favours high-cardinality features). For any production system — especially regulated ones — always use SHAP values computed via <code>shap.TreeExplainer</code> for interpretability. XGBoost's native C++ TreeSHAP is fast and mathematically rigorous.</p>
       </div>
     </div>
   </div>
@@ -448,24 +469,30 @@ let maxDepth = 3;
 let xgbModel = null;
 let modelDirty = true;
 
-const LAMBDA = 1.0; // reg_lambda default
-const GAMMA  = 0.0; // gamma default
+const LAMBDA = 1.0; // reg_lambda default (L2 regularisation on leaf weights)
+const GAMMA  = 0.0; // gamma default (min gain threshold — 0 means accept any positive gain)
 
 const offCv = document.createElement('canvas');
 const OW = 160, OH = 105;
 offCv.width = OW; offCv.height = OH;
 const offCtx = offCv.getContext('2d');
 
-// ── Core XGBoost Math ─────────────────────────────────
+// ── Core XGBoost Mathematics ──────────────────────────
 
+// Numerically stable sigmoid: σ(z) = 1 / (1 + e^{-z})
+// Clamped at ±50: exp(±50) is well within JS float range, output ≈ 0 or 1
 function sigmoid(z) {
   return 1 / (1 + Math.exp(-Math.max(-50, Math.min(50, z))));
 }
 
-// ── BUG FIX: Use a plain for-loop that builds a regular Array of objects.
-// Previously used Float64Array.map() which returns another Float64Array —
-// trying to store { g, h } objects in a typed array silently coerces them
-// to NaN, breaking every downstream gradient calculation.
+// Compute gradients and hessians for binary log-loss.
+// For a prediction p̂ and true label y ∈ {0, 1}:
+//   gradient g = p̂ - y  (positive = over-predicted Dog, negative = under-predicted)
+//   hessian  h = p̂(1-p̂) (largest at p̂=0.5 — uncertain predictions weighted more)
+//
+// IMPORTANT: uses a plain for-loop returning a regular Array of {g, h} objects.
+// Calling .map() on a Float64Array (TypedArray) returns another Float64Array —
+// storing objects coerces every element to NaN, breaking all downstream math.
 function computeGH(ys, rawScores) {
   const n = rawScores.length;
   const result = [];
@@ -476,21 +503,29 @@ function computeGH(ys, rawScores) {
   return result;
 }
 
+// Optimal leaf weight: w* = -G / (H + λ)
+// Derived by setting ∂Obj/∂w = 0 in the quadratic Taylor objective.
+// The λ term prevents individual leaves from over-correcting (weight decay).
 function leafWeight(idxs, gh) {
   let G = 0, H = 0;
   for (const i of idxs) { G += gh[i].g; H += gh[i].h; }
   return -G / (H + LAMBDA);
 }
 
+// Build one XGBoost correction tree using gradient/hessian information.
+// Split criterion: Gain = ½[GL²/(HL+λ) + GR²/(HR+λ) - (GL+GR)²/(HL+HR+λ)] - γ
+// Only splits with Gain > 0 are accepted (γ=0 default: any improvement accepted).
+// Uses incremental O(N log N) computation — sort once, scan for thresholds.
 function buildXGBTree(pts, gh) {
   function build(idxs, depth) {
     const w = leafWeight(idxs, gh);
     if (!idxs.length || depth >= maxDepth || idxs.length < 2)
       return { isLeaf: true, weight: w };
 
+    // Pre-compute total G and H for this node (the "parent" in the gain formula)
     let G = 0, H = 0;
     for (const i of idxs) { G += gh[i].g; H += gh[i].h; }
-    const parentScore = G * G / (H + LAMBDA);
+    const parentScore = G * G / (H + LAMBDA); // (GL+GR)² / (HL+HR+λ)
 
     let bestGain = 0, bestF = null, bestT = null;
 
@@ -499,12 +534,14 @@ function buildXGBTree(pts, gh) {
       let GL = 0, HL = 0;
 
       for (let k = 0; k < sorted.length - 1; k++) {
+        // Incrementally accumulate left-side G and H as we scan
         GL += gh[sorted[k]].g;
         HL += gh[sorted[k]].h;
+        // Skip identical adjacent values — no valid split between equal feature values
         if (pts[sorted[k]][f] >= pts[sorted[k+1]][f] - 0.01) continue;
 
         const GR = G - GL, HR = H - HL;
-        // Gain: ½[GL²/(HL+λ) + GR²/(HR+λ) − (GL+GR)²/(HL+HR+λ)] − γ
+        // XGBoost gain formula (Chen & Guestrin, 2016, Eq. 7)
         const gain = 0.5 * (GL*GL/(HL+LAMBDA) + GR*GR/(HR+LAMBDA) - parentScore) - GAMMA;
 
         if (gain > bestGain) {
@@ -515,46 +552,49 @@ function buildXGBTree(pts, gh) {
       }
     }
 
-    if (bestF === null) return { isLeaf: true, weight: w };
+    if (bestF === null) return { isLeaf: true, weight: w }; // No valid split found
 
     const L = idxs.filter(i => pts[i][bestF] <= bestT);
     const R = idxs.filter(i => pts[i][bestF] > bestT);
     return {
       isLeaf: false, feature: bestF, threshold: bestT,
-      left:  build(L, depth + 1),
-      right: build(R, depth + 1)
+      left: build(L, depth + 1), right: build(R, depth + 1)
     };
   }
   return build(pts.map((_, i) => i), 0);
 }
 
+// Traverse one tree to its leaf and return the leaf weight
 function predictTree(node, x, y) {
   if (node.isLeaf) return node.weight;
   const val = node.feature === 'x' ? x : y;
   return predictTree(val <= node.threshold ? node.left : node.right, x, y);
 }
 
-// ── Training ──────────────────────────────────────────
+// ── Training: sequential boosting ────────────────────
+// Base score = 0.0 in log-odds space → P(Dog) = σ(0) = 0.5
+// (XGBoost default base_score = 0.5 probability = log-odds 0)
+// Each round: preds[i] += η × tree_t(x_i)
 function trainXGB() {
   if (!pts.length || !pts.some(p => p.c === 0) || !pts.some(p => p.c === 1)) return null;
 
   const n   = pts.length;
   const ys  = pts.map(p => p.c);
-
-  // ── BUG FIX: Use a plain Array (not Float64Array) so computeGH receives
-  // a standard iterable where element access returns plain numbers.
-  const preds = new Array(n).fill(0.0); // base_score = 0.0 (log-odds) → P = 0.5
-
+  // Plain Array (not Float64Array) — avoids TypedArray coercion issues in computeGH
+  const preds = new Array(n).fill(0.0);
   const trees = [];
+
   for (let t = 0; t < nTrees; t++) {
-    const gh   = computeGH(ys, preds);
-    const tree = buildXGBTree(pts, gh);
+    const gh   = computeGH(ys, preds);          // gradients & hessians from current errors
+    const tree = buildXGBTree(pts, gh);          // correction tree for this round
     trees.push(tree);
+    // Apply correction: F(x) ← F(x) + η × tree(x)
     for (let i = 0; i < n; i++) preds[i] += eta * predictTree(tree, pts[i].x, pts[i].y);
   }
   return { trees, eta, baseScore: 0.0 };
 }
 
+// Raw ensemble score F(x) = baseScore + Σ η × tree_t(x)
 function scoreXGB(model, x, y) {
   if (!model) return 0;
   let s = model.baseScore;
@@ -562,10 +602,13 @@ function scoreXGB(model, x, y) {
   return s;
 }
 
+// P(Dog) = σ(F(x))
 function predictXGB(model, x, y) {
   return sigmoid(scoreXGB(model, x, y));
 }
 
+// Compute the sequential accumulation path for the prediction table.
+// Shows how each round's contribution builds toward the final F(x) and P(Dog).
 function computeXGBPath(model, x, y) {
   let cumScore = model.baseScore;
   const path = [];
@@ -577,7 +620,7 @@ function computeXGBPath(model, x, y) {
   return { finalScore: cumScore, pDog: sigmoid(cumScore), path };
 }
 
-// ── Dataset ───────────────────────────────────────────
+// ── Dataset: XOR-like 4-cluster pattern ──────────────
 function seed() {
   pts = []; query = null;
   const clusters = [
@@ -611,7 +654,7 @@ function drawHeatmap(grid) {
   for (let py = 0; py < OH; py++) {
     for (let px = 0; px < OW; px++) {
       const p   = grid[py][px];
-      const cer = Math.abs(p - 0.5) * 2;
+      const cer = Math.abs(p - 0.5) * 2;   // 0 at boundary, 1 far from it
       const alp = isDark ? Math.round(cer * 56) : Math.round(cer * 72);
       const i4  = (py * OW + px) * 4;
       if (p < 0.5) { d[i4]=255; d[i4+1]=107; d[i4+2]=139; d[i4+3]=alp; }
@@ -630,8 +673,8 @@ function drawContour(grid, pThresh, color, lw, dash) {
   for (let r = 0; r < OH - 1; r++) {
     for (let c = 0; c < OW - 1; c++) {
       const x = c*sx, y = r*sy;
-      const v1 = grid[r][c]-pThresh, v2 = grid[r][c+1]-pThresh;
-      const v3 = grid[r+1][c+1]-pThresh, v4 = grid[r+1][c]-pThresh;
+      const v1=grid[r][c]-pThresh, v2=grid[r][c+1]-pThresh;
+      const v3=grid[r+1][c+1]-pThresh, v4=grid[r+1][c]-pThresh;
       const pp = [];
       if((v1>0)!==(v2>0)) pp.push({x:x+sx*(-v1/(v2-v1)),y});
       if((v2>0)!==(v3>0)) pp.push({x:x+sx,y:y+sy*(-v2/(v3-v2))});
@@ -658,9 +701,9 @@ function draw() {
   if (xgbModel && xgbModel.trees.length) {
     const grid = computeProbGrid(xgbModel);
     drawHeatmap(grid);
-    drawContour(grid, 0.25, 'rgba(255,107,139,0.48)', 1.2, [4,4]);
-    drawContour(grid, 0.75, 'rgba(79,209,197,0.48)',  1.2, [4,4]);
-    drawContour(grid, 0.50, '#ffd479', 2.5, []);
+    drawContour(grid, 0.25, 'rgba(255,107,139,0.48)', 1.2, [4,4]); // P=0.25 (Cat confidence zone)
+    drawContour(grid, 0.75, 'rgba(79,209,197,0.48)',  1.2, [4,4]); // P=0.75 (Dog confidence zone)
+    drawContour(grid, 0.50, '#ffd479', 2.5, []);                    // P=0.5  (decision boundary)
   }
 
   ctx.lineWidth = 1;
@@ -679,22 +722,23 @@ function draw() {
   report(query);
 }
 
-// ── Prediction Card ───────────────────────────────────
+// ── Prediction Card + Sequential Boosting Table ───────
 function report(qry) {
   const tb = document.getElementById('tbody');
   const vc = document.getElementById('verdict-card');
   tb.innerHTML = '';
 
+  // Contextual warnings — help the learner understand what each extreme means
   const wp = [];
   if (nTrees === 1)     wp.push('n=1: single tree \u2014 not yet a boosting ensemble.');
-  else if(nTrees >= 60) wp.push(`n=${nTrees}: high overfitting risk \u2014 use early stopping in production.`);
-  if (eta >= 0.5)       wp.push(`\u03b7=${eta.toFixed(2)}: large learning rate \u2014 boundary may be unstable.`);
-  else if(eta <= 0.05)  wp.push(`\u03b7=${eta.toFixed(2)}: small \u03b7 \u2014 needs many more trees to converge.`);
-  if (maxDepth >= 6)    wp.push(`Depth ${maxDepth}: XGBoost overfits quickly with deep trees.`);
+  else if(nTrees >= 60) wp.push(`n=${nTrees}: overfitting risk \u2014 use early stopping in production.`);
+  if (eta >= 0.5)       wp.push(`\u03b7=${eta.toFixed(2)}: large rate \u2014 each tree may over-correct.`);
+  else if(eta <= 0.05)  wp.push(`\u03b7=${eta.toFixed(2)}: small rate \u2014 many more trees needed to converge.`);
+  if (maxDepth >= 6)    wp.push(`Depth ${maxDepth}: deep trees + many rounds = strong overfitting risk.`);
   document.getElementById('warn').textContent = wp.join('  \u00b7  ');
 
   if (!xgbModel || !xgbModel.trees.length) {
-    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>${pts.length < 4 ? 'Add more training points' : 'Need both Cats and Dogs'}</div>`;
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>${pts.length < 4 ? 'Add more training points to the canvas' : 'Need both Cats and Dogs to train'}</div>`;
     return;
   }
   if (!qry) {
@@ -703,13 +747,13 @@ function report(qry) {
   }
 
   const { finalScore, pDog, path } = computeXGBPath(xgbModel, qry.x, qry.y);
-  const isDog     = pDog >= 0.5;
+  const isDog      = pDog >= 0.5;
   const classLabel = isDog ? 'Dog' : 'Cat';
-  const winColor  = isDog ? COL[1] : COL[0];
-  const winBg     = isDog ? 'rgba(79,209,197,.1)'   : 'rgba(255,107,139,.1)';
-  const winBorder = isDog ? 'rgba(79,209,197,.28)'  : 'rgba(255,107,139,.28)';
-  const scoreStr  = (finalScore >= 0 ? '+' : '') + finalScore.toFixed(3);
-  const pDogStr   = pDog.toFixed(3);
+  const winColor   = isDog ? COL[1] : COL[0];
+  const winBg      = isDog ? 'rgba(79,209,197,.1)'  : 'rgba(255,107,139,.1)';
+  const winBorder  = isDog ? 'rgba(79,209,197,.28)' : 'rgba(255,107,139,.28)';
+  const scoreStr   = (finalScore >= 0 ? '+' : '') + finalScore.toFixed(3);
+  const pDogStr    = pDog.toFixed(3);
 
   const certainty = Math.abs(pDog - 0.5) * 2;
   let statusLabel, statusColor;
@@ -729,7 +773,7 @@ function report(qry) {
     </div>
     <div class="vc-metrics">
       <div class="vc-metric">
-        <span class="vc-metric-label">F(x) Score</span>
+        <span class="vc-metric-label">F(x) Raw Score</span>
         <span class="vc-metric-value" style="color:${winColor}">${scoreStr}</span>
       </div>
       <div class="vc-metric">
@@ -762,12 +806,14 @@ function report(qry) {
       </div>
     </div>`;
 
-  // Sequential boosting table: shows how each round's contribution accumulates
+  // Sequential boosting table: each row is one round's correction.
+  // Teal values (+) push toward Dog; red values (-) push toward Cat.
+  // P(Dog) column shows how the probability evolves round by round.
   const showN = Math.min(path.length, 8);
   for (let t = 0; t < showN; t++) {
-    const a     = path[t].added;
-    const aStr  = (a >= 0 ? '+' : '') + a.toFixed(3);
-    const aCol  = a >= 0 ? COL[1] : COL[0];
+    const a    = path[t].added;
+    const aStr = (a >= 0 ? '+' : '') + a.toFixed(3);
+    const aCol = a >= 0 ? COL[1] : COL[0]; // teal = toward Dog, red = toward Cat
     tb.innerHTML += `<tr>
       <td>${path[t].round}</td>
       <td style="color:${aCol};font-family:'Fira Code',monospace;font-size:12px;">${aStr}</td>
