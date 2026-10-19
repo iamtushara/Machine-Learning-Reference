@@ -1,0 +1,748 @@
+<html data-type="html" data-identifier="74de197d-5197-4516-89cf-0b5e5d5c5c2e" data-title="Decision Tree Classifier — Interactive Explainer" data-version="2" width="1200" height="900"><head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0e1016;
+    color: #e8eaf0;
+    padding: 24px;
+    transition: background .25s, color .25s;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  header.main-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  header.main-header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color .25s; }
+  header.main-header h1 .badge-tag { font-size: 13px; background: #6c8cff; color: #0b0d13; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+  header.main-header p { font-size: 15px; color: #b9c0d0; margin: 0; line-height: 1.6; max-width: 900px; transition: color .25s; }
+
+  h2 { font-size: 18px; margin: 0 0 10px; color: #9fb4ff; border-bottom: 1px solid #262c3d; padding-bottom: 6px; transition: color .25s, border-color .25s; }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: #ffd479; transition: color .25s; }
+  p { line-height: 1.65; color: #b9c0d0; font-size: 14px; margin: 0 0 12px; transition: color .25s; }
+
+  .layout { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .panel { background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 20px; transition: background .25s, border-color .25s; }
+  .left { flex: 1 1 620px; }
+  .right { flex: 1 1 360px; }
+  .full-width { width: 100%; margin-top: 20px; }
+
+  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; transition: background .25s; }
+  .controls { display: flex; align-items: center; gap: 14px; margin: 14px 0 4px; flex-wrap: wrap; }
+  label { font-size: 13px; color: #8b93a7; transition: color .25s; }
+  input[type=range] { width: 160px; accent-color: #6c8cff; }
+
+  /* Generic button — all explainers */
+  button {
+    background: #6c8cff; color: #0b0d13; border: 0; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: filter .15s;
+  }
+  button.ghost { background: #262c3d; color: #cfd6e6; transition: background .25s, color .25s; }
+  button:hover  { filter: brightness(1.15); }
+
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  th { color: #8b93a7; font-weight: 600; transition: color .25s; }
+  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 12px; transition: color .25s; }
+  li { margin-bottom: 6px; }
+  .k-warn { color: #ff9f9f; font-size: 12.5px; min-height: 16px; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #8b93a7; margin-top: 10px; flex-wrap: wrap; transition: color .25s; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+  .lsamp { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; }
+  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #b9c0d0; margin-top: 14px; transition: background .25s, color .25s; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .card { background: #10141d; border: 1px solid #262c3d; border-radius: 10px; padding: 16px; transition: background .25s, border-color .25s; }
+  .card h3 { margin-top: 0; }
+  pre { background: #0b0d13; padding: 14px; border-radius: 8px; border: 1px solid #262c3d; font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 12.5px; color: #a9b7c6; overflow-x: auto; line-height: 1.5; transition: background .25s, border-color .25s, color .25s; }
+  code { font-family: 'Fira Code', Consolas, Monaco, monospace; background: #10141d; color: #9fb4ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; transition: background .25s, color .25s; }
+  .kw  { color: #cc7832; font-weight: bold; }
+  .fn  { color: #ff2f8b; }
+  .str { color: #6a8759; }
+  .cm  { color: #607080; font-style: italic; }
+  .tag { background: #262c3d; color: #4fd1c5; font-size: 11px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: bold; margin-bottom: 6px; display: inline-block; transition: background .25s; }
+  .warn-box { background: #1a1418; border-left: 3px solid #ff6b8b; padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; transition: background .25s; }
+
+  /* ── Verdict Card (same structure across all explainers) ── */
+  .verdict-card { background: linear-gradient(140deg,#10141f 0%,#0d1019 100%); border: 1px solid #1e2535; border-radius: 12px; padding: 16px; margin-top: 14px; transition: background .25s, border-color .25s; }
+  .vc-empty { display: flex; align-items: center; justify-content: center; gap: 10px; color: #38415a; font-size: 13px; padding: 12px 0; transition: color .25s; }
+  .vc-empty-ring { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed #38415a; flex-shrink: 0; transition: border-color .25s; }
+  .vc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #181f2e; transition: border-color .25s; }
+  .vc-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #424e6a; font-weight: 700; transition: color .25s; }
+  .vc-model-pill { background: #131826; border: 1px solid #222c3f; padding: 3px 10px; border-radius: 20px; font-size: 11px; color: #5c6e96; font-family: 'Fira Code', Consolas, monospace; transition: background .25s, border-color .25s, color .25s; }
+  .vc-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .vc-metric { display: flex; flex-direction: column; gap: 6px; }
+  .vc-metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #424e6a; font-weight: 600; transition: color .25s; }
+  .vc-metric-value { font-size: 22px; font-weight: 800; font-family: 'Fira Code', Consolas, monospace; line-height: 1; letter-spacing: -.5px; }
+  .vc-class-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 8px; border-radius: 8px; width: fit-content; }
+  .vc-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .vc-chip-label { font-size: 13px; font-weight: 700; letter-spacing: .2px; }
+  .vc-status-row { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
+  .vc-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .vc-status-text { font-size: 12.5px; font-weight: 600; }
+
+  /* Gauge — structural base shared across all explainers */
+  .vc-gauge-bar { position: relative; height: 10px; border-radius: 5px; overflow: visible; }
+  /* Decision Tree gauge: Cats (red) LEFT → Dogs (teal) RIGHT — same orientation as KNN */
+  .vc-gauge-bar-dt { background: linear-gradient(to right, #ff6b8b 0%, rgba(255,107,139,.4) 35%, rgba(24,30,46,.95) 45%, rgba(24,30,46,.95) 55%, rgba(79,209,197,.4) 65%, #4fd1c5 100%); }
+  .vc-gauge-tick { position: absolute; top: -4px; width: 1px; height: 18px; background: rgba(255,255,255,.18); transform: translateX(-50%); transition: background .25s; }
+  .vc-gauge-needle { position: absolute; top: -6px; width: 3px; height: 22px; background: #ffd479; border-radius: 3px; transform: translateX(-50%); box-shadow: 0 0 8px rgba(255,212,121,.9),0 0 18px rgba(255,212,121,.3); z-index: 2; transition: left .12s ease; }
+  .vc-gauge-axis { position: relative; height: 16px; margin-top: 5px; }
+  .vc-gauge-axis-label { position: absolute; font-size: 10px; transform: translateX(-50%); font-family: 'Fira Code', Consolas, monospace; }
+  .vc-gauge-zones { display: flex; justify-content: space-between; margin-top: 2px; }
+  .vc-gauge-zone-label { font-size: 10.5px; opacity: .65; }
+
+  /* ── Theme toggle — MUST come after generic button rule so ID overrides it ── */
+  #theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    background: #1e2436;
+    border: 1px solid #333d55;
+    color: inherit;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: background .25s, border-color .25s, transform .15s;
+  }
+  #theme-toggle:hover { filter: none; transform: scale(1.1); }
+
+  /* ── Light Mode Overrides (identical palette across all explainers) ── */
+  body.light { background: #f0f3fa; color: #1a1f2e; }
+  body.light #theme-toggle { background: #e4e8f5; border-color: #c4cce0; }
+  body.light header.main-header { border-bottom-color: #d4daf0; }
+  body.light header.main-header h1 { color: #1a1f2e; }
+  body.light header.main-header p { color: #4a5270; }
+  body.light h2 { color: #3b5bdb; border-bottom-color: #d4daf0; }
+  body.light h3 { color: #9a7000; }
+  body.light p { color: #4a5270; }
+  body.light ol, body.light ul { color: #4a5270; }
+  body.light .panel { background: #ffffff; border-color: #d4daf0; }
+  body.light .card { background: #f5f7fe; border-color: #d4daf0; }
+  body.light canvas { background: #eaeefc; }
+  body.light pre { background: #f2f4fc; border-color: #d4daf0; color: #2d3660; }
+  body.light code { background: #e8edfb; color: #2d52c4; }
+  body.light .kw { color: #b05800; }
+  body.light .fn { color: #b5096a; }
+  body.light .str { color: #3a6e2a; }
+  body.light .cm { color: #5a6a7a; }
+  body.light th { color: #6878a8; }
+  body.light td, body.light th { border-bottom-color: #d4daf0; }
+  body.light label { color: #6878a8; }
+  body.light .legend { color: #6878a8; }
+  body.light button.ghost { background: #e4e8f5; color: #3a4268; }
+  body.light .tag { background: #e4e8fa; color: #1d7a6a; }
+  body.light .tip { background: #eef2ff; color: #3d4a6e; }
+  body.light .warn-box { background: #fff5f5; }
+  body.light .k-warn { color: #c0392b; }
+  body.light .verdict-card { background: linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color: #d0d8ee; }
+  body.light .vc-header { border-bottom-color: #dce4f4; }
+  body.light .vc-section-title { color: #8594b8; }
+  body.light .vc-model-pill { background: #e8edfb; border-color: #d0d8ee; color: #5868a0; }
+  body.light .vc-metric-label { color: #8594b8; }
+  body.light .vc-empty { color: #a8b2cc; }
+  body.light .vc-empty-ring { border-color: #a8b2cc; }
+  body.light .vc-gauge-bar-dt { background: linear-gradient(to right, #ff6b8b 0%, rgba(255,107,139,.45) 35%, rgba(198,206,226,.95) 45%, rgba(198,206,226,.95) 55%, rgba(79,209,197,.45) 65%, #4fd1c5 100%); }
+  body.light .vc-gauge-tick { background: rgba(0,0,0,.15); }
+</style>
+</head>
+<body>
+
+<!-- Theme toggle: fixed top-right, same as KNN & SVM -->
+<button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
+
+<div class="wrap">
+
+  <header class="main-header">
+    <h1 id="main-title">
+      Decision Tree Classifier
+      <span class="badge-tag">Interactive Guide</span>
+    </h1>
+    <p id="main-desc">Decision Trees recursively partition feature space using axis-aligned splits chosen to minimise Gini impurity. Each query traverses from root to a leaf — whose majority class is the prediction. Adjust Max Depth to observe the bias-variance trade-off live.</p>
+  </header>
+
+  <!-- Interactive Playground -->
+  <div class="layout">
+    <div class="panel left">
+      <h2 id="h-canvas">Interactive Playground</h2>
+      <canvas id="plot" width="640" height="420"></canvas>
+      <div class="controls">
+        <label for="depth-slider">Max Depth = <strong id="depth-val">3</strong></label>
+        <input type="range" id="depth-slider" min="1" max="7" step="1" value="3">
+        <button id="reseed" class="ghost">New Dataset</button>
+        <button id="mode-btn">Add Mode: Query Point</button>
+      </div>
+      <div class="k-warn" id="warn"></div>
+      <div class="legend">
+        <span><span class="dot" style="background:#ff6b8b"></span>Class A — Cats</span>
+        <span><span class="dot" style="background:#4fd1c5"></span>Class B — Dogs</span>
+        <span><span class="dot" style="background:#ffd479;outline:2px solid #ffd479;outline-offset:2px;"></span>Query Point</span>
+        <span><span class="dot" style="background:#ff6b8b;outline:2.5px solid #ffd479;outline-offset:2px;"></span>Same-leaf Points</span>
+        <span><span class="lsamp" style="background:rgba(255,255,255,.55);"></span>Split Boundaries</span>
+      </div>
+
+      <!-- Prediction Card — identical component to KNN & SVM -->
+      <div class="verdict-card" id="verdict-card">
+        <div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>
+      </div>
+
+      <table id="tbl">
+        <thead><tr><th>Level</th><th>Feature</th><th>Split Rule</th><th>Branch</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel right">
+      <h2 id="h-how">How Decision Tree Works</h2>
+      <ol>
+        <li><strong>Recursive Binary Splitting:</strong> At each internal node the algorithm exhaustively tests every feature and every threshold candidate, selecting the split that produces the greatest reduction in weighted child Gini impurity. This process repeats independently on each resulting child region.</li>
+        <li><strong>Impurity-Guided Growth:</strong> Gini Impurity G(t) = 1 − Σ p<sub>i</sub><sup>2</sup> measures how mixed a node is. G = 0 means all samples share one class (pure leaf — stop); G = 0.5 is maximum disorder for binary problems.</li>
+        <li><strong>Axis-Aligned Boundaries:</strong> Every split is a single threshold on one feature, drawing a vertical or horizontal line in 2D space. The canvas is partitioned into nested rectangles, each labelled by its majority class.</li>
+        <li><strong>Leaf Prediction:</strong> A query traverses from root to a leaf following the split rules. The leaf's majority class is the prediction; the leaf's class composition gives the confidence. The highlighted region and table below trace the exact path.</li>
+      </ol>
+      <div class="tip"><strong>Try it:</strong> Set Max Depth = 2 — the XOR-like dataset requires exactly two perpendicular splits to isolate each cluster. Increase to 6 and watch boundaries fragment and overfit to individual points. Click near a cluster edge to see the full decision path in the table below.</div>
+    </div>
+  </div>
+
+  <!-- Detailed Algorithm Explanation -->
+  <div class="panel full-width">
+    <h2 id="h-deep-dive">Detailed Algorithm Explanation</h2>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-impurity">1. Measuring Split Quality: Gini Impurity</h3>
+        <p>The CART algorithm selects each split by minimising the <strong>weighted child impurity</strong> after the candidate split:</p>
+        <ul>
+          <li><strong>Gini Impurity (default):</strong><br>
+            <code>G(t) = 1 − Σ<sub>i</sub> p<sub>i</sub><sup>2</sup></code><br>
+            Binary shorthand: G = 2p<sub>0</sub>p<sub>1</sub>. Ranges from 0 (pure) to 0.5 (maximum disorder).
+          </li>
+          <li><strong>Entropy (alternative criterion):</strong><br>
+            <code>H(t) = −Σ<sub>i</sub> p<sub>i</sub> log<sub>2</sub>(p<sub>i</sub>)</code><br>
+            Ranges 0 to 1. Empirically equivalent to Gini in most cases; Gini is cheaper to compute.
+          </li>
+          <li><strong>Weighted child impurity for a split:</strong><br>
+            <code>G<sub>split</sub> = |L|/|N| ⋅ G(L) + |R|/|N| ⋅ G(R)</code><br>
+            The split that minimises G<sub>split</sub> is selected at each node. A pure child (G=0) contributes nothing.
+          </li>
+          <li><strong>Threshold candidates:</strong> midpoints between adjacent sorted unique feature values — exhaustively evaluated at every node.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-cart">2. The CART Algorithm &amp; Complexity</h3>
+        <p>CART (Breiman et al., 1984) is the algorithm underlying sklearn's <code>DecisionTreeClassifier</code>:</p>
+        <ul>
+          <li><strong>Greedy, depth-first:</strong> At each node, test all M features and all threshold candidates. Pick the single split minimising weighted child Gini. Recurse on each child.</li>
+          <li><strong>Stopping criteria (any one halts growth):</strong> node is pure (G = 0), fewer than <code>min_samples_split</code> samples, or <code>max_depth</code> reached.</li>
+          <li><strong>Training complexity:</strong> <i>O(N × M × log N)</i> per level — sklearn presorts feature arrays to avoid re-sorting at each node.</li>
+          <li><strong>Prediction complexity:</strong> <i>O(log N)</i> — simply traverse depth-first from root to leaf.</li>
+          <li><strong>Result:</strong> Strictly binary tree with axis-aligned rectangular decision regions. Converges but is <em>not</em> globally optimal (greedy).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Use Cases -->
+  <div class="panel full-width">
+    <h2 id="h-usecases">Best Use Cases for Decision Tree</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">Healthcare</span>
+        <h3 id="h-medical">Clinical Decision Support</h3>
+        <p>Decision Trees produce human-readable if/then rules directly interpretable by clinicians. Used for triage classification, disease risk stratification, and drug dosage recommendation where transparency and auditability are mandatory.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Finance</span>
+        <h3 id="h-credit">Credit Risk &amp; Loan Approval</h3>
+        <p>Regulatory frameworks (e.g., GDPR's right to explanation) require justifiable automated decisions. Decision Trees provide exact, traceable rule paths — the preferred interpretable baseline for credit scoring and fraud screening.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Feature Engineering</span>
+        <h3 id="h-importance">Feature Importance Analysis</h3>
+        <p>Each split records the weighted Gini decrease it produced. Summed across the tree, <code>feature_importances_</code> is a fast built-in embedded feature selection method, requiring no separate computation step.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Rule Extraction</span>
+        <h3 id="h-rules">Business Rule Generation</h3>
+        <p>Trained trees export as explicit if/else rule sets via <code>sklearn.tree.export_text</code>, converting data-driven models into auditable business logic deployable without any ML runtime infrastructure.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Implementation -->
+  <div class="panel full-width">
+    <h2 id="h-impl">Implementation Details &amp; How Scikit-Learn Does It</h2>
+    <p>sklearn's <code>DecisionTreeClassifier</code> implements the CART algorithm via an optimised Cython extension. Unlike KNN and SVM, <strong>Decision Trees are entirely invariant to feature scaling</strong> — splits are raw value comparisons, not distance computations. <code>StandardScaler</code> is not needed.</p>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-params">Key Hyperparameters</h3>
+        <ul>
+          <li><strong><code>criterion</code>:</strong> <code>'gini'</code> (default) or <code>'entropy'</code>/<code>'log_loss'</code>. Near-identical results in practice; Gini is slightly faster to compute.</li>
+          <li><strong><code>max_depth</code>:</strong> The single most impactful regularisation lever. <code>None</code> = unlimited growth = guaranteed overfitting on most datasets.</li>
+          <li><strong><code>min_samples_split</code>:</strong> Minimum samples at a node before attempting a split. Higher values stop the tree splitting on small, noisy subsets.</li>
+          <li><strong><code>min_samples_leaf</code>:</strong> Minimum samples required in each resulting leaf. Prevents micro-leaves that memorise outliers.</li>
+          <li><strong><code>ccp_alpha</code>:</strong> Cost-Complexity Pruning. After full growth, branches whose impurity-reduction-per-extra-leaf falls below this threshold are pruned. Use <code>cost_complexity_pruning_path()</code> + cross-validation to select the optimal value.</li>
+          <li><strong><code>class_weight</code>:</strong> <code>'balanced'</code> adjusts Gini contributions inversely proportional to class frequency — corrects for imbalanced datasets.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-code">Scikit-Learn Example Code</h3>
+        <pre><code><span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier, plot_tree
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># No StandardScaler needed — trees are scale-invariant</span>
+clf = <span class="fn">DecisionTreeClassifier</span>(
+    criterion=<span class="str">'gini'</span>,        <span class="cm"># or 'entropy' / 'log_loss'</span>
+    max_depth=<span class="str">4</span>,            <span class="cm"># Primary regularisation lever</span>
+    min_samples_split=<span class="str">5</span>,    <span class="cm"># Min samples to attempt a split</span>
+    min_samples_leaf=<span class="str">3</span>,     <span class="cm"># Min samples at each leaf</span>
+    class_weight=<span class="str">'balanced'</span>, <span class="cm"># Correct for class imbalance</span>
+    ccp_alpha=<span class="str">0.01</span>,          <span class="cm"># Post-growth cost-complexity pruning</span>
+    random_state=<span class="str">42</span>
+)
+
+clf.<span class="fn">fit</span>(X_train, y_train)
+predictions = clf.<span class="fn">predict</span>(X_test)
+
+<span class="cm"># Mean Gini-decrease feature importances</span>
+importances = clf.feature_importances_
+
+<span class="cm"># Visualise the learned tree</span>
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="str">14</span>, <span class="str">8</span>))
+<span class="fn">plot_tree</span>(clf, feature_names=feature_names,
+          class_names=[<span class="str">'Cat'</span>, <span class="str">'Dog'</span>],
+          filled=<span class="kw">True</span>, rounded=<span class="kw">True</span>, ax=ax)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pitfalls -->
+  <div class="panel full-width">
+    <h2 id="h-pitfalls">Crucial Considerations When Using Decision Trees</h2>
+    <div class="warn-box">
+      <strong style="color:#ff6b8b;">1. Overfitting with Unlimited Depth</strong>
+      <p style="margin-top:4px;margin-bottom:0;">An unconstrained tree (<code>max_depth=None</code>) creates a leaf for every training sample, achieving 0% training error but catastrophic test error. Always constrain growth via <code>max_depth</code>, <code>min_samples_leaf</code>, or <code>ccp_alpha</code> post-pruning. The depth slider above demonstrates this directly — watch boundaries fragment at depth 6+.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 id="h-variance">2. High Variance / Instability</h3>
+        <p>Adding or removing just a few training points can produce an entirely different tree. Greedy binary splits make all-or-nothing decisions — a slightly different threshold at depth 0 propagates into completely different subtrees below. Use <strong>Random Forests</strong> (ensembles of trees) to average out this instability.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-diagonal">3. Axis-Aligned Boundaries Only</h3>
+        <p>Splits are always parallel to a feature axis — vertical or horizontal lines in 2D. Diagonal decision boundaries (e.g., <i>x + y &gt; c</i>) or circular regions require an exponentially growing number of splits to approximate. SVM with an RBF kernel handles these geometries directly.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-greedy">4. Greedy Splits Are Not Globally Optimal</h3>
+        <p>CART selects the best split at each node with no lookahead. A locally suboptimal split at depth 0 might unlock far better downstream separations. The resulting tree is not globally optimal — only near-optimal. Pruning and ensemble methods mitigate this.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-imbalance">5. Class Imbalance Distorts Gini</h3>
+        <p>A dominant majority class (e.g., 90%) biases Gini calculations, causing the tree to isolate the majority class first and largely ignore the minority. Use <code>class_weight='balanced'</code> or pre-process with SMOTE to rebalance contributions during training.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.wrap -->
+
+<script>
+const cv  = document.getElementById('plot');
+const ctx = cv.getContext('2d');
+const W   = cv.width, H = cv.height;
+const COL = ['#ff6b8b', '#4fd1c5']; // [Cats, Dogs]
+
+let pts = [], query = null, maxDepth = 3, addMode = 0, isDark = true;
+let tree = null;
+
+// ── Offscreen buffer (region colouring) ──────────────
+const offCv = document.createElement('canvas');
+const OW = 160, OH = 105;
+offCv.width = OW; offCv.height = OH;
+const offCtx = offCv.getContext('2d');
+
+// ── CART Decision Tree ────────────────────────────────
+function gini(arr) {
+  const n = arr.length;
+  if (!n) return 0;
+  const n0 = arr.reduce((s, p) => s + (p.c === 0 ? 1 : 0), 0);
+  const n1 = n - n0;
+  return 1 - (n0 / n) ** 2 - (n1 / n) ** 2;
+}
+
+function majority(arr) {
+  const n0 = arr.reduce((s, p) => s + (p.c === 0 ? 1 : 0), 0);
+  // Ties: class 0 (Cats) wins to be deterministic
+  return n0 * 2 >= arr.length ? 0 : 1;
+}
+
+function getCounts(arr) {
+  const n0 = arr.reduce((s, p) => s + (p.c === 0 ? 1 : 0), 0);
+  return { 0: n0, 1: arr.length - n0 };
+}
+
+function buildNode(arr, depth) {
+  const counts  = getCounts(arr);
+  const makeLeaf = () => ({ isLeaf: true, cls: majority(arr), counts });
+
+  // Stopping criteria:
+  // — empty node, max depth reached, node is pure (one class = 0), fewer than 2 samples
+  if (!arr.length ||
+      depth >= maxDepth ||
+      counts[0] === 0 || counts[1] === 0 ||  // pure node: G=0 (fixed: was `< 1e-9` which never fires)
+      arr.length < 2)
+    return makeLeaf();
+
+  let bestG = Infinity, bestF = null, bestT = null;
+
+  for (const f of ['x', 'y']) {
+    const vals = arr.map(p => p[f]).sort((a, b) => a - b);
+    for (let i = 0; i < vals.length - 1; i++) {
+      if (Math.abs(vals[i] - vals[i + 1]) < 0.01) continue; // skip duplicates
+      const t = (vals[i] + vals[i + 1]) / 2;
+      const L = arr.filter(p => p[f] <= t);
+      const R = arr.filter(p => p[f] > t);
+      if (!L.length || !R.length) continue;
+      const g = (L.length * gini(L) + R.length * gini(R)) / arr.length;
+      if (g < bestG) { bestG = g; bestF = f; bestT = t; }
+    }
+  }
+
+  if (bestF === null) return makeLeaf(); // no valid split found
+
+  const L = arr.filter(p => p[bestF] <= bestT);
+  const R = arr.filter(p => p[bestF] > bestT);
+  return {
+    isLeaf: false, cls: majority(arr), counts,
+    feature: bestF, threshold: bestT,
+    left:  buildNode(L, depth + 1),
+    right: buildNode(R, depth + 1)
+  };
+}
+
+// Returns the leaf node object for coordinates (x, y)
+function getLeaf(node, x, y) {
+  if (node.isLeaf) return node;
+  const val = node.feature === 'x' ? x : y;
+  return getLeaf(val <= node.threshold ? node.left : node.right, x, y);
+}
+
+// Traverses tree and records the full decision path
+function getPath(node, x, y, depth, path) {
+  if (node.isLeaf) return { cls: node.cls, counts: node.counts, depth, path };
+  const val  = node.feature === 'x' ? x : y;
+  const left = val <= node.threshold;
+  path.push({
+    depth,
+    feature:   node.feature === 'x' ? 'Axis X' : 'Axis Y',
+    rule:      node.feature + (left ? ' \u2264 ' : ' > ') + node.threshold.toFixed(1),
+    branch:    left ? 'Left \u2199' : 'Right \u2198'
+  });
+  return getPath(left ? node.left : node.right, x, y, depth + 1, path);
+}
+
+// ── Dataset (XOR-like four clusters) ─────────────────
+// Requires depth ≥ 2 to separate — ideal for demonstrating depth trade-off
+function seed() {
+  pts = []; query = null;
+  const clusters = [
+    { cx: 155, cy: 128, c: 0 }, // Cats: top-left
+    { cx: 490, cy: 308, c: 0 }, // Cats: bottom-right
+    { cx: 482, cy: 122, c: 1 }, // Dogs: top-right
+    { cx: 148, cy: 302, c: 1 }, // Dogs: bottom-left
+  ];
+  clusters.forEach(({ cx, cy, c }) => {
+    for (let i = 0; i < 18; i++) {
+      pts.push({
+        x: cx + (Math.random() + Math.random() - 1) * 84,
+        y: cy + (Math.random() + Math.random() - 1) * 68,
+        c
+      });
+    }
+  });
+  pts  = pts.filter(p => p.x > 12 && p.x < W - 12 && p.y > 12 && p.y < H - 12);
+  tree = buildNode(pts, 0);
+}
+
+// ── Drawing ───────────────────────────────────────────
+
+// Colour each pixel by its predicted class; purer leaves get higher alpha
+function drawRegions() {
+  const img = offCtx.createImageData(OW, OH);
+  const d   = img.data;
+  const sx  = W / OW, sy = H / OH;
+
+  for (let py = 0; py < OH; py++) {
+    for (let px = 0; px < OW; px++) {
+      const leaf   = getLeaf(tree, px * sx, py * sy);
+      const tot    = leaf.counts[0] + leaf.counts[1];
+      const purity = tot > 0 ? leaf.counts[leaf.cls] / tot : 0.5;
+      const alpha  = isDark
+        ? Math.round(Math.min(58, purity * 48 + 10))
+        : Math.round(Math.min(78, purity * 62 + 16));
+      const i4 = (py * OW + px) * 4;
+      if (leaf.cls === 0) { d[i4]=255; d[i4+1]=107; d[i4+2]=139; d[i4+3]=alpha; }
+      else                { d[i4]=79;  d[i4+1]=209; d[i4+2]=197; d[i4+3]=alpha; }
+    }
+  }
+  offCtx.putImageData(img, 0, 0);
+  ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(offCv, 0, 0, W, H);
+  ctx.restore();
+}
+
+// Draw axis-aligned split lines, each clipped to its own region
+function drawSplits(node, x0, x1, y0, y1, depth) {
+  if (!node || node.isLeaf) return;
+  const opBase = isDark ? 0.72 : 0.52;
+  const op     = Math.max(0.14, opBase - depth * 0.13);
+  ctx.strokeStyle = isDark
+    ? `rgba(255,255,255,${op})`
+    : `rgba(40,50,110,${op})`;
+  ctx.lineWidth   = Math.max(0.8, 2.2 - depth * 0.35);
+  ctx.setLineDash([]);
+
+  if (node.feature === 'x') {
+    const tx = node.threshold;
+    ctx.beginPath(); ctx.moveTo(tx, y0); ctx.lineTo(tx, y1); ctx.stroke();
+    drawSplits(node.left,  x0, tx, y0, y1, depth + 1);
+    drawSplits(node.right, tx, x1, y0, y1, depth + 1);
+  } else {
+    const ty = node.threshold;
+    ctx.beginPath(); ctx.moveTo(x0, ty); ctx.lineTo(x1, ty); ctx.stroke();
+    drawSplits(node.left,  x0, x1, y0, ty, depth + 1);
+    drawSplits(node.right, x0, x1, ty, y1, depth + 1);
+  }
+}
+
+// Highlight the rectangular leaf region the query falls into
+function highlightLeaf(node, qx, qy, x0, x1, y0, y1) {
+  if (node.isLeaf) {
+    ctx.fillStyle   = 'rgba(255,212,121,0.10)';
+    ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.strokeStyle = 'rgba(255,212,121,0.75)';
+    ctx.lineWidth   = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.strokeRect(x0 + 1, y0 + 1, x1 - x0 - 2, y1 - y0 - 2);
+    ctx.setLineDash([]);
+    return;
+  }
+  const val  = node.feature === 'x' ? qx : qy;
+  const left = val <= node.threshold;
+  if (node.feature === 'x') {
+    const tx = node.threshold;
+    if (left) highlightLeaf(node.left,  qx, qy, x0, tx, y0, y1);
+    else      highlightLeaf(node.right, qx, qy, tx, x1, y0, y1);
+  } else {
+    const ty = node.threshold;
+    if (left) highlightLeaf(node.left,  qx, qy, x0, x1, y0, ty);
+    else      highlightLeaf(node.right, qx, qy, x0, x1, ty, y1);
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background grid
+  ctx.strokeStyle = isDark ? '#1a1f2c' : '#d4daf0';
+  ctx.lineWidth   = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  if (!tree) { report(null); return; }
+
+  // 1. Coloured decision regions (low-res, smoothly scaled)
+  drawRegions();
+
+  // 2. Axis-aligned split boundary lines
+  drawSplits(tree, 0, W, 0, H, 0);
+
+  // 3. Highlight the leaf rectangle that contains the query
+  if (query) highlightLeaf(tree, query.x, query.y, 0, W, 0, H);
+
+  // 4. Find training points that share the same leaf as the query
+  const leafMates = new Set();
+  if (query) {
+    const qLeaf = getLeaf(tree, query.x, query.y);
+    pts.forEach(p => { if (getLeaf(tree, p.x, p.y) === qLeaf) leafMates.add(p); });
+  }
+
+  // Pass 1: golden rings for same-leaf points (behind fills — matches SVM/KNN pattern)
+  leafMates.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+    ctx.strokeStyle = '#ffd479';
+    ctx.lineWidth   = 2.5;
+    ctx.stroke();
+  });
+
+  // Pass 2: filled point circles with thin outline
+  ctx.lineWidth = 1;
+  pts.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, leafMates.has(p) ? 6.5 : 5.5, 0, Math.PI * 2);
+    ctx.fillStyle   = COL[p.c];
+    ctx.fill();
+    ctx.strokeStyle = isDark ? '#1a1f2c' : '#e0e8f8';
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+  });
+
+  // Query point
+  if (query) {
+    ctx.beginPath();
+    ctx.arc(query.x, query.y, 9, 0, Math.PI * 2);
+    ctx.fillStyle   = '#ffd479';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth   = 2.5;
+    ctx.stroke();
+    ctx.lineWidth   = 1;
+  }
+
+  report(query);
+}
+
+// ── Prediction Card + Decision-Path Table ─────────────
+function report(qry) {
+  const tb = document.getElementById('tbody');
+  const vc = document.getElementById('verdict-card');
+  tb.innerHTML = '';
+
+  document.getElementById('warn').textContent =
+    maxDepth === 1 ? 'Max depth = 1: single split — high bias, likely underfitting.' :
+    maxDepth >= 6  ? `Max depth = ${maxDepth}: very deep tree — high overfitting risk.` : '';
+
+  if (!qry) {
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>`;
+    return;
+  }
+
+  const { cls, counts, depth, path } = getPath(tree, qry.x, qry.y, 0, []);
+  const total       = counts[0] + counts[1];
+  const winnerCount = counts[cls];
+  const dominance   = total > 0 ? winnerCount / total : 0.5;
+
+  const isClass0  = cls === 0;
+  const classLabel = isClass0 ? 'Cat' : 'Dog';
+  const winColor   = COL[cls];
+  const winBg      = isClass0 ? 'rgba(255,107,139,.1)'  : 'rgba(79,209,197,.1)';
+  const winBorder  = isClass0 ? 'rgba(255,107,139,.28)' : 'rgba(79,209,197,.28)';
+
+  let statusLabel, statusColor;
+  if (dominance === 1.0)       { statusLabel = 'Pure Leaf';       statusColor = winColor;  }
+  else if (dominance >= 0.80)  { statusLabel = 'High Purity';     statusColor = '#7acc5a'; }
+  else if (dominance >= 0.60)  { statusLabel = 'Majority';        statusColor = '#ffd479'; }
+  else                         { statusLabel = 'Mixed Leaf \u26a0'; statusColor = '#ff9f9f'; }
+
+  // Gauge: Cats LEFT (0%) → Dogs RIGHT (100%) — needle tracks dog proportion in leaf
+  const gaugePct = Math.min(98, Math.max(2, (counts[1] / Math.max(1, total)) * 100));
+  const tieColor = isDark ? 'rgba(255,255,255,.28)' : 'rgba(50,60,100,.4)';
+
+  vc.innerHTML = `
+    <div class="vc-header">
+      <span class="vc-section-title">Prediction Result</span>
+      <span class="vc-model-pill">Max Depth = ${maxDepth} &middot; Gini Impurity</span>
+    </div>
+    <div class="vc-metrics">
+      <div class="vc-metric">
+        <span class="vc-metric-label">Leaf Samples</span>
+        <span class="vc-metric-value" style="color:${winColor}">${winnerCount} / ${total}</span>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Predicted Class</span>
+        <div class="vc-class-chip" style="background:${winBg};border:1px solid ${winBorder};">
+          <span class="vc-chip-dot" style="background:${winColor};box-shadow:0 0 5px ${winColor}70;"></span>
+          <span class="vc-chip-label" style="color:${winColor}">${classLabel}</span>
+        </div>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Leaf Purity</span>
+        <div class="vc-status-row">
+          <span class="vc-status-dot" style="background:${statusColor};box-shadow:0 0 4px ${statusColor}80;"></span>
+          <span class="vc-status-text" style="color:${statusColor}">${statusLabel}</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="vc-gauge-bar vc-gauge-bar-dt">
+        <div class="vc-gauge-tick" style="left:50%"></div>
+        <div class="vc-gauge-needle" style="left:${gaugePct}%"></div>
+      </div>
+      <div class="vc-gauge-axis">
+        <span class="vc-gauge-axis-label" style="left:50%;color:${tieColor};">50/50</span>
+      </div>
+      <div class="vc-gauge-zones">
+        <span class="vc-gauge-zone-label" style="color:#ff6b8b;">&larr; Cats (Class A)</span>
+        <span class="vc-gauge-zone-label" style="color:#4fd1c5;">Dogs (Class B) &rarr;</span>
+      </div>
+    </div>`;
+
+  // Decision path rows
+  path.forEach(step => {
+    tb.innerHTML += `<tr>
+      <td>Level ${step.depth}</td>
+      <td>${step.feature}</td>
+      <td><code style="font-size:11.5px">${step.rule}</code></td>
+      <td>${step.branch}</td>
+    </tr>`;
+  });
+
+  // Leaf node summary row
+  tb.innerHTML += `<tr style="background:rgba(255,212,121,0.08);">
+    <td><strong>Level ${depth}</strong></td>
+    <td colspan="2"><strong>Leaf &mdash; ${counts[0]} Cat${counts[0]!==1?'s':''}, ${counts[1]} Dog${counts[1]!==1?'s':''}</strong></td>
+    <td><span class="badge" style="background:${winColor};color:#0b0d13">${classLabel}</span></td>
+  </tr>`;
+}
+
+// ── Event Listeners ───────────────────────────────────
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * (W / r.width);
+  const y = (e.clientY - r.top)  * (H / r.height);
+  if (addMode === 0) {
+    query = { x, y };
+  } else {
+    pts.push({ x, y, c: addMode - 1 });
+    tree = buildNode(pts, 0);
+  }
+  draw();
+});
+
+document.getElementById('depth-slider').addEventListener('input', e => {
+  maxDepth = +e.target.value;
+  document.getElementById('depth-val').textContent = maxDepth;
+  tree = buildNode(pts, 0);
+  draw();
+});
+
+document.getElementById('reseed').addEventListener('click', () => { seed(); draw(); });
+
+document.getElementById('mode-btn').addEventListener('click', e => {
+  addMode = (addMode + 1) % 3;
+  e.target.textContent = 'Add Mode: ' + ['Query Point', 'Cats', 'Dogs'][addMode];
+});
+
+// Theme toggle — same behaviour as KNN & SVM
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
+  draw();
+});
+
+// ── Init ──────────────────────────────────────────────
+seed();
+draw();
+</script>
+
+</body></html>
