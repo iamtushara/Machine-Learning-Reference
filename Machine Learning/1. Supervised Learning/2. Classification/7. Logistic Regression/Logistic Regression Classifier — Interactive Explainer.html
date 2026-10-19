@@ -1,0 +1,706 @@
+<html data-type="html" data-identifier="a8c3f2b1-9d4e-4a7b-8c5f-2e6d3b1a0c9e" data-title="Logistic Regression Classifier — Interactive Explainer" data-version="2" width="1200" height="900"><head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0e1016;
+    color: #e8eaf0;
+    padding: 24px;
+    transition: background .25s, color .25s;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  header.main-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  header.main-header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color .25s; }
+  header.main-header h1 .badge-tag { font-size: 13px; background: #6c8cff; color: #0b0d13; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+  header.main-header p { font-size: 15px; color: #b9c0d0; margin: 0; line-height: 1.6; max-width: 900px; transition: color .25s; }
+
+  h2 { font-size: 18px; margin: 0 0 10px; color: #9fb4ff; border-bottom: 1px solid #262c3d; padding-bottom: 6px; transition: color .25s, border-color .25s; }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: #ffd479; transition: color .25s; }
+  p { line-height: 1.65; color: #b9c0d0; font-size: 14px; margin: 0 0 12px; transition: color .25s; }
+
+  .layout { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .panel { background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 20px; transition: background .25s, border-color .25s; }
+  .left  { flex: 1 1 620px; }
+  .right { flex: 1 1 360px; }
+  .full-width { width: 100%; margin-top: 20px; }
+
+  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; transition: background .25s; }
+  .controls { display: flex; align-items: center; gap: 14px; margin: 14px 0 4px; flex-wrap: wrap; }
+  label { font-size: 13px; color: #8b93a7; transition: color .25s; }
+  input[type=range] { width: 160px; accent-color: #6c8cff; }
+  button { background: #6c8cff; color: #0b0d13; border: 0; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: filter .15s; }
+  button.ghost { background: #262c3d; color: #cfd6e6; transition: background .25s, color .25s; }
+  button:hover { filter: brightness(1.15); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  th { color: #8b93a7; font-weight: 600; transition: color .25s; }
+  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 12px; transition: color .25s; }
+  li { margin-bottom: 6px; }
+  .k-warn { color: #ff9f9f; font-size: 12.5px; min-height: 16px; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #8b93a7; margin-top: 10px; flex-wrap: wrap; transition: color .25s; }
+  .dot  { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+  .lsamp { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; }
+  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #b9c0d0; margin-top: 14px; transition: background .25s, color .25s; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .card { background: #10141d; border: 1px solid #262c3d; border-radius: 10px; padding: 16px; transition: background .25s, border-color .25s; }
+  .card h3 { margin-top: 0; }
+  pre { background: #0b0d13; padding: 14px; border-radius: 8px; border: 1px solid #262c3d; font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 12.5px; color: #a9b7c6; overflow-x: auto; line-height: 1.5; transition: background .25s, border-color .25s, color .25s; }
+  code { font-family: 'Fira Code', Consolas, Monaco, monospace; background: #10141d; color: #9fb4ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; transition: background .25s, color .25s; }
+  .kw  { color: #cc7832; font-weight: bold; }
+  .fn  { color: #ff2f8b; }
+  .str { color: #6a8759; }
+  .cm  { color: #607080; font-style: italic; }
+  .tag { background: #262c3d; color: #4fd1c5; font-size: 11px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: bold; margin-bottom: 6px; display: inline-block; transition: background .25s; }
+  .warn-box { background: #1a1418; border-left: 3px solid #ff6b8b; padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; transition: background .25s; }
+
+  /* ── Verdict Card (identical structure across all explainers) ── */
+  .verdict-card { background: linear-gradient(140deg,#10141f 0%,#0d1019 100%); border: 1px solid #1e2535; border-radius: 12px; padding: 16px; margin-top: 14px; transition: background .25s, border-color .25s; }
+  .vc-empty { display: flex; align-items: center; justify-content: center; gap: 10px; color: #38415a; font-size: 13px; padding: 12px 0; transition: color .25s; }
+  .vc-empty-ring { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed #38415a; flex-shrink: 0; transition: border-color .25s; }
+  .vc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #181f2e; transition: border-color .25s; }
+  .vc-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #424e6a; font-weight: 700; transition: color .25s; }
+  .vc-model-pill { background: #131826; border: 1px solid #222c3f; padding: 3px 10px; border-radius: 20px; font-size: 11px; color: #5c6e96; font-family: 'Fira Code', Consolas, monospace; transition: background .25s, border-color .25s, color .25s; }
+  .vc-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .vc-metric { display: flex; flex-direction: column; gap: 6px; }
+  .vc-metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #424e6a; font-weight: 600; transition: color .25s; }
+  .vc-metric-value { font-size: 22px; font-weight: 800; font-family: 'Fira Code', Consolas, monospace; line-height: 1; letter-spacing: -.5px; }
+  .vc-class-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 8px; border-radius: 8px; width: fit-content; }
+  .vc-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .vc-chip-label { font-size: 13px; font-weight: 700; letter-spacing: .2px; }
+  .vc-status-row { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
+  .vc-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .vc-status-text { font-size: 12.5px; font-weight: 600; }
+  .vc-gauge-bar { position: relative; height: 10px; border-radius: 5px; overflow: visible; }
+  .vc-gauge-bar-lr { background: linear-gradient(to right, #ff6b8b 0%, rgba(255,107,139,.4) 35%, rgba(24,30,46,.95) 45%, rgba(24,30,46,.95) 55%, rgba(79,209,197,.4) 65%, #4fd1c5 100%); }
+  .vc-gauge-tick { position: absolute; top: -4px; width: 1px; height: 18px; background: rgba(255,255,255,.18); transform: translateX(-50%); transition: background .25s; }
+  .vc-gauge-needle { position: absolute; top: -6px; width: 3px; height: 22px; background: #ffd479; border-radius: 3px; transform: translateX(-50%); box-shadow: 0 0 8px rgba(255,212,121,.9),0 0 18px rgba(255,212,121,.3); z-index: 2; transition: left .12s ease; }
+  .vc-gauge-axis { position: relative; height: 16px; margin-top: 5px; }
+  .vc-gauge-axis-label { position: absolute; font-size: 10px; transform: translateX(-50%); font-family: 'Fira Code', Consolas, monospace; }
+  .vc-gauge-zones { display: flex; justify-content: space-between; margin-top: 2px; }
+  .vc-gauge-zone-label { font-size: 10.5px; opacity: .65; }
+
+  /* ── Theme Toggle — after generic button rule so ID specificity wins ── */
+  #theme-toggle {
+    position: fixed; top: 20px; right: 24px;
+    width: 36px; height: 36px; padding: 0;
+    border-radius: 50%; background: #1e2436;
+    border: 1px solid #333d55; color: inherit;
+    font-size: 16px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; transition: background .25s, border-color .25s, transform .15s;
+  }
+  #theme-toggle:hover { filter: none; transform: scale(1.1); }
+
+  /* ── Light Mode Overrides (identical palette across all explainers) ── */
+  body.light { background: #f0f3fa; color: #1a1f2e; }
+  body.light #theme-toggle { background: #e4e8f5; border-color: #c4cce0; }
+  body.light header.main-header { border-bottom-color: #d4daf0; }
+  body.light header.main-header h1 { color: #1a1f2e; }
+  body.light header.main-header p { color: #4a5270; }
+  body.light h2 { color: #3b5bdb; border-bottom-color: #d4daf0; }
+  body.light h3 { color: #9a7000; }
+  body.light p { color: #4a5270; }
+  body.light ol, body.light ul { color: #4a5270; }
+  body.light .panel { background: #ffffff; border-color: #d4daf0; }
+  body.light .card { background: #f5f7fe; border-color: #d4daf0; }
+  body.light canvas { background: #eaeefc; }
+  body.light pre { background: #f2f4fc; border-color: #d4daf0; color: #2d3660; }
+  body.light code { background: #e8edfb; color: #2d52c4; }
+  body.light .kw  { color: #b05800; }
+  body.light .fn  { color: #b5096a; }
+  body.light .str { color: #3a6e2a; }
+  body.light .cm  { color: #5a6a7a; }
+  body.light th { color: #6878a8; }
+  body.light td, body.light th { border-bottom-color: #d4daf0; }
+  body.light label { color: #6878a8; }
+  body.light .legend { color: #6878a8; }
+  body.light button.ghost { background: #e4e8f5; color: #3a4268; }
+  body.light .tag { background: #e4e8fa; color: #1d7a6a; }
+  body.light .tip { background: #eef2ff; color: #3d4a6e; }
+  body.light .warn-box { background: #fff5f5; }
+  body.light .k-warn { color: #c0392b; }
+  body.light .verdict-card { background: linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color: #d0d8ee; }
+  body.light .vc-header { border-bottom-color: #dce4f4; }
+  body.light .vc-section-title { color: #8594b8; }
+  body.light .vc-model-pill { background: #e8edfb; border-color: #d0d8ee; color: #5868a0; }
+  body.light .vc-metric-label { color: #8594b8; }
+  body.light .vc-empty { color: #a8b2cc; }
+  body.light .vc-empty-ring { border-color: #a8b2cc; }
+  body.light .vc-gauge-bar-lr { background: linear-gradient(to right, #ff6b8b 0%, rgba(255,107,139,.45) 35%, rgba(198,206,226,.95) 45%, rgba(198,206,226,.95) 55%, rgba(79,209,197,.45) 65%, #4fd1c5 100%); }
+  body.light .vc-gauge-tick { background: rgba(0,0,0,.15); }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
+
+<div class="wrap">
+
+  <header class="main-header">
+    <h1 id="main-title">
+      Logistic Regression Classifier
+      <span class="badge-tag">Interactive Guide</span>
+    </h1>
+    <p id="main-desc">Logistic Regression learns a linear decision boundary by maximising the probability of observing the training labels. It is unique among classifiers in this series for outputting <strong>calibrated probabilities</strong> — not just class labels — by squashing a linear score through the sigmoid function σ(z) = 1/(1 + e<sup>−z</sup>).</p>
+  </header>
+
+  <div class="layout">
+    <div class="panel left">
+      <h2 id="h-canvas">Interactive Playground</h2>
+      <canvas id="plot" width="640" height="420"></canvas>
+      <div class="controls">
+        <label for="c-slider">C = <strong id="c-val">1.00</strong></label>
+        <input type="range" id="c-slider" min="-2" max="2" step="0.25" value="0">
+        <button id="reseed" class="ghost">New Dataset</button>
+        <button id="mode-btn">Add Mode: Query Point</button>
+      </div>
+      <div class="k-warn" id="warn"></div>
+      <div class="legend">
+        <span><span class="dot" style="background:#ff6b8b"></span>Class A — Cats</span>
+        <span><span class="dot" style="background:#4fd1c5"></span>Class B — Dogs</span>
+        <span><span class="dot" style="background:#ffd479;outline:2px solid #ffd479;outline-offset:2px;"></span>Query Point</span>
+        <span><span class="lsamp" style="background:#ffd479;height:2.5px;"></span>Boundary (P = 0.5)</span>
+        <span><span class="lsamp" style="border-top:1.5px dashed rgba(255,212,121,.6);"></span>P = 0.25 / 0.75</span>
+      </div>
+
+      <div class="verdict-card" id="verdict-card">
+        <div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>
+      </div>
+
+      <table id="tbl">
+        <thead><tr><th>Component</th><th>Value</th><th>Interpretation</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel right">
+      <h2 id="h-how">How Logistic Regression Works</h2>
+      <ol>
+        <li><strong>Compute the Linear Score:</strong> Calculate z = w<sub>0</sub>x<sub>1</sub> + w<sub>1</sub>x<sub>2</sub> + b — a weighted sum of features plus a bias. Positive z pushes toward Dog; negative toward Cat.</li>
+        <li><strong>Apply the Sigmoid:</strong> Transform z into a probability via σ(z) = 1/(1 + e<sup>−z</sup>). This S-curve squashes any real number into (0, 1). At z = 0 exactly, P(Dog) = 0.5 — the decision boundary.</li>
+        <li><strong>Decision Rule:</strong> Predict Dog if P(Dog) = σ(z) &gt; 0.5 (equivalently z &gt; 0), Cat otherwise. The yellow line on the canvas is exactly where z = 0.</li>
+        <li><strong>Maximum Likelihood Training:</strong> Weights w and bias b are adjusted iteratively to minimise binary cross-entropy loss — maximising the probability of the actual training labels. L2 regularisation (controlled by C) adds a weight-decay term that penalises large weights.</li>
+      </ol>
+      <div class="tip"><strong>Try it:</strong> Drag C to its extremes. Very low C forces a conservative boundary near the data centroid. Very high C lets the boundary hug the training data tightly. Click near the yellow decision boundary — where P(Dog) ≈ 0.5 — to see the "Near Boundary" warning and observe what uncertainty looks like numerically.</div>
+    </div>
+  </div>
+
+  <!-- Deep Dive -->
+  <div class="panel full-width">
+    <h2 id="h-deep-dive">Detailed Algorithm Explanation</h2>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-sigmoid">1. The Sigmoid Function &amp; Log-Odds</h3>
+        <p>The sigmoid maps the unbounded linear score z into a valid probability:</p>
+        <ul>
+          <li><strong>Sigmoid formula:</strong><br>
+            <code>σ(z) = 1 / (1 + e<sup>−z</sup>)</code><br>
+            Output always in (0, 1). Differentiable everywhere — essential for gradient optimisation.
+          </li>
+          <li><strong>Log-odds interpretation (the logit):</strong><br>
+            <code>log[ P / (1 − P) ] = z = w ⋅ x + b</code><br>
+            The linear score z is exactly the log-odds of class Dog. A unit increase in z multiplies the odds by e ≈ 2.72.
+          </li>
+          <li><strong>Key reference values:</strong><br>
+            z = −4 → P ≈ 0.018 &nbsp;|&nbsp;
+            z = 0 → P = 0.5 &nbsp;|&nbsp;
+            z = +4 → P ≈ 0.982
+          </li>
+          <li><strong>Probability contours on canvas:</strong> z = −ln(3) ≈ −1.10 marks P = 0.25 (red dashed); z = +ln(3) ≈ +1.10 marks P = 0.75 (teal dashed). Points between these lines are in the low-confidence zone.</li>
+        </ul>
+      </div>
+      <div>
+        <!-- FIX 1: Gradient formula description updated to match the w/(C·N) formulation used in the code -->
+        <h3 id="h-loss">2. Binary Cross-Entropy Loss &amp; L2 Regularisation</h3>
+        <p>Training minimises a strictly convex loss — guaranteeing a unique global optimum:</p>
+        <ul>
+          <li><strong>Binary cross-entropy (negative log-likelihood):</strong><br>
+            <code>L = −(1/N) Σ[y<sub>i</sub> log(σ(z<sub>i</sub>)) + (1−y<sub>i</sub>) log(1−σ(z<sub>i</sub>))]</code>
+          </li>
+          <li><strong>Gradient (elegantly simple):</strong><br>
+            <code>∂L/∂w<sub>j</sub> = (1/N) Σ (σ(z<sub>i</sub>) − y<sub>i</sub>) ⋅ x<sub>j,i</sub></code><br>
+            The gradient is just the average prediction error × feature value.
+          </li>
+          <li><strong>L2 regularisation:</strong> Augments the gradient with a weight-decay term <code>w<sub>j</sub> / (C ⋅ N)</code>, gently shrinking weights toward zero each step without affecting the bias b (which is never regularised). Larger C → weaker decay; smaller C → stronger decay.</li>
+          <li><strong>Convexity guarantee:</strong> Cross-entropy + L2 is strictly convex — any solver converges to the same unique global minimum regardless of initialisation.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Use Cases -->
+  <div class="panel full-width">
+    <h2 id="h-usecases">Best Use Cases for Logistic Regression</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">Healthcare</span>
+        <h3 id="h-medical">Disease Risk Stratification</h3>
+        <p>Predicting P(malignant) = 0.73 rather than a binary yes/no allows clinicians to apply variable decision thresholds. A high-stakes screening setting might flag all cases with P &gt; 0.1, while a routine check might use P &gt; 0.5. Calibrated probabilities enable this flexibility directly.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Finance</span>
+        <h3 id="h-credit">Credit Scoring &amp; Default Probability</h3>
+        <p>Computing P(default | income, debt, history) outputs a continuous risk score rather than a binary approval. Lenders can tier loan conditions by risk band, and regulators can audit the linear decision rule directly through the model coefficients.</p>
+      </div>
+      <div class="card">
+        <span class="tag">NLP &amp; Text</span>
+        <h3 id="h-spam">Spam Filtering &amp; Sentiment</h3>
+        <p>Logistic Regression with TF-IDF features is a strong, fast baseline for spam detection, sentiment classification, and topic labelling. As a linear model it handles high-dimensional sparse text vectors efficiently, and each feature coefficient is directly interpretable as a log-odds contribution.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Marketing</span>
+        <h3 id="h-ctr">Click-Through &amp; Conversion Prediction</h3>
+        <p>P(click | user_features) directly feeds expected-value calculations for ad bidding and budget allocation. The calibrated probability output allows marginal-ROI optimisation — something that requires actual probabilities, not just ranked scores.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Implementation -->
+  <div class="panel full-width">
+    <h2 id="h-impl">Implementation Details &amp; How Scikit-Learn Does It</h2>
+    <p>sklearn's <code>LogisticRegression</code> fits the model via the solver specified by <code>solver</code> — defaulting to L-BFGS, a quasi-Newton method that approximates the Hessian for fast second-order convergence. Unlike Decision Trees, <strong>Logistic Regression requires feature scaling</strong> — gradient updates scale with feature magnitude, so unscaled features produce disproportionate weight updates.</p>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-params">Key Hyperparameters &amp; Solvers</h3>
+        <ul>
+          <li><strong><code>C</code>:</strong> Inverse regularisation strength (default = 1.0). Small C = strong regularisation. Large C = weak regularisation (boundary fits training data closely).</li>
+          <li><strong><code>penalty</code>:</strong> <code>'l2'</code> (default) shrinks all weights. <code>'l1'</code> induces sparsity. <code>'elasticnet'</code> combines both. <code>None</code> = no regularisation (will diverge on separable data).</li>
+          <!-- FIX 2: liblinear intercept penalization note added -->
+          <li><strong><code>solver</code>:</strong>
+            <ul>
+              <li><code>'lbfgs'</code> (default): L2 + None; supports true multinomial. Best general choice.</li>
+              <li><code>'liblinear'</code>: L1 + L2, One-vs-Rest only. Fast for small binary datasets. <em>Note: uniquely among solvers, liblinear penalises the intercept — use <code>intercept_scaling</code> to mitigate this.</em></li>
+              <li><code>'saga'</code>: All penalties including ElasticNet; scales to very large N.</li>
+            </ul>
+          </li>
+          <li><strong><code>max_iter</code>:</strong> Default 100 — often too low for real datasets. Set to 1000 to avoid <code>ConvergenceWarning</code>.</li>
+          <li><strong><code>class_weight</code>:</strong> <code>'balanced'</code> reweights the cross-entropy loss inversely proportional to class frequency, correcting for imbalanced datasets.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-code">Scikit-Learn Example Code</h3>
+        <pre><code><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> make_pipeline
+
+<span class="cm"># LR gradient scales with feature magnitude: always scale</span>
+model = <span class="fn">make_pipeline</span>(
+    <span class="fn">StandardScaler</span>(),
+    <span class="fn">LogisticRegression</span>(
+        C=<span class="str">1.0</span>,              <span class="cm"># Inverse regularisation (large = less)</span>
+        penalty=<span class="str">'l2'</span>,       <span class="cm"># 'l1', 'l2', 'elasticnet', None</span>
+        solver=<span class="str">'lbfgs'</span>,     <span class="cm"># L-BFGS: L2/None + multinomial</span>
+        max_iter=<span class="str">1000</span>,      <span class="cm"># Increase from default 100</span>
+        class_weight=<span class="str">'balanced'</span>,
+        random_state=<span class="str">42</span>
+    )
+)
+
+model.<span class="fn">fit</span>(X_train, y_train)
+predictions = model.<span class="fn">predict</span>(X_test)
+
+<span class="cm"># Calibrated probabilities: col 0 = P(Cat), col 1 = P(Dog)</span>
+proba = model.<span class="fn">predict_proba</span>(X_test)  <span class="cm"># shape (N, 2)</span>
+p_dog = proba[:, <span class="str">1</span>]                  <span class="cm"># P(class 1 = Dog)</span>
+
+<span class="cm"># Log-odds coefficients (one per feature)</span>
+lr  = model.named_steps[<span class="str">'logisticregression'</span>]
+w, b = lr.coef_[<span class="str">0</span>], lr.intercept_[<span class="str">0</span>]</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pitfalls -->
+  <div class="panel full-width">
+    <h2 id="h-pitfalls">Crucial Considerations When Using Logistic Regression</h2>
+    <div class="warn-box">
+      <strong style="color:#ff6b8b;">1. Linearity Assumption — Only Linear Decision Boundaries</strong>
+      <p style="margin-top:4px;margin-bottom:0;">Logistic Regression can only learn a straight-line boundary in 2D (a hyperplane in N dimensions). If the true boundary is curved, circular, or XOR-shaped (like the Decision Tree dataset in this series), LR will underfit regardless of C. Use <code>PolynomialFeatures</code> preprocessing to create quadratic/interaction terms, or switch to a kernel SVM for genuinely non-linear boundaries.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 id="h-scaling">2. Feature Scaling Is Required</h3>
+        <p>Unlike Decision Trees, LR is sensitive to feature magnitude — the gradient update for each weight is proportional to the feature value: <code>∂L/∂w<sub>j</sub> ∝ x<sub>j</sub></code>. A salary feature (0–500,000) will dominate a binary flag (0–1), producing enormous weight updates for one dimension. Always apply <code>StandardScaler</code> before fitting.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-perfect-sep">3. Perfect Separation Causes Divergence</h3>
+        <p>If classes are perfectly linearly separable and C = ∞ (no regularisation), the optimal weights w → ∞ — the model keeps growing weights to push probabilities toward 0 and 1, never converging. sklearn's default C = 1.0 prevents this. <code>penalty=None</code> will diverge on separable data and should never be used without bounded stopping criteria.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-imbalance">4. Class Imbalance Skews the Boundary</h3>
+        <p>The cross-entropy loss averages equally over all N samples. With 95% Class A, 95% of the gradient comes from Class A errors, pushing the boundary toward Class B. The model learns to assign very low P(B) everywhere. Use <code>class_weight='balanced'</code> or threshold adjustment after training.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-multicollinear">5. Multicollinearity Inflates Coefficients</h3>
+        <p>Highly correlated features cause unstable, inflated weight estimates — the same loss can be achieved with many weight combinations. L2 regularisation mitigates this by shrinking all weights, but L1 is more principled (zeroing one of two correlated features). For severely correlated inputs, apply PCA or explicit feature selection first.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const cv  = document.getElementById('plot');
+const ctx = cv.getContext('2d');
+const W   = cv.width, H = cv.height;
+const COL = ['#ff6b8b', '#4fd1c5']; // [Cats=0, Dogs=1]
+
+let pts = [], query = null, C = 1.0, addMode = 0, isDark = true;
+let model = null;
+
+// ── Offscreen buffer (probability heatmap) ────────────
+const offCv = document.createElement('canvas');
+const OW = 160, OH = 105;
+offCv.width = OW; offCv.height = OH;
+const offCtx = offCv.getContext('2d');
+
+// ── Logistic Regression — Gradient Descent + L2 ───────
+
+// Numerically stable sigmoid, clamped at ±50
+// (exp(±50) is representable in JS float; output is indistinguishable from 0/1)
+function sigmoid(z) {
+  const cz = Math.max(-50, Math.min(50, z));
+  return 1 / (1 + Math.exp(-cz));
+}
+
+// Batch gradient descent with L2 regularisation.
+// Features are z-score normalised internally (equivalent to StandardScaler).
+// Update rule uses the w/(C·N) formulation — scales reg by dataset size
+// for numerical stability and consistent C semantics across datasets.
+function trainLR() {
+  const n = pts.length;
+  if (n < 4) return null;
+
+  const cats = pts.reduce((s, p) => s + (p.c === 0 ? 1 : 0), 0);
+  if (!cats || cats === n) return null; // need both classes
+
+  // Z-score normalisation: mean and population std per axis
+  let sumX = 0, sumY = 0;
+  for (const p of pts) { sumX += p.x; sumY += p.y; }
+  const mx = sumX / n, my = sumY / n;
+
+  let varX = 0, varY = 0;
+  for (const p of pts) { varX += (p.x - mx) ** 2; varY += (p.y - my) ** 2; }
+  const sx = Math.sqrt(varX / n) || 1;
+  const sy = Math.sqrt(varY / n) || 1;
+
+  const norm = pts.map(p => ({ x: (p.x - mx) / sx, y: (p.y - my) / sy, c: p.c }));
+
+  // Initialise weights at zero (correct; symmetry broken by data distribution)
+  let w0 = 0, w1 = 0, b = 0;
+  const lr    = 0.4;
+  const iters = 2000;
+
+  for (let iter = 0; iter < iters; iter++) {
+    let dw0 = 0, dw1 = 0, db = 0;
+
+    for (const p of norm) {
+      const z   = w0 * p.x + w1 * p.y + b;
+      const err = sigmoid(z) - p.c; // ŷ - y (cross-entropy gradient kernel)
+      dw0 += err * p.x;
+      dw1 += err * p.y;
+      db  += err;
+    }
+
+    // w/(C·N) formulation: divides both data gradient and regularisation by N.
+    // More stable than w/C: decouples the learning rate from C and dataset size.
+    // Bias b is intentionally not regularised (standard practice).
+    w0 -= lr * (dw0 + w0 / C) / n;
+    w1 -= lr * (dw1 + w1 / C) / n;
+    b  -= lr * db / n;
+  }
+
+  return { w0, w1, b, mx, sx, my, sy };
+}
+
+// Linear score z = w·x_norm + b for a pixel-space coordinate
+function score(m, x, y) {
+  if (!m) return 0;
+  return m.w0 * (x - m.mx) / m.sx + m.w1 * (y - m.my) / m.sy + m.b;
+}
+
+// P(Dog) = σ(z) for a pixel-space coordinate
+function predict(m, x, y) {
+  if (!m) return 0.5;
+  return sigmoid(score(m, x, y));
+}
+
+// ── Dataset ───────────────────────────────────────────
+function seed() {
+  pts = []; query = null;
+  const clusters = [
+    { cx: 175, cy: 143, c: 0 }, // Cats (top-left cluster)
+    { cx: 462, cy: 278, c: 1 }, // Dogs (bottom-right cluster)
+  ];
+  clusters.forEach(({ cx, cy, c }) => {
+    for (let i = 0; i < 28; i++) {
+      pts.push({
+        x: cx + (Math.random() + Math.random() + Math.random() - 1.5) * 105,
+        y: cy + (Math.random() + Math.random() + Math.random() - 1.5) * 85,
+        c
+      });
+    }
+  });
+  pts   = pts.filter(p => p.x > 12 && p.x < W - 12 && p.y > 12 && p.y < H - 12);
+  model = trainLR();
+}
+
+// ── Drawing ───────────────────────────────────────────
+
+// Sigmoid probability heatmap — intensity proportional to certainty |P−0.5|·2
+function drawHeatmap() {
+  const img = offCtx.createImageData(OW, OH);
+  const d   = img.data;
+  const sx  = W / OW, sy = H / OH;
+
+  for (let py = 0; py < OH; py++) {
+    for (let px = 0; px < OW; px++) {
+      const prob      = predict(model, px * sx, py * sy);
+      const certainty = Math.abs(prob - 0.5) * 2; // 0 at boundary, 1 far away
+      const alpha     = isDark
+        ? Math.round(certainty * 56)
+        : Math.round(certainty * 72);
+      const i4 = (py * OW + px) * 4;
+      if (prob < 0.5) { d[i4]=255; d[i4+1]=107; d[i4+2]=139; d[i4+3]=alpha; }
+      else            { d[i4]=79;  d[i4+1]=209; d[i4+2]=197; d[i4+3]=alpha; }
+    }
+  }
+  offCtx.putImageData(img, 0, 0);
+  ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(offCv, 0, 0, W, H);
+  ctx.restore();
+}
+
+// Draw the iso-probability contour where σ(z) = σ(zThresh), i.e. where z = zThresh.
+// Boundary equation in pixel space: A·x + B·y = RHS
+// where A = w0/sx, B = w1/sy, RHS = zThresh − b + A·mx + B·my
+// Derivation: w0·(x−mx)/sx + w1·(y−my)/sy + b = zThresh → A·x + B·y = RHS  ✓
+function drawContour(zThresh, color, lineWidth, dash) {
+  if (!model) return;
+  const A   = model.w0 / model.sx;
+  const B   = model.w1 / model.sy;
+  const RHS = zThresh - model.b + A * model.mx + B * model.my;
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip(); // clip to canvas
+  ctx.strokeStyle = color;
+  ctx.lineWidth   = lineWidth;
+  ctx.setLineDash(dash);
+  ctx.beginPath();
+
+  if (Math.abs(B) >= 1e-6) {
+    // Non-vertical: y = (RHS − A·x) / B
+    ctx.moveTo(0, RHS / B);
+    ctx.lineTo(W, (RHS - A * W) / B);
+  } else if (Math.abs(A) >= 1e-6) {
+    // Near-vertical: x = RHS / A
+    ctx.moveTo(RHS / A, 0);
+    ctx.lineTo(RHS / A, H);
+  }
+
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background grid
+  ctx.strokeStyle = isDark ? '#1a1f2c' : '#d4daf0';
+  ctx.lineWidth   = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  if (model) {
+    // 1. Smooth sigmoid probability heatmap
+    drawHeatmap();
+
+    // 2. Confidence-zone contours at P = 0.25 (z = −ln3 ≈ −1.099) and P = 0.75 (z = +ln3 ≈ +1.099)
+    const z75 = Math.log(3); // ln(3) ≈ 1.099 — exact value, not approximation
+    drawContour(-z75, 'rgba(255,107,139,0.48)', 1.2, [4, 4]); // P = 0.25
+    drawContour( z75, 'rgba(79,209,197,0.48)',  1.2, [4, 4]); // P = 0.75
+
+    // 3. Main decision boundary at z = 0 (P = 0.5)
+    drawContour(0, '#ffd479', 2.5, []);
+  }
+
+  // Training points
+  ctx.lineWidth = 1;
+  pts.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle   = COL[p.c];
+    ctx.fill();
+    ctx.strokeStyle = isDark ? '#1a1f2c' : '#e0e8f8';
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+  });
+
+  // Query point
+  if (query) {
+    ctx.beginPath();
+    ctx.arc(query.x, query.y, 9, 0, Math.PI * 2);
+    ctx.fillStyle   = '#ffd479';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth   = 2.5;
+    ctx.stroke();
+    ctx.lineWidth   = 1;
+  }
+
+  report(query);
+}
+
+// ── Prediction Card & Computation Table ──────────────
+function report(qry) {
+  const tb = document.getElementById('tbody');
+  const vc = document.getElementById('verdict-card');
+  tb.innerHTML = '';
+
+  document.getElementById('warn').textContent =
+    C <= 0.11 ? `C = ${C.toFixed(2)}: strong regularisation — boundary is conservative.` :
+    C >= 9.0  ? `C = ${C.toFixed(2)}: weak regularisation — boundary fits training data tightly.` : '';
+
+  if (!model) {
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>${pts.length < 4 ? 'Add at least 4 training points' : 'Need both Cats and Dogs to fit the model'}</div>`;
+    return;
+  }
+
+  if (!qry) {
+    vc.innerHTML = `<div class="vc-empty"><div class="vc-empty-ring"></div>Click the canvas to place a query point</div>`;
+    return;
+  }
+
+  const z    = score(model, qry.x, qry.y);
+  const pDog = sigmoid(z);       // P(Dog) — raw sigmoid output
+  const pCat = 1 - pDog;         // P(Cat) = complement
+  const isDog = pDog >= 0.5;
+
+  const classLabel = isDog ? 'Dog' : 'Cat';
+  const winColor   = isDog ? COL[1]                  : COL[0];
+  const winBg      = isDog ? 'rgba(79,209,197,.1)'   : 'rgba(255,107,139,.1)';
+  const winBorder  = isDog ? 'rgba(79,209,197,.28)'  : 'rgba(255,107,139,.28)';
+
+  // Certainty = normalised distance from decision boundary (0 = boundary, 1 = certain)
+  const certainty = Math.abs(pDog - 0.5) * 2;
+  let statusLabel, statusColor;
+  if      (certainty >= 0.80) { statusLabel = 'High Confidence';   statusColor = winColor;  }
+  else if (certainty >= 0.50) { statusLabel = 'Confident';         statusColor = '#7acc5a'; }
+  else if (certainty >= 0.20) { statusLabel = 'Low Confidence';    statusColor = '#ffd479'; }
+  else                        { statusLabel = 'Near Boundary \u26a0'; statusColor = '#ff9f9f'; }
+
+  // Gauge: Cats LEFT (P(Dog)=0) → Dogs RIGHT (P(Dog)=1), needle at P(Dog)
+  const gaugePct = Math.min(98, Math.max(2, pDog * 100));
+  const tieColor = isDark ? 'rgba(255,255,255,.28)' : 'rgba(50,60,100,.4)';
+  const zStr     = (z >= 0 ? '+' : '') + z.toFixed(3);
+
+  vc.innerHTML = `
+    <div class="vc-header">
+      <span class="vc-section-title">Prediction Result</span>
+      <span class="vc-model-pill">C = ${C.toFixed(2)} &middot; L2 Regularisation</span>
+    </div>
+    <div class="vc-metrics">
+      <div class="vc-metric">
+        <span class="vc-metric-label">P(Dog)</span>
+        <span class="vc-metric-value" style="color:${winColor}">${pDog.toFixed(3)}</span>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Predicted Class</span>
+        <div class="vc-class-chip" style="background:${winBg};border:1px solid ${winBorder};">
+          <span class="vc-chip-dot" style="background:${winColor};box-shadow:0 0 5px ${winColor}70;"></span>
+          <span class="vc-chip-label" style="color:${winColor}">${classLabel}</span>
+        </div>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Confidence</span>
+        <div class="vc-status-row">
+          <span class="vc-status-dot" style="background:${statusColor};box-shadow:0 0 4px ${statusColor}80;"></span>
+          <span class="vc-status-text" style="color:${statusColor}">${statusLabel}</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="vc-gauge-bar vc-gauge-bar-lr">
+        <div class="vc-gauge-tick" style="left:50%"></div>
+        <div class="vc-gauge-needle" style="left:${gaugePct}%"></div>
+      </div>
+      <div class="vc-gauge-axis">
+        <span class="vc-gauge-axis-label" style="left:50%;color:${tieColor};">P = 0.5</span>
+      </div>
+      <div class="vc-gauge-zones">
+        <span class="vc-gauge-zone-label" style="color:#ff6b8b;">&larr; Cats (P = 0)</span>
+        <span class="vc-gauge-zone-label" style="color:#4fd1c5;">Dogs (P = 1) &rarr;</span>
+      </div>
+    </div>`;
+
+  // Two-step computation table: z → σ(z) → decision
+  tb.innerHTML = `
+    <tr>
+      <td>Linear Score</td>
+      <td><code style="font-size:11.5px">z = w &sdot; x + b = ${zStr}</code></td>
+      <td>${z >= 0 ? 'z &gt; 0 &rarr; predicts Dog' : 'z &lt; 0 &rarr; predicts Cat'}</td>
+    </tr>
+    <tr>
+      <td>P(Dog) = &sigma;(z)</td>
+      <td><code style="font-size:11.5px">${pDog.toFixed(4)}</code></td>
+      <td>${(pDog * 100).toFixed(1)}% Dog probability</td>
+    </tr>
+    <tr>
+      <td>P(Cat) = 1 &minus; &sigma;(z)</td>
+      <td><code style="font-size:11.5px">${pCat.toFixed(4)}</code></td>
+      <td>${(pCat * 100).toFixed(1)}% Cat probability</td>
+    </tr>
+    <tr style="background:rgba(255,212,121,0.08);">
+      <td><strong>Decision</strong></td>
+      <td><span class="badge" style="background:${winColor};color:#0b0d13">${classLabel}</span></td>
+      <td>P(${classLabel}) = ${(isDog ? pDog : pCat).toFixed(3)} &gt; 0.5</td>
+    </tr>`;
+}
+
+// ── Event Listeners ───────────────────────────────────
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * (W / r.width);
+  const y = (e.clientY - r.top)  * (H / r.height);
+  if (addMode === 0) {
+    query = { x, y };
+  } else {
+    pts.push({ x, y, c: addMode - 1 });
+    model = trainLR();
+  }
+  draw();
+});
+
+document.getElementById('c-slider').addEventListener('input', e => {
+  C = Math.pow(10, +e.target.value);
+  document.getElementById('c-val').textContent = C.toFixed(2);
+  model = trainLR();
+  draw();
+});
+
+document.getElementById('reseed').addEventListener('click', () => { seed(); draw(); });
+
+document.getElementById('mode-btn').addEventListener('click', e => {
+  addMode = (addMode + 1) % 3;
+  e.target.textContent = 'Add Mode: ' + ['Query Point', 'Cats', 'Dogs'][addMode];
+});
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
+  draw();
+});
+
+// ── Init ──────────────────────────────────────────────
+seed();
+draw();
+</script>
+
+</body></html>
