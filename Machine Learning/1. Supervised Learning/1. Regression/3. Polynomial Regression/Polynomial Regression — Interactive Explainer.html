@@ -1,0 +1,817 @@
+<html data-type="html" data-identifier="b9c4d2e3-5f7a-4b8c-9d1e-2f3a4b5c6d7e" data-title="Polynomial Regression — Interactive Explainer" data-version="2" width="1200" height="900"><head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+    background: #0e1016;
+    color: #e8eaf0;
+    padding: 24px;
+    transition: background .25s, color .25s;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  header.main-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  header.main-header h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color .25s; }
+  header.main-header h1 .badge-tag { font-size: 13px; background: #6c8cff; color: #0b0d13; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+  header.main-header p { font-size: 15px; color: #b9c0d0; margin: 0; line-height: 1.6; max-width: 900px; transition: color .25s; }
+
+  h2 { font-size: 18px; margin: 0 0 10px; color: #9fb4ff; border-bottom: 1px solid #262c3d; padding-bottom: 6px; transition: color .25s, border-color .25s; }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: #ffd479; transition: color .25s; }
+  p { line-height: 1.65; color: #b9c0d0; font-size: 14px; margin: 0 0 12px; transition: color .25s; }
+
+  .layout { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .panel { background: #171b26; border: 1px solid #262c3d; border-radius: 14px; padding: 20px; transition: background .25s, border-color .25s; }
+  .left  { flex: 1 1 620px; }
+  .right { flex: 1 1 360px; }
+  .full-width { width: 100%; margin-top: 20px; }
+
+  canvas { border-radius: 10px; background: #0b0d13; cursor: crosshair; display: block; width: 100%; height: auto; transition: background .25s; }
+  .controls { display: flex; align-items: center; gap: 12px; margin: 10px 0 2px; flex-wrap: wrap; }
+  label { font-size: 13px; color: #8b93a7; transition: color .25s; white-space: nowrap; }
+  input[type=range] { width: 120px; accent-color: #6c8cff; }
+  button { background: #6c8cff; color: #0b0d13; border: 0; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: filter .15s; }
+  button.ghost { background: #262c3d; color: #cfd6e6; transition: background .25s, color .25s; }
+  button:hover { filter: brightness(1.15); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #262c3d; transition: border-color .25s; }
+  th { color: #8b93a7; font-weight: 600; transition: color .25s; }
+  ol, ul { color: #b9c0d0; font-size: 14px; line-height: 1.65; padding-left: 20px; margin: 0 0 12px; transition: color .25s; }
+  li { margin-bottom: 6px; }
+  .k-warn { color: #ff9f9f; font-size: 12px; min-height: 16px; margin-top: 2px; }
+
+  /* ── NEW: Two-mode explanation note ── */
+  .playground-note {
+    background: #0c1020;
+    border: 1px solid #1e2838;
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-size: 12.5px;
+    color: #6878a8;
+    margin: 6px 0 4px;
+    line-height: 1.6;
+  }
+  /* ── NEW: Auto-fit flash indicator ── */
+  #fit-flash {
+    min-height: 16px;
+    font-size: 12px;
+    transition: opacity 1.5s ease;
+    opacity: 0;
+    margin-top: 2px;
+  }
+
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #8b93a7; margin-top: 8px; flex-wrap: wrap; transition: color .25s; }
+  .dot   { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+  .lsamp { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; }
+  .tip { background: #10141d; border-left: 3px solid #6c8cff; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #b9c0d0; margin-top: 14px; transition: background .25s, color .25s; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .card { background: #10141d; border: 1px solid #262c3d; border-radius: 10px; padding: 16px; transition: background .25s, border-color .25s; }
+  .card h3 { margin-top: 0; }
+  pre { background: #0b0d13; padding: 14px; border-radius: 8px; border: 1px solid #262c3d; font-family: 'Fira Code', Consolas, Monaco, monospace; font-size: 12.5px; color: #a9b7c6; overflow-x: auto; line-height: 1.5; transition: background .25s, border-color .25s, color .25s; }
+  code { font-family: 'Fira Code', Consolas, Monaco, monospace; background: #10141d; color: #9fb4ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; transition: background .25s, color .25s; }
+  .kw  { color: #cc7832; font-weight: bold; }
+  .fn  { color: #ff2f8b; }
+  .str { color: #6a8759; }
+  .cm  { color: #607080; font-style: italic; }
+  .tag { background: #262c3d; color: #4fd1c5; font-size: 11px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: bold; margin-bottom: 6px; display: inline-block; transition: background .25s; }
+  .warn-box { background: #1a1418; border-left: 3px solid #ff6b8b; padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; transition: background .25s; }
+
+  .verdict-card { background: linear-gradient(140deg,#10141f 0%,#0d1019 100%); border: 1px solid #1e2535; border-radius: 12px; padding: 16px; margin-top: 12px; transition: background .25s, border-color .25s; }
+  .vc-empty { display: flex; align-items: center; justify-content: center; gap: 10px; color: #38415a; font-size: 13px; padding: 12px 0; transition: color .25s; }
+  .vc-empty-ring { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed #38415a; flex-shrink: 0; transition: border-color .25s; }
+  .vc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #181f2e; transition: border-color .25s; }
+  .vc-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #424e6a; font-weight: 700; transition: color .25s; }
+  .vc-model-pill { background: #131826; border: 1px solid #222c3f; padding: 3px 10px; border-radius: 20px; font-size: 11px; color: #5c6e96; font-family: 'Fira Code', Consolas, monospace; transition: background .25s, border-color .25s, color .25s; }
+  .vc-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .vc-metric { display: flex; flex-direction: column; gap: 4px; }
+  .vc-metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #424e6a; font-weight: 600; transition: color .25s; }
+  .vc-metric-value { font-size: 22px; font-weight: 800; font-family: 'Fira Code', Consolas, monospace; line-height: 1; letter-spacing: -.5px; }
+  .vc-status-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .vc-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .vc-status-text { font-size: 12px; font-weight: 600; }
+  .vc-gauge-bar { position: relative; height: 10px; border-radius: 5px; overflow: visible; }
+  .vc-gauge-bar-poly { background: linear-gradient(to right, #4a90e2 0%, rgba(74,144,226,.4) 35%, rgba(24,30,46,.95) 45%, rgba(24,30,46,.95) 55%, rgba(255,154,60,.4) 65%, #ff9a3c 100%); }
+  .vc-gauge-tick { position: absolute; top: -4px; width: 1px; height: 18px; background: rgba(255,255,255,.18); transform: translateX(-50%); transition: background .25s; }
+  .vc-gauge-needle { position: absolute; top: -6px; width: 3px; height: 22px; background: #ffd479; border-radius: 3px; transform: translateX(-50%); box-shadow: 0 0 8px rgba(255,212,121,.9),0 0 18px rgba(255,212,121,.3); z-index: 2; transition: left .12s ease; }
+  .vc-gauge-axis { position: relative; height: 16px; margin-top: 5px; }
+  .vc-gauge-axis-label { position: absolute; font-size: 10px; transform: translateX(-50%); font-family: 'Fira Code', Consolas, monospace; }
+  .vc-gauge-zones { display: flex; justify-content: space-between; margin-top: 2px; }
+  .vc-gauge-zone-label { font-size: 10.5px; opacity: .65; }
+
+  #theme-toggle {
+    position: fixed; top: 20px; right: 24px;
+    width: 36px; height: 36px; padding: 0;
+    border-radius: 50%; background: #1e2436;
+    border: 1px solid #333d55; color: inherit;
+    font-size: 16px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; transition: background .25s, border-color .25s, transform .15s;
+  }
+  #theme-toggle:hover { filter: none; transform: scale(1.1); }
+
+  body.light { background: #f0f3fa; color: #1a1f2e; }
+  body.light #theme-toggle { background: #e4e8f5; border-color: #c4cce0; }
+  body.light header.main-header { border-bottom-color: #d4daf0; }
+  body.light header.main-header h1 { color: #1a1f2e; }
+  body.light header.main-header p { color: #4a5270; }
+  body.light h2 { color: #3b5bdb; border-bottom-color: #d4daf0; }
+  body.light h3 { color: #9a7000; }
+  body.light p { color: #4a5270; }
+  body.light ol, body.light ul { color: #4a5270; }
+  body.light .panel { background: #ffffff; border-color: #d4daf0; }
+  body.light .card { background: #f5f7fe; border-color: #d4daf0; }
+  body.light canvas { background: #eaeefc; }
+  body.light pre { background: #f2f4fc; border-color: #d4daf0; color: #2d3660; }
+  body.light code { background: #e8edfb; color: #2d52c4; }
+  body.light .kw  { color: #b05800; }
+  body.light .fn  { color: #b5096a; }
+  body.light .str { color: #3a6e2a; }
+  body.light .cm  { color: #5a6a7a; }
+  body.light th { color: #6878a8; }
+  body.light td, body.light th { border-bottom-color: #d4daf0; }
+  body.light label { color: #6878a8; }
+  body.light .legend { color: #6878a8; }
+  body.light button.ghost { background: #e4e8f5; color: #3a4268; }
+  body.light .tag { background: #e4e8fa; color: #1d7a6a; }
+  body.light .tip { background: #eef2ff; color: #3d4a6e; }
+  body.light .warn-box { background: #fff5f5; }
+  body.light .k-warn { color: #c0392b; }
+  body.light .playground-note { background: #eef2ff; border-color: #d4daf0; color: #5468a0; }
+  body.light .verdict-card { background: linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color: #d0d8ee; }
+  body.light .vc-header { border-bottom-color: #dce4f4; }
+  body.light .vc-section-title { color: #8594b8; }
+  body.light .vc-model-pill { background: #e8edfb; border-color: #d0d8ee; color: #5868a0; }
+  body.light .vc-metric-label { color: #8594b8; }
+  body.light .vc-empty { color: #a8b2cc; }
+  body.light .vc-empty-ring { border-color: #a8b2cc; }
+  body.light .vc-gauge-bar-poly { background: linear-gradient(to right, #4a90e2 0%, rgba(74,144,226,.45) 35%, rgba(198,206,226,.95) 45%, rgba(198,206,226,.95) 55%, rgba(255,154,60,.45) 65%, #ff9a3c 100%); }
+  body.light .vc-gauge-tick { background: rgba(0,0,0,.15); }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
+
+<div class="wrap">
+
+  <header class="main-header">
+    <h1 id="main-title">
+      Polynomial Regression
+      <span class="badge-tag">Interactive Guide</span>
+    </h1>
+    <p id="main-desc">Polynomial Regression extends Simple Linear Regression by adding higher-power features (x², x³, …) to model non-linear relationships. Crucially, the model is still <strong>linear in its parameters</strong> — we are performing standard linear regression on a richer feature set. The polynomial <strong>degree</strong> is the central trade-off: too low and the model underfits (misses the curve), too high and it overfits (memorises noise). Drag the Degree slider to see this live.</p>
+  </header>
+
+  <div class="layout">
+    <div class="panel left">
+
+      <!-- CHANGE 1: Updated subtitle to reflect the two-mode design -->
+      <h2 id="h-canvas">Interactive Playground — Degree Slider Fits Instantly</h2>
+      <canvas id="plot" width="640" height="420"></canvas>
+
+      <div class="controls">
+        <label for="deg-slider" title="Polynomial degree: auto-fits the model immediately — just like sklearn's model.fit()"><strong>Degree n =</strong> <strong id="deg-val" style="color:#ffd479;">1</strong></label>
+        <input type="range" id="deg-slider" min="1" max="10" step="1" value="1">
+        <label for="lr-slider" title="Learning rate used by Animate Fit / Step (not needed for degree changes)">η (eta) = <strong id="lr-val">0.050</strong></label>
+        <input type="range" id="lr-slider" min="0.001" max="0.200" step="0.001" value="0.050">
+        <label style="color:#8b93a7;">R²: <strong id="r2-val" style="color:#ffd479;">—</strong></label>
+      </div>
+
+      <!-- CHANGE 2: Updated button label Run GD → Animate Fit; updated reset title -->
+      <div class="controls">
+        <button id="step-btn" title="Perform one gradient descent step manually (useful after Reset)">Step →</button>
+        <button id="run-btn" title="Watch gradient descent converge step by step from the current weights — most useful after clicking Reset">▶ Animate Fit</button>
+        <button id="reset-btn" class="ghost" title="Zero all weights — then click Animate Fit or Step to watch gradient descent converge from scratch">Reset</button>
+        <button id="reseed-btn" class="ghost">New Dataset</button>
+        <button id="mode-btn">Add Mode: Query</button>
+      </div>
+
+      <!-- CHANGE 3: Two-mode explanatory note (new element) -->
+      <div class="playground-note">
+        <strong>🎓 Degree slider</strong> fits the model instantly — just like calling <code>model.fit()</code> in sklearn. Drag it to explore the bias-variance trade-off immediately.&nbsp;&nbsp;
+        <strong>Reset → ▶ Animate Fit</strong> watches gradient descent converge step by step from scratch — a deeper look at <em>how</em> the weights are found.
+      </div>
+
+      <!-- CHANGE 4: Auto-fit flash indicator (new element) -->
+      <div id="fit-flash"></div>
+
+      <div class="k-warn" id="warn"></div>
+      <div class="legend">
+        <span><span class="dot" style="background:#7b93db;"></span>Data Points</span>
+        <span><span class="lsamp" style="background:#ffd479;height:2.5px;"></span>Fitted Curve (degree n)</span>
+        <span><span class="lsamp" style="border-top:1.5px dashed rgba(255,212,121,0.22);"></span>Degree 1 reference</span>
+        <span><span class="lsamp" style="border-top:2px solid rgba(255,107,139,0.65);"></span>Residuals (over)</span>
+        <span><span class="lsamp" style="border-top:2px solid rgba(79,209,197,0.65);"></span>Residuals (under)</span>
+      </div>
+
+      <div class="verdict-card" id="verdict-card">
+        <div class="vc-empty"><div class="vc-empty-ring"></div>Drag the Degree slider — then click the canvas to predict</div>
+      </div>
+
+      <table id="tbl">
+        <thead id="tbl-head">
+          <tr><th>Metric</th><th>Value</th><th>Interpretation</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel right">
+      <h2 id="h-how">How Polynomial Regression Works</h2>
+      <ol>
+        <li><strong>Feature Engineering — Create Polynomial Terms:</strong> Given a single feature x, generate the vector [x, x², x³, …, xⁿ]. These are the polynomial features. The model is still ŷ = w₀ + w₁x + w₂x² + … + wₙxⁿ — <em>linear in the weights w</em>, even though it is non-linear in x. This is why gradient descent and normal equations still apply unchanged.</li>
+        <li><strong>Same MSE Loss, More Weights:</strong> We minimise the same MSE = (1/N)Σ(ŷ−y)² as in Simple Linear Regression. Gradient descent now updates n+1 weights independently, one for each polynomial term including the bias w₀.</li>
+        <li><strong>Degree Controls the Shape:</strong> Degree 1 = straight line. Degree 2 = parabola (one bend). Degree n = curve with up to n−1 turning points. With the same dataset, higher degree means a more "flexible" and "wiggly" curve.</li>
+        <li><strong>The Bias-Variance Trade-off:</strong> Low degree → high <em>bias</em> (model is too rigid to fit the true curve). High degree → high <em>variance</em> (model memorises every noise spike). The optimal degree is found by evaluating on a held-out validation set, not training data alone.</li>
+      </ol>
+      <!-- CHANGE 5: Updated tip to reference "Animate Fit" instead of "Run GD" -->
+      <div class="tip"><strong>Try it:</strong> Start at <strong>Degree 1</strong> — the straight line visibly misses the curve (underfitting). Drag to <strong>Degree 2 or 3</strong> to see a parabolic fit snap into place. Keep going to <strong>Degree 8–10</strong> and watch the curve oscillate wildly — that is overfitting. Then click <strong>Reset</strong> at any degree and hit <strong>▶ Animate Fit</strong> to watch the weights converge from zero, step by step.</div>
+    </div>
+  </div>
+
+  <!-- Deep Dive -->
+  <div class="panel full-width">
+    <h2 id="h-deep-dive">Detailed Algorithm Explanation</h2>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-features">1. Why Polynomial Features? Linearity in Parameters</h3>
+        <p>Polynomial regression is a clever trick: we <em>engineer</em> new features from the original one and then apply standard linear regression. The key insight is that while the relationship between ŷ and x is non-linear, it is perfectly linear in the coefficients w — so all linear regression theory (normal equations, gradient descent, closed-form solutions) still applies exactly.</p>
+        <ul>
+          <li><strong>Feature transformation:</strong><br>
+            Original: x → Polynomial: [1, x, x², x³, ..., xⁿ]<br>
+            <code>ŷ = w₀·1 + w₁·x + w₂·x² + ... + wₙ·xⁿ</code>
+          </li>
+          <li><strong>Gradients remain simple:</strong> For each weight wₖ, the gradient of MSE is:<br>
+            <code>∂MSE/∂wₖ = (2/N) Σ(ŷᵢ−yᵢ)·xᵢᵏ</code><br>
+            This is identical to the linear regression gradient, just with xᵏ as the feature.
+          </li>
+          <li><strong>More features = more capacity:</strong> Each extra degree adds one new weight. Degree n means n+1 parameters (w₀ through wₙ). With 25 training points, a degree-10 model has 11 parameters — already dangerously close to memorising the data.</li>
+          <li><strong>Feature scaling becomes critical:</strong> If x ∈ [1, 10], then x⁸ ∈ [1, 10⁸]. These vastly different scales cause gradient descent to diverge without normalisation. Always standardise polynomial features before fitting.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-bvt">2. The Bias-Variance Trade-off: Finding Optimal Degree</h3>
+        <p>The central challenge in polynomial regression is choosing the right degree. This is the classic bias-variance trade-off, visualised live in the playground above.</p>
+        <ul>
+          <li><strong>High Bias (Underfitting) — Low Degree:</strong> A degree-1 line cannot capture a quadratic pattern no matter how much data you have. The model's fundamental form is wrong. Both training and test errors are high.</li>
+          <li><strong>High Variance (Overfitting) — High Degree:</strong> A degree-10 polynomial has enough flexibility to pass through every training point. Training error → 0, but the curve oscillates wildly between points. Test error is very high even though training R² ≈ 1.</li>
+          <li><strong>How to find optimal degree:</strong>
+            <ul>
+              <li>Split data: training + validation sets</li>
+              <li>Fit model for each degree d = 1, 2, 3, ...</li>
+              <li>Choose d that minimises <em>validation</em> error</li>
+              <li>Or use k-fold cross-validation (<code>GridSearchCV</code>)</li>
+            </ul>
+          </li>
+          <li><strong>Regularisation as an alternative:</strong> Instead of choosing a specific degree, use a high-degree model (say, degree 8) with Ridge or Lasso regularisation. The penalty forces most high-degree weights toward zero, achieving a smooth curve without manually selecting the degree.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Use Cases -->
+  <div class="panel full-width">
+    <h2 id="h-usecases">Best Use Cases for Polynomial Regression</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">Manufacturing</span>
+        <h3 id="h-process">Process Optimisation</h3>
+        <p>Many industrial processes have a non-linear optimum — yield peaks at a specific temperature, pressure, or flow rate and falls off on either side. A degree-2 polynomial models this "hill" shape precisely. The fitted parabola's vertex gives the optimal operating point analytically, without running hundreds of expensive physical experiments.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Medicine</span>
+        <h3 id="h-dose">Dose-Response Modelling</h3>
+        <p>The effect of a drug as a function of dosage is rarely linear — it typically rises steeply at first, then saturates. A low-degree polynomial (degree 2–3) can approximate this shape. The fitted curve allows pharmacologists to identify the therapeutic range and toxic threshold from a limited number of clinical measurements.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Economics</span>
+        <h3 id="h-returns">Diminishing Returns &amp; Production Functions</h3>
+        <p>The Cobb-Douglas production function, diminishing marginal returns, and quadratic cost curves all have polynomial shapes. A degree-2 or degree-3 polynomial fit allows economists to estimate inflection points — the level of capital or labour input at which additional investment starts yielding decreasing returns.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Physics &amp; Engineering</span>
+        <h3 id="h-physics">Trajectory &amp; Signal Modelling</h3>
+        <p>Projectile motion is an exact quadratic (s = ut + ½at²). Aerodynamic drag curves, thermodynamic equilibria, and structural deflection under load all follow polynomial relationships derivable from first principles. When the physical law is known to be polynomial, fitting recovers both the prediction and the underlying physical parameters.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Implementation -->
+  <div class="panel full-width">
+    <h2 id="h-impl">Implementation in Scikit-Learn</h2>
+    <p>In sklearn, polynomial regression is built by chaining <code>PolynomialFeatures</code> (feature engineering) with a linear estimator (<code>LinearRegression</code> or <code>Ridge</code>) inside a <code>Pipeline</code>. Set <code>include_bias=False</code> — the linear estimator already adds its own intercept via <code>fit_intercept=True</code>. A <code>StandardScaler</code> between the two steps is essential: x⁸ can be 10⁸× larger than x, making gradient-based optimisers diverge without it.</p>
+    <div class="grid-2">
+      <div>
+        <h3 id="h-params">Key Parameters &amp; When to Use Which</h3>
+        <ul>
+          <li><strong><code>PolynomialFeatures(degree, include_bias=False)</code>:</strong> Generates all polynomial features up to the specified degree. Always set <code>include_bias=False</code> to avoid a redundant column of ones alongside the estimator's own intercept.</li>
+          <li><strong><code>StandardScaler()</code>:</strong> Mandatory between <code>PolynomialFeatures</code> and any regularised estimator. Without it, high-degree features (e.g., x⁸) dwarf low-degree ones, causing Ridge to unfairly penalise them.</li>
+          <li><strong><code>LinearRegression</code>:</strong> No regularisation — use for degree ≤ 3 when data is abundant and the relationship is known to be polynomial.</li>
+          <li><strong><code>Ridge(alpha)</code>:</strong> L2 regularisation on the coefficients. Use for degree ≥ 4 to prevent overfitting. Larger <code>alpha</code> = smoother curve, fewer oscillations.</li>
+          <li><strong>Choosing degree:</strong> Use <code>GridSearchCV</code> over <code>{'polynomialfeatures__degree': [1,2,...,8]}</code> — never choose based on training R² alone.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 id="h-code">Scikit-Learn Code</h3>
+        <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.preprocessing  <span class="kw">import</span> PolynomialFeatures, StandardScaler
+<span class="kw">from</span> sklearn.linear_model   <span class="kw">import</span> LinearRegression, Ridge
+<span class="kw">from</span> sklearn.pipeline       <span class="kw">import</span> make_pipeline
+<span class="kw">from</span> sklearn.metrics        <span class="kw">import</span> mean_squared_error, r2_score
+
+<span class="cm"># ── Method 1: Polynomial + OLS (degree ≤ 3) ─────────────</span>
+
+<span class="cm"># 1. Create  (include_bias=False: LinearRegression adds its own intercept)</span>
+ols = <span class="fn">make_pipeline</span>(
+    <span class="fn">PolynomialFeatures</span>(degree=<span class="str">2</span>, include_bias=<span class="kw">False</span>),
+    <span class="fn">StandardScaler</span>(),
+    <span class="fn">LinearRegression</span>()
+)
+<span class="cm"># 2. Fit</span>
+ols.<span class="fn">fit</span>(X_train, y_train)
+<span class="cm"># 3. Predict</span>
+y_pred_ols = ols.<span class="fn">predict</span>(X_test)
+<span class="cm"># 4. Extract coefficients (from the LinearRegression step)</span>
+lr_step = ols.named_steps[<span class="str">'linearregression'</span>]
+<span class="fn">print</span>(<span class="str">f"Coefficients: {lr_step.coef_}"</span>)
+<span class="fn">print</span>(<span class="str">f"Intercept:    {lr_step.intercept_:.4f}"</span>)
+<span class="cm"># 5. Evaluate</span>
+<span class="fn">print</span>(<span class="str">f"R²:   {r2_score(y_test, y_pred_ols):.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"RMSE: {np.sqrt(mean_squared_error(y_test, y_pred_ols)):.4f}"</span>)
+
+<span class="cm"># ── Method 2: Polynomial + Ridge (high degree) ───────────</span>
+
+<span class="cm"># 1. Create  (StandardScaler mandatory before Ridge)</span>
+ridge = <span class="fn">make_pipeline</span>(
+    <span class="fn">PolynomialFeatures</span>(degree=<span class="str">6</span>, include_bias=<span class="kw">False</span>),
+    <span class="fn">StandardScaler</span>(),
+    <span class="fn">Ridge</span>(alpha=<span class="str">1.0</span>)  <span class="cm"># L2 penalty — larger alpha = smoother curve</span>
+)
+<span class="cm"># 2. Fit</span>
+ridge.<span class="fn">fit</span>(X_train, y_train)
+<span class="cm"># 3. Predict</span>
+y_pred_ridge = ridge.<span class="fn">predict</span>(X_test)
+<span class="cm"># 4. Extract coefficients (from the Ridge step)</span>
+ridge_step = ridge.named_steps[<span class="str">'ridge'</span>]
+<span class="fn">print</span>(<span class="str">f"Coefficients: {ridge_step.coef_}"</span>)
+<span class="fn">print</span>(<span class="str">f"Intercept:    {ridge_step.intercept_:.4f}"</span>)
+<span class="cm"># 5. Evaluate</span>
+<span class="fn">print</span>(<span class="str">f"R²:   {r2_score(y_test, y_pred_ridge):.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"RMSE: {np.sqrt(mean_squared_error(y_test, y_pred_ridge)):.4f}"</span>)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pitfalls -->
+  <div class="panel full-width">
+    <h2 id="h-pitfalls">Crucial Considerations for Polynomial Regression</h2>
+    <div class="warn-box">
+      <strong style="color:#ff6b8b;">1. High Training R² Does Not Mean a Good Model — It Often Means Overfitting</strong>
+      <p style="margin-top:4px;margin-bottom:0;">A degree-10 polynomial with 20 training points can achieve R² ≈ 1 by threading an oscillating curve through every single data point. This is overfitting — the model has memorised training noise, not learnt the underlying pattern. Test the model on a <em>held-out validation set</em>. If validation R² drops sharply while training R² stays high, you are overfitting. The fix: reduce degree, add Ridge/Lasso regularisation, or collect more data.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 id="h-scaling">2. Feature Scaling Is Mandatory</h3>
+        <p>If x ∈ [1, 10], then x² ∈ [1, 100] and x⁸ ∈ [1, 10⁸]. Without standardisation, gradient descent's step sizes become wildly inconsistent across features. Regularisation (Ridge) is also distorted: it unfairly penalises high-degree weights whose raw magnitudes are small only because they multiply a large feature. Always use <code>StandardScaler()</code> after <code>PolynomialFeatures</code>.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-multicollinear">3. Multicollinearity Between Polynomial Terms</h3>
+        <p>x, x², x³ are highly correlated — all three increase monotonically for positive x. This multicollinearity makes the normal equations numerically unstable (near-singular matrix), and causes individual coefficient estimates to be unreliable even if overall predictions are fine. Ridge regularisation mitigates this directly by adding a small positive value to the diagonal of X<sup>T</sup>X before inversion.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-extrap-poly">4. Extrapolation Is Extremely Dangerous</h3>
+        <p>High-degree polynomials oscillate violently beyond training data. A degree-8 polynomial fitted to x ∈ [0, 5] may predict a physically impossible value at x = 6. This is far worse than linear extrapolation, which at least maintains a consistent direction. Always explicitly flag and refuse predictions outside the training range for polynomial models.</p>
+      </div>
+      <div class="card">
+        <h3 id="h-degree-select">5. Never Choose Degree Based on Training Performance</h3>
+        <p>Training MSE and R² always improve as degree increases — they are monotonically non-worsening. Choosing the degree that minimises training error would always select the maximum degree, guaranteeing overfitting. Always use a <em>validation set</em> or k-fold cross-validation (<code>GridSearchCV</code> with <code>cv=5</code>) over a range of candidate degrees to find the degree that generalises best.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const cv  = document.getElementById('plot');
+const ctx = cv.getContext('2d');
+const W   = cv.width, H = cv.height;
+
+const MAR = { L: 60, R: 20, T: 24, B: 50 };
+const PW  = W - MAR.L - MAR.R;
+const PH  = H - MAR.T - MAR.B;
+
+let pts = [], query = null, addMode = false, isDark = true;
+let isRunning = false, animId = null, animStartIter = 0;
+let degree = 1, lr = 0.05;
+let weights = [0, 0], iteration = 0;
+let xMean = 0, xStd = 1;
+let polyMeans = [], polyStds = [];
+let dxMin = -3, dxMax = 4, dyMin = 0, dyMax = 30;
+
+function toScreen(dx, dy) {
+  return { x: MAR.L+(dx-dxMin)/(dxMax-dxMin)*PW, y: MAR.T+(1-(dy-dyMin)/(dyMax-dyMin))*PH };
+}
+function fromScreen(sx, sy) {
+  return { x:(sx-MAR.L)/PW*(dxMax-dxMin)+dxMin, y:(1-(sy-MAR.T)/PH)*(dyMax-dyMin)+dyMin };
+}
+function niceTicks(lo, hi, n) {
+  const range=hi-lo, raw=range/n, exp=Math.pow(10,Math.floor(Math.log10(raw)));
+  const step=[1,2,2.5,5,10].map(f=>f*exp).find(s=>s>=raw)||exp;
+  const start=Math.ceil(lo/step)*step, ticks=[];
+  for(let v=start;v<=hi+step*0.01;v+=step) ticks.push(parseFloat(v.toFixed(10)));
+  return ticks;
+}
+
+function updateNormX() {
+  if(!pts.length){xMean=0;xStd=1;return;}
+  const xs=pts.map(p=>p.x);
+  xMean=xs.reduce((s,v)=>s+v,0)/xs.length;
+  xStd=Math.sqrt(xs.reduce((s,v)=>s+(v-xMean)**2,0)/xs.length)||1;
+}
+function updatePolyNorms() {
+  polyMeans=[0]; polyStds=[1];
+  const xn=pts.map(p=>(p.x-xMean)/xStd);
+  for(let d=1;d<=degree;d++){
+    const vals=xn.map(x=>Math.pow(x,d));
+    const m=vals.reduce((s,v)=>s+v,0)/vals.length;
+    const s=Math.sqrt(vals.reduce((s,v)=>s+(v-m)**2,0)/vals.length)||1;
+    polyMeans.push(m); polyStds.push(s);
+  }
+}
+function getFeatures(x) {
+  const xn=(x-xMean)/xStd;
+  return polyMeans.map((m,d)=>d===0?1:(Math.pow(xn,d)-m)/polyStds[d]);
+}
+function predictY(x) { return getFeatures(x).reduce((s,fi,i)=>s+weights[i]*fi,0); }
+function computeMSE() { if(!pts.length)return 0; return pts.reduce((s,p)=>s+(predictY(p.x)-p.y)**2,0)/pts.length; }
+function computeR2() {
+  if(pts.length<2)return 0;
+  const ym=pts.reduce((s,p)=>s+p.y,0)/pts.length;
+  const ss=pts.reduce((s,p)=>s+(p.y-ym)**2,0);
+  if(ss===0)return 1;
+  return 1-pts.reduce((s,p)=>s+(predictY(p.x)-p.y)**2,0)/ss;
+}
+function updateDataRange() {
+  if(!pts.length){dxMin=-3;dxMax=4;dyMin=0;dyMax=30;return;}
+  const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+  const xr=Math.max(...xs)-Math.min(...xs),yr=Math.max(...ys)-Math.min(...ys);
+  dxMin=Math.min(...xs)-xr*0.12; dxMax=Math.max(...xs)+xr*0.12;
+  dyMin=Math.min(...ys)-yr*0.15; dyMax=Math.max(...ys)+yr*0.20;
+}
+
+function seed() {
+  stopAnim();
+  const a=1.2+(Math.random()-0.5)*0.6, b=-2+(Math.random()-0.5)*1, c=10+(Math.random()-0.5)*4;
+  pts=[];
+  for(let i=0;i<25;i++){
+    const x=-3+Math.random()*7, noise=(Math.random()+Math.random()+Math.random()-1.5)*2.2;
+    pts.push({x,y:a*x*x+b*x+c+noise});
+  }
+  query=null;
+  updateNormX(); updateDataRange();
+  resetAndFit();
+}
+
+function doOneStep() {
+  if(!pts.length)return;
+  const n=pts.length, dw=new Array(degree+1).fill(0);
+  for(const p of pts){
+    const f=getFeatures(p.x), err=f.reduce((s,fi,i)=>s+weights[i]*fi,0)-p.y;
+    f.forEach((fi,i)=>{dw[i]+=err*fi;});
+  }
+  const CLIP=5.0;
+  weights=weights.map((w,i)=>{ const g=(2/n)*dw[i]; return w-lr*Math.max(-CLIP,Math.min(CLIP,g)); });
+  iteration++;
+}
+function autoFit() { const n=Math.max(3000,degree*600); for(let i=0;i<n;i++) doOneStep(); }
+function resetAndFit() {
+  stopAnim(); updatePolyNorms();
+  weights=new Array(degree+1).fill(0); iteration=0;
+  autoFit(); updateR2Display();
+}
+function updateR2Display() {
+  const r2=computeR2();
+  document.getElementById('r2-val').textContent=pts.length?r2.toFixed(3):'—';
+}
+
+// CHANGE 6: stopAnim text updated to "▶ Animate Fit"
+function stopAnim() {
+  isRunning=false; clearTimeout(animId);
+  const btn=document.getElementById('run-btn');
+  if(btn) btn.textContent='\u25b6 Animate Fit';
+}
+function startAnim() {
+  isRunning=true; animStartIter=iteration;
+  document.getElementById('run-btn').textContent='\u23f8 Pause';
+  function step(){
+    if(!isRunning)return;
+    if(iteration-animStartIter>=800){stopAnim();draw();return;}
+    doOneStep(); draw(); animId=setTimeout(step,30);
+  }
+  animId=setTimeout(step,30);
+}
+
+// CHANGE 7: showFitFlash — briefly confirms the auto-fit to the learner
+function showFitFlash(deg) {
+  const el=document.getElementById('fit-flash');
+  if(!el)return;
+  el.innerHTML=`<span style="color:#7acc5a;">&#x2713; Auto-fitted at degree ${deg} &mdash; like sklearn&apos;s model.fit()</span>`;
+  el.style.opacity='1';
+  clearTimeout(el._fadeTimer);
+  el._fadeTimer=setTimeout(()=>{ el.style.opacity='0'; },2500);
+}
+
+// Ghost degree-1 reference line
+let ghostW=[0,0];
+function computeLinearGhost() {
+  const n=pts.length;
+  if(n<2){ghostW=[0,0];return;}
+  const xn=pts.map(p=>(p.x-xMean)/xStd);
+  const xm=xn.reduce((s,v)=>s+v,0)/n;
+  const xs=Math.sqrt(xn.reduce((s,v)=>s+(v-xm)**2,0)/n)||1;
+  const xf=xn.map(v=>(v-xm)/xs);
+  const sy=pts.map(p=>p.y).reduce((s,v)=>s+v,0)/n;
+  const sxy=xf.reduce((s,v,i)=>s+v*pts[i].y,0)/n;
+  const sx2=xf.reduce((s,v)=>s+v*v,0)/n;
+  ghostW[1]=sx2>1e-10?sxy/sx2:0; ghostW[0]=sy-ghostW[1]*xf.reduce((s,v)=>s+v,0)/n;
+  ghostW._xNorm={mean:xm,std:xs};
+}
+function ghostPredY(x) {
+  if(!ghostW._xNorm)return 0;
+  const xn=(x-xMean)/xStd, xf=(xn-ghostW._xNorm.mean)/ghostW._xNorm.std;
+  return ghostW[1]*xf+ghostW[0];
+}
+
+function drawAxes() {
+  const axisCol=isDark?'rgba(200,215,235,0.45)':'rgba(30,45,90,0.4)';
+  const tickCol=isDark?'rgba(200,215,235,0.25)':'rgba(30,45,90,0.2)';
+  const labelCol=isDark?'rgba(180,195,220,0.70)':'rgba(40,55,95,0.65)';
+  const gridCol=isDark?'rgba(30,38,58,0.9)':'rgba(200,210,230,0.7)';
+  const xTicks=niceTicks(dxMin,dxMax,6), yTicks=niceTicks(dyMin,dyMax,5);
+  ctx.strokeStyle=gridCol; ctx.lineWidth=1;
+  xTicks.forEach(tx=>{const sx=toScreen(tx,dyMin).x;ctx.beginPath();ctx.moveTo(sx,MAR.T);ctx.lineTo(sx,H-MAR.B);ctx.stroke();});
+  yTicks.forEach(ty=>{const sy=toScreen(dxMin,ty).y;ctx.beginPath();ctx.moveTo(MAR.L,sy);ctx.lineTo(W-MAR.R,sy);ctx.stroke();});
+  ctx.strokeStyle=axisCol; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(MAR.L,MAR.T);ctx.lineTo(MAR.L,H-MAR.B);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(MAR.L,H-MAR.B);ctx.lineTo(W-MAR.R,H-MAR.B);ctx.stroke();
+  ctx.strokeStyle=tickCol; ctx.lineWidth=1;
+  ctx.font='11px -apple-system,BlinkMacSystemFont,sans-serif';
+  ctx.fillStyle=labelCol;
+  xTicks.forEach(tx=>{const sx=toScreen(tx,dyMin).x;ctx.beginPath();ctx.moveTo(sx,H-MAR.B);ctx.lineTo(sx,H-MAR.B+5);ctx.stroke();ctx.textAlign='center';ctx.fillText(Number.isInteger(tx)?tx:tx.toFixed(1),sx,H-MAR.B+17);});
+  yTicks.forEach(ty=>{const sy=toScreen(dxMin,ty).y;ctx.beginPath();ctx.moveTo(MAR.L-5,sy);ctx.lineTo(MAR.L,sy);ctx.stroke();ctx.textAlign='right';ctx.fillText(Number.isInteger(ty)?ty:ty.toFixed(1),MAR.L-8,sy+4);});
+  ctx.fillStyle=isDark?'rgba(150,170,205,0.65)':'rgba(50,65,105,0.6)';
+  ctx.font='12px -apple-system,BlinkMacSystemFont,sans-serif';
+  ctx.textAlign='center'; ctx.fillText('x  (Feature)',MAR.L+PW/2,H-4);
+  ctx.save();ctx.translate(12,MAR.T+PH/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('y  (Target)',0,0);ctx.restore();
+}
+function drawGhostLine() {
+  if(degree<=1)return;
+  ctx.save();ctx.beginPath();ctx.rect(MAR.L,MAR.T,PW,PH);ctx.clip();
+  ctx.strokeStyle=isDark?'rgba(255,212,121,0.15)':'rgba(180,140,0,0.12)';
+  ctx.lineWidth=1.5;ctx.setLineDash([4,6]);
+  const steps=100;ctx.beginPath();
+  for(let i=0;i<=steps;i++){const x=dxMin+i*(dxMax-dxMin)/steps,s=toScreen(x,ghostPredY(x));i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);}
+  ctx.stroke();ctx.setLineDash([]);ctx.restore();
+}
+function drawPolyCurve() {
+  if(!pts.length)return;
+  const steps=300;
+  ctx.save();ctx.beginPath();ctx.rect(MAR.L,MAR.T,PW,PH);ctx.clip();
+  ctx.strokeStyle='#ffd479';ctx.lineWidth=2.5;ctx.setLineDash([]);ctx.beginPath();
+  for(let i=0;i<=steps;i++){const x=dxMin+i*(dxMax-dxMin)/steps,s=toScreen(x,predictY(x));i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);}
+  ctx.stroke();ctx.restore();
+}
+function drawResiduals() {
+  if(!pts.length)return;
+  pts.forEach(p=>{
+    const yh=predictY(p.x),sp=toScreen(p.x,p.y),sl=toScreen(p.x,yh);
+    ctx.strokeStyle=yh>p.y?'rgba(79,209,197,0.6)':'rgba(255,107,139,0.6)';
+    ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sp.x,sp.y);ctx.lineTo(sl.x,sl.y);ctx.stroke();
+  });
+}
+function drawDataPoints() {
+  pts.forEach(p=>{
+    const s=toScreen(p.x,p.y);
+    ctx.beginPath();ctx.arc(s.x,s.y,5.5,0,Math.PI*2);
+    ctx.fillStyle='#7b93db';ctx.fill();
+    ctx.strokeStyle=isDark?'#0b0d13':'#dce4f8';ctx.lineWidth=1.2;ctx.stroke();
+  });
+}
+function drawQuery() {
+  if(query===null)return;
+  const yp=predictY(query),sx=toScreen(query,dyMin).x,syp=toScreen(query,yp).y;
+  ctx.save();ctx.beginPath();ctx.rect(MAR.L,MAR.T,PW,PH);ctx.clip();
+  ctx.strokeStyle='rgba(255,212,121,0.6)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(sx,MAR.T);ctx.lineTo(sx,H-MAR.B);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(MAR.L,syp);ctx.lineTo(sx,syp);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath();ctx.arc(sx,syp,7,0,Math.PI*2);
+  ctx.fillStyle='#ffd479';ctx.fill();ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.stroke();
+  ctx.restore();
+}
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  drawAxes();
+  if(pts.length){drawGhostLine();drawResiduals();drawPolyCurve();drawDataPoints();drawQuery();}
+  updateR2Display();
+  report();
+}
+
+function report() {
+  const tb=document.getElementById('tbody'),vc=document.getElementById('verdict-card'),head=document.getElementById('tbl-head');
+  tb.innerHTML='';
+  const mse=computeMSE(),r2=computeR2(),rmse=Math.sqrt(mse);
+
+  // CHANGE 8: Updated warn messages to reference "Animate Fit"
+  const wp=[];
+  if(!pts.length){ wp.push('Generate a dataset first.'); }
+  else if(iteration===0){ wp.push('Model reset \u2014 click \u25b6 Animate Fit or Step \u2192 to watch gradient descent converge.'); }
+  else if(degree===1){ wp.push('Degree 1: straight line \u2014 likely underfitting this curved data.'); }
+  else if(degree>=7){ wp.push(`Degree ${degree}: high overfitting risk \u2014 training R\u00b2 is misleading!`); }
+  if(degree>=6&&r2>0.97){ wp.push('High R\u00b2 + high degree = overfitting. Use Ridge regularisation in production.'); }
+  document.getElementById('warn').textContent=wp.join('  \u00b7  ');
+
+  if(!pts.length){
+    vc.innerHTML=`<div class="vc-empty"><div class="vc-empty-ring"></div>Click "New Dataset" to generate training data</div>`;
+    return;
+  }
+
+  // CHANGE 9: Dedicated "Model Reset" state in verdict card
+  if(iteration===0){
+    head.innerHTML='<tr><th>Status</th><th>Value</th><th>Action</th></tr>';
+    vc.innerHTML=`
+      <div class="vc-header">
+        <span class="vc-section-title">Model Reset</span>
+        <span class="vc-model-pill">Degree ${degree} \u00b7 \u03b7=${lr.toFixed(3)} \u00b7 Not fitted</span>
+      </div>
+      <div class="vc-empty" style="padding:18px 0; flex-direction:column; gap:8px; text-align:center;">
+        <div class="vc-empty-ring"></div>
+        <span>Weights set to zero. Click <strong>&#x25b6; Animate Fit</strong> to watch gradient descent converge from scratch, or <strong>Step &#x2192;</strong> to advance one iteration at a time.</span>
+      </div>`;
+    tb.innerHTML=`
+      <tr><td>Weights</td><td>[0, 0, ...]</td><td>${degree+1} weight(s) to learn</td></tr>
+      <tr><td>Iterations</td><td>0</td><td>No GD steps taken yet</td></tr>
+      <tr><td>Degree</td><td>${degree}</td><td>Polynomial complexity</td></tr>`;
+    return;
+  }
+
+  let r2Color='#7acc5a';
+  if(r2<0.6)r2Color='#ff9f9f'; else if(r2<0.85)r2Color='#ffd479';
+  if(degree>=6&&r2>0.95)r2Color='#ffd479';
+  const fitLabel=r2>=0.9?'Good fit':r2>=0.7?'Moderate':'Underfitting';
+  const pillText=`Degree ${degree} \u00b7 \u03b7=${lr.toFixed(3)} \u00b7 R\u00b2=${r2.toFixed(3)}`;
+
+  if(query===null){
+    head.innerHTML='<tr><th>Metric</th><th>Value</th><th>Interpretation</th></tr>';
+    vc.innerHTML=`
+      <div class="vc-header">
+        <span class="vc-section-title">Current Model State</span>
+        <span class="vc-model-pill">${pillText}</span>
+      </div>
+      <div class="vc-metrics">
+        <div class="vc-metric">
+          <span class="vc-metric-label">R&sup2; Score</span>
+          <span class="vc-metric-value" style="color:${r2Color}">${r2.toFixed(3)}</span>
+          <div class="vc-status-row">
+            <span class="vc-status-dot" style="background:${r2Color};"></span>
+            <span class="vc-status-text" style="color:${r2Color}">${fitLabel}</span>
+          </div>
+        </div>
+        <div class="vc-metric">
+          <span class="vc-metric-label">Degree n</span>
+          <span class="vc-metric-value" style="color:#ffd479">${degree}</span>
+        </div>
+        <div class="vc-metric">
+          <span class="vc-metric-label">RMSE</span>
+          <span class="vc-metric-value" style="color:#9fb4ff">${rmse.toFixed(2)}</span>
+        </div>
+      </div>`;
+    tb.innerHTML=`
+      <tr><td>R&sup2; (training)</td><td>${r2.toFixed(4)}</td><td>% variance explained</td></tr>
+      <tr><td>RMSE</td><td>${rmse.toFixed(4)}</td><td>Avg error in y units</td></tr>
+      <tr><td>MSE</td><td>${mse.toFixed(4)}</td><td>(1/N)&Sigma;(ŷ&minus;y)&sup2;</td></tr>
+      <tr><td>Degree</td><td>${degree}</td><td>${degree+1} weight(s) total</td></tr>
+      <tr><td>Iterations</td><td>${iteration}</td><td>GD steps taken</td></tr>`;
+    return;
+  }
+
+  const yPred=predictY(query),normPct=Math.min(98,Math.max(2,(yPred-dyMin)/(dyMax-dyMin)*100));
+  const midY=(dyMin+dyMax)/2,tieColor=isDark?'rgba(255,255,255,.28)':'rgba(50,60,100,.4)';
+  head.innerHTML='<tr><th>Term</th><th>x-Power</th><th>Value</th></tr>';
+  vc.innerHTML=`
+    <div class="vc-header">
+      <span class="vc-section-title">Prediction for x = ${query.toFixed(2)}</span>
+      <span class="vc-model-pill">${pillText}</span>
+    </div>
+    <div class="vc-metrics">
+      <div class="vc-metric">
+        <span class="vc-metric-label">Predicted ŷ</span>
+        <span class="vc-metric-value" style="color:#ffd479">${yPred.toFixed(2)}</span>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">R&sup2; Score</span>
+        <span class="vc-metric-value" style="color:${r2Color};font-size:18px;">${r2.toFixed(3)}</span>
+        <div class="vc-status-row">
+          <span class="vc-status-dot" style="background:${r2Color};"></span>
+          <span class="vc-status-text" style="color:${r2Color}">${fitLabel}</span>
+        </div>
+      </div>
+      <div class="vc-metric">
+        <span class="vc-metric-label">Degree n</span>
+        <span class="vc-metric-value" style="color:#9fb4ff;font-size:18px;">${degree}</span>
+      </div>
+    </div>
+    <div>
+      <div class="vc-gauge-bar vc-gauge-bar-poly">
+        <div class="vc-gauge-tick" style="left:50%"></div>
+        <div class="vc-gauge-needle" style="left:${normPct}%"></div>
+      </div>
+      <div class="vc-gauge-axis">
+        <span class="vc-gauge-axis-label" style="left:50%;color:${tieColor};">${midY.toFixed(0)}</span>
+      </div>
+      <div class="vc-gauge-zones">
+        <span class="vc-gauge-zone-label" style="color:#4a90e2;">&larr; Low (${dyMin.toFixed(0)})</span>
+        <span class="vc-gauge-zone-label" style="color:#ff9a3c;">High (${dyMax.toFixed(0)}) &rarr;</span>
+      </div>
+    </div>`;
+  const showD=Math.min(degree,5);
+  for(let d=0;d<=showD;d++){
+    const xVal=Math.pow(query,d);
+    tb.innerHTML+=`<tr><td>x<sup>${d}</sup></td><td>${d===0?'—':query.toFixed(3)+(d>1?'<sup>'+d+'</sup>':'')}</td><td>${xVal.toFixed(3)}</td></tr>`;
+  }
+  if(degree>5)tb.innerHTML+=`<tr><td colspan="3" style="color:#4a5268;font-style:italic;font-size:11.5px;">\u2026 ${degree-5} higher terms</td></tr>`;
+  tb.innerHTML+=`<tr style="background:rgba(255,212,121,0.08);"><td><strong>ŷ (Predicted)</strong></td><td colspan="2"><strong>&Sigma; wₖ &middot; x<sup>k</sup> = ${yPred.toFixed(4)}</strong></td></tr>`;
+}
+
+// ── Event Listeners ───────────────────────────────────
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect();
+  const sx=(e.clientX-r.left)*(W/r.width),sy=(e.clientY-r.top)*(H/r.height);
+  if(sx<MAR.L||sx>W-MAR.R||sy<MAR.T||sy>H-MAR.B)return;
+  const{x,y}=fromScreen(sx,sy);
+  if(addMode){pts.push({x,y});updateNormX();updateDataRange();computeLinearGhost();resetAndFit();}
+  else{query=x;}
+  draw();
+});
+
+// CHANGE 10: Degree slider — auto-fits and shows flash confirmation
+document.getElementById('deg-slider').addEventListener('input',e=>{
+  degree=+e.target.value;
+  document.getElementById('deg-val').textContent=degree;
+  if(!pts.length)return;
+  weights=new Array(degree+1).fill(0);
+  iteration=0;
+  stopAnim();
+  updatePolyNorms();
+  autoFit();
+  showFitFlash(degree); // ← flash "✓ Auto-fitted at degree n"
+  draw();
+});
+
+document.getElementById('lr-slider').addEventListener('input',e=>{
+  lr=+e.target.value;
+  document.getElementById('lr-val').textContent=lr.toFixed(3);
+  draw();
+});
+
+document.getElementById('step-btn').addEventListener('click',()=>{
+  if(!pts.length)return;
+  stopAnim(); doOneStep(); draw();
+});
+
+// CHANGE 11: run-btn now labelled "Animate Fit" (handled in stopAnim/startAnim)
+document.getElementById('run-btn').addEventListener('click',()=>{
+  if(!pts.length)return;
+  isRunning?(stopAnim(),draw()):startAnim();
+});
+
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  stopAnim();
+  weights=new Array(degree+1).fill(0);
+  iteration=0;
+  query=null;
+  draw();
+});
+
+document.getElementById('reseed-btn').addEventListener('click',()=>{ query=null; seed(); draw(); });
+
+document.getElementById('mode-btn').addEventListener('click',e=>{
+  addMode=!addMode;
+  e.target.textContent=addMode?'Add Mode: Point':'Add Mode: Query';
+  if(addMode)query=null;
+  draw();
+});
+
+document.getElementById('theme-toggle').addEventListener('click',()=>{
+  isDark=!isDark;
+  document.body.classList.toggle('light',!isDark);
+  document.getElementById('theme-toggle').textContent=isDark?'☀️':'🌙';
+  draw();
+});
+
+seed(); computeLinearGhost(); draw();
+</script>
+
+</body></html>
