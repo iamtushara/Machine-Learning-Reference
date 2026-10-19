@@ -1,0 +1,863 @@
+<html data-type="html" data-identifier="c5d6e7f8-1a2b-4c3d-9e0f-a1b2c3d4e5f6" data-title="Regularization: Ridge, Lasso &amp; ElasticNet — Interactive Explainer" data-version="5" width="1200" height="900"><head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,sans-serif; background:#0e1016; color:#e8eaf0; padding:24px; transition:background .25s,color .25s; }
+  .wrap { max-width:1120px; margin:0 auto; }
+  header.main-header { margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid #262c3d; }
+  header.main-header h1 { font-size:32px; margin:0 0 8px; letter-spacing:-.5px; color:#fff; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  header.main-header h1 .badge-tag { font-size:13px; background:#6c8cff; color:#0b0d13; padding:3px 10px; border-radius:12px; font-weight:700; }
+  header.main-header p { font-size:15px; color:#b9c0d0; margin:0; line-height:1.6; max-width:900px; }
+  h2 { font-size:18px; margin:0 0 10px; color:#9fb4ff; border-bottom:1px solid #262c3d; padding-bottom:6px; transition:color .25s,border-color .25s; }
+  h3 { font-size:15px; margin:18px 0 6px; color:#ffd479; transition:color .25s; }
+  p { line-height:1.65; color:#b9c0d0; font-size:14px; margin:0 0 12px; transition:color .25s; }
+  .layout { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:0; }
+  .panel { background:#171b26; border:1px solid #262c3d; border-radius:14px; padding:20px; transition:background .25s,border-color .25s; }
+  .left { flex:1 1 620px; } .right { flex:1 1 360px; } .full-width { width:100%; }
+  canvas { border-radius:8px; background:#0b0d13; display:block; width:100%; height:auto; transition:background .25s; }
+  canvas.no-cursor { cursor:default; } canvas.clickable { cursor:crosshair; }
+  .controls { display:flex; align-items:center; gap:12px; margin:10px 0 2px; flex-wrap:wrap; }
+  label { font-size:13px; color:#8b93a7; white-space:nowrap; transition:color .25s; }
+  input[type=range] { width:120px; accent-color:#6c8cff; }
+  button { background:#262c3d; color:#cfd6e6; border:1px solid #333d55; border-radius:8px; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
+  button:hover { filter:brightness(1.2); }
+  button.active-ridge { background:#1a3a5c; color:#6fb3e8; border-color:#4a90e2; }
+  button.active-lasso { background:#3d1a1a; color:#ff9a6c; border-color:#ff6b38; }
+  button.active-elastic { background:#1a3d2a; color:#7acc5a; border-color:#3a8c5a; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; margin-top:8px; }
+  th,td { text-align:left; padding:6px 8px; border-bottom:1px solid #262c3d; transition:border-color .25s; }
+  th { color:#8b93a7; font-weight:600; }
+  ol,ul { color:#b9c0d0; font-size:14px; line-height:1.65; padding-left:20px; margin:0 0 12px; }
+  li { margin-bottom:6px; }
+  .k-warn { color:#ff9f9f; font-size:12px; min-height:16px; margin-top:2px; }
+  .legend { display:flex; gap:14px; font-size:12px; color:#8b93a7; margin-top:8px; flex-wrap:wrap; transition:color .25s; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; }
+  .lsamp { display:inline-block; width:18px; height:3px; vertical-align:middle; margin-right:4px; }
+  pre { background:#0b0d13; padding:14px; border-radius:8px; border:1px solid #262c3d; font-family:'Fira Code',Consolas,Monaco,monospace; font-size:12.5px; color:#a9b7c6; overflow-x:auto; line-height:1.5; }
+  code { font-family:'Fira Code',Consolas,Monaco,monospace; background:#10141d; color:#9fb4ff; padding:2px 6px; border-radius:4px; font-size:13px; }
+  .kw { color:#cc7832; font-weight:bold; } .fn { color:#ff2f8b; } .str { color:#6a8759; } .cm { color:#607080; font-style:italic; }
+  .tag { background:#262c3d; color:#4fd1c5; font-size:11px; padding:2px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:.5px; font-weight:bold; margin-bottom:6px; display:inline-block; }
+  .warn-box { background:#1a1418; border-left:3px solid #ff6b8b; padding:12px 14px; border-radius:6px; margin-bottom:12px; }
+  .grid-2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px; }
+  .card { background:#10141d; border:1px solid #262c3d; border-radius:10px; padding:16px; }
+  .card h3 { margin-top:0; }
+  .tip { background:#10141d; border-left:3px solid #6c8cff; padding:12px 14px; border-radius:6px; font-size:13px; color:#b9c0d0; margin-top:14px; }
+  .verdict-card { background:linear-gradient(140deg,#10141f 0%,#0d1019 100%); border:1px solid #1e2535; border-radius:12px; padding:16px; margin-top:12px; }
+  .vc-empty { display:flex; align-items:center; justify-content:center; gap:10px; color:#38415a; font-size:13px; padding:12px 0; }
+  .vc-empty-ring { width:18px; height:18px; border-radius:50%; border:2px dashed #38415a; flex-shrink:0; }
+  .vc-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #181f2e; }
+  .vc-section-title { font-size:10px; text-transform:uppercase; letter-spacing:1.2px; color:#424e6a; font-weight:700; }
+  .vc-model-pill { background:#131826; border:1px solid #222c3f; padding:3px 10px; border-radius:20px; font-size:11px; color:#5c6e96; font-family:'Fira Code',Consolas,monospace; }
+  .vc-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px; }
+  .vc-metric { display:flex; flex-direction:column; gap:4px; }
+  .vc-metric-label { font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:#424e6a; font-weight:600; }
+  .vc-metric-value { font-size:22px; font-weight:800; font-family:'Fira Code',Consolas,monospace; line-height:1; letter-spacing:-.5px; }
+  .vc-status-row { display:flex; align-items:center; gap:6px; margin-top:2px; }
+  .vc-status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .vc-status-text { font-size:12px; font-weight:600; }
+  .vc-gauge-bar { position:relative; height:10px; border-radius:5px; overflow:visible; }
+  .vc-gauge-bar-reg { background:linear-gradient(to right,#ff6b8b 0%,rgba(255,107,139,.4) 25%,rgba(255,212,121,.5) 50%,rgba(122,204,90,.4) 75%,#7acc5a 100%); }
+  .vc-gauge-tick { position:absolute; top:-4px; width:1px; height:18px; background:rgba(255,255,255,.18); transform:translateX(-50%); }
+  .vc-gauge-needle { position:absolute; top:-6px; width:3px; height:22px; background:#ffd479; border-radius:3px; transform:translateX(-50%); box-shadow:0 0 8px rgba(255,212,121,.9),0 0 18px rgba(255,212,121,.3); z-index:2; transition:left .12s ease; }
+  .vc-gauge-axis { position:relative; height:16px; margin-top:5px; }
+  .vc-gauge-axis-label { position:absolute; font-size:10px; transform:translateX(-50%); font-family:'Fira Code',Consolas,monospace; }
+  .vc-gauge-zones { display:flex; justify-content:space-between; margin-top:2px; }
+  .vc-gauge-zone-label { font-size:10.5px; opacity:.65; }
+  .journey-overview { display:grid; grid-template-columns:repeat(3,1fr); gap:0; background:#0c1020; border:1px solid #1e2838; border-radius:12px; margin-bottom:32px; overflow:hidden; }
+  .journey-step { padding:18px 20px; border-right:1px solid #1e2838; position:relative; }
+  .journey-step:last-child { border-right:none; }
+  .journey-step-num { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#4a5478; margin-bottom:6px; }
+  .journey-step-icon { font-size:20px; margin-bottom:8px; }
+  .journey-step-title { font-size:14px; font-weight:700; color:#c5d0e8; margin-bottom:5px; line-height:1.3; }
+  .journey-step-desc { font-size:12.5px; color:#5a6888; line-height:1.45; }
+  .journey-link-pill { display:inline-block; background:#1a2838; border:1px solid #2a4058; color:#6fb3e8; padding:2px 8px; border-radius:8px; font-size:10px; font-weight:700; margin-top:6px; }
+  .journey-arrow { position:absolute; right:-13px; top:50%; transform:translateY(-50%); width:26px; height:26px; background:#0c1020; border:1px solid #1e2838; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; color:#6c8cff; z-index:2; }
+  .section-block { margin-top:36px; margin-bottom:20px; }
+  .section-num-badge { display:inline-flex; align-items:center; gap:8px; background:#6c8cff18; border:1px solid #6c8cff30; color:#6c8cff; padding:4px 12px 4px 8px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:.4px; margin-bottom:10px; }
+  .section-num-badge .sn { background:#6c8cff; color:#0b0d13; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; }
+  .section-block h2 { font-size:22px; margin:0 0 8px; color:#e0e8ff; border-bottom:none; padding-bottom:0; }
+  .section-block .section-lead { font-size:14px; color:#7888a8; line-height:1.6; margin:0; max-width:820px; }
+  .canvas-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#4a5478; margin-bottom:5px; margin-top:10px; }
+  .key-insight { background:linear-gradient(135deg,#0f1a22 0%,#0c1620 100%); border:1px solid #2a3d50; border-left:4px solid #ffd479; border-radius:0 10px 10px 0; padding:16px 20px; margin-top:24px; }
+  .key-insight .ki-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#ffd479; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+  .key-insight p { color:#aabac8; font-size:13.5px; line-height:1.65; margin-bottom:6px; }
+  .key-insight p:last-child { margin-bottom:0; }
+  .key-insight ul { color:#aabac8; font-size:13.5px; line-height:1.65; margin-bottom:0; }
+  .section-transition { background:#0c1020; border:1px solid #1e2838; border-radius:10px; padding:14px 18px; margin:28px 0 0; font-size:13.5px; color:#7888a8; line-height:1.65; }
+  .section-transition strong { color:#b0c0d4; }
+  .next-badge { display:inline-block; background:#6c8cff18; border:1px solid #6c8cff30; color:#6c8cff; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:700; margin-left:4px; }
+  .math-box { background:#10141d; border:1px solid #262c3d; border-radius:10px; padding:16px 18px; margin-top:20px; }
+  .math-box h3 { margin-top:0; font-size:14px; }
+  .math-box p,.math-box ul { font-size:13.5px; color:#aab8c8; line-height:1.6; }
+  .pg1 .section-num-badge { background:#6fb3e818; border-color:#6fb3e830; color:#6fb3e8; }
+  .pg1 .section-num-badge .sn { background:#6fb3e8; color:#0b0d13; }
+  .pg1 h2 { color:#d4eafc; }
+  .pg2 .section-num-badge { background:#ff9a6c18; border-color:#ff9a6c30; color:#ff9a6c; }
+  .pg2 .section-num-badge .sn { background:#ff9a6c; color:#0b0d13; }
+  .pg2 h2 { color:#fce8d4; }
+  .pg3 .section-num-badge { background:#7acc5a18; border-color:#7acc5a30; color:#7acc5a; }
+  .pg3 .section-num-badge .sn { background:#7acc5a; color:#0b0d13; }
+  .pg3 h2 { color:#d8f0d0; }
+  .section-hr { border:none; border-top:1px solid #1a2030; margin:36px 0 0; }
+  .link-banner { display:flex; align-items:flex-start; gap:12px; background:#0d1828; border:1px solid #1e3a5c; border-radius:10px; padding:12px 16px; margin-bottom:16px; }
+  .link-banner .lb-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+  .link-banner .lb-text { font-size:13px; color:#7898b8; line-height:1.55; }
+  .link-banner .lb-text strong { color:#a8c4e0; }
+  .lb-badge { display:inline-block; background:#1a3a5c; border:1px solid #2a5070; color:#6fb3e8; padding:2px 8px; border-radius:8px; font-size:11px; font-weight:700; white-space:nowrap; }
+  /* Shared-alpha indicator */
+  .shared-alpha-badge { display:inline-flex; align-items:center; gap:6px; background:#1a2838; border:1px solid #2a4058; color:#9fb4cc; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:600; }
+  .shared-alpha-badge .dot-pulse { width:6px; height:6px; border-radius:50%; background:#6fb3e8; animation:pulse-blue 2s infinite; }
+  @keyframes pulse-blue { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+  .slider-note { font-size:11px; color:#4a7090; margin-top:3px; }
+  /* Alpha display box */
+  .alpha-display { display:inline-flex; align-items:center; gap:6px; background:#131826; border:1px solid #2a3d50; border-radius:8px; padding:4px 12px; font-family:'Fira Code',Consolas,monospace; }
+  .alpha-display .alpha-label { font-size:11px; color:#4a5878; }
+  .alpha-display .alpha-value { font-size:16px; font-weight:800; color:#ffd479; }
+  #theme-toggle { position:fixed; top:20px; right:24px; width:36px; height:36px; padding:0; border-radius:50%; background:#1e2436; border:1px solid #333d55; color:inherit; font-size:16px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:1000; transition:background .25s,border-color .25s,transform .15s; }
+  #theme-toggle:hover { filter:none; transform:scale(1.1); }
+  body.light { background:#f0f3fa; color:#1a1f2e; }
+  body.light #theme-toggle { background:#e4e8f5; border-color:#c4cce0; }
+  body.light header.main-header { border-bottom-color:#d4daf0; }
+  body.light header.main-header h1 { color:#1a1f2e; }
+  body.light header.main-header p { color:#4a5270; }
+  body.light h2 { color:#3b5bdb; border-bottom-color:#d4daf0; }
+  body.light h3 { color:#9a7000; }
+  body.light p { color:#4a5270; }
+  body.light ol,body.light ul { color:#4a5270; }
+  body.light .panel { background:#ffffff; border-color:#d4daf0; }
+  body.light .card { background:#f5f7fe; border-color:#d4daf0; }
+  body.light canvas { background:#eaeefc; }
+  body.light pre { background:#f2f4fc; border-color:#d4daf0; color:#2d3660; }
+  body.light code { background:#e8edfb; color:#2d52c4; }
+  body.light .kw { color:#b05800; } body.light .fn { color:#b5096a; }
+  body.light .str { color:#3a6e2a; } body.light .cm { color:#5a6a7a; }
+  body.light th { color:#6878a8; }
+  body.light td,body.light th { border-bottom-color:#d4daf0; }
+  body.light label { color:#6878a8; }
+  body.light .legend { color:#6878a8; }
+  body.light button { background:#e4e8f5; color:#3a4268; border-color:#c4cce0; }
+  body.light button.active-ridge { background:#d4e8f8; color:#1a5a9a; border-color:#4a90e2; }
+  body.light button.active-lasso { background:#fde8e0; color:#c0390a; border-color:#ff6b38; }
+  body.light button.active-elastic { background:#d8f0e4; color:#1a6a3a; border-color:#3a8c5a; }
+  body.light .tag { background:#e4e8fa; color:#1d7a6a; }
+  body.light .tip { background:#eef2ff; color:#3d4a6e; }
+  body.light .warn-box { background:#fff5f5; }
+  body.light .k-warn { color:#c0392b; }
+  body.light .verdict-card { background:linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color:#d0d8ee; }
+  body.light .vc-header { border-bottom-color:#dce4f4; }
+  body.light .vc-section-title { color:#8594b8; }
+  body.light .vc-model-pill { background:#e8edfb; border-color:#d0d8ee; color:#5868a0; }
+  body.light .vc-metric-label { color:#8594b8; }
+  body.light .vc-empty { color:#a8b2cc; }
+  body.light .vc-gauge-tick { background:rgba(0,0,0,.15); }
+  body.light .journey-overview { background:#eef2ff; border-color:#d4daf0; }
+  body.light .journey-step { border-right-color:#d4daf0; }
+  body.light .journey-step-title { color:#2a3560; }
+  body.light .journey-step-desc { color:#6878a0; }
+  body.light .journey-arrow { background:#eef2ff; border-color:#d4daf0; color:#6c8cff; }
+  body.light .journey-link-pill { background:#d8ecfc; border-color:#a8d0ec; color:#1a5a9a; }
+  body.light .section-block h2 { color:#1a2448; }
+  body.light .section-block .section-lead { color:#6878a0; }
+  body.light .key-insight { background:linear-gradient(135deg,#f0f5fa,#e8eef8); border-color:#c8d8e8; border-left-color:#f0a020; }
+  body.light .key-insight .ki-label { color:#a07010; }
+  body.light .key-insight p,body.light .key-insight ul { color:#4a5a70; }
+  body.light .section-transition { background:#eef2ff; border-color:#d4daf0; color:#6878a0; }
+  body.light .section-transition strong { color:#2a3a60; }
+  body.light .section-hr { border-top-color:#d4daf0; }
+  body.light .math-box { background:#f5f7fe; border-color:#d4daf0; }
+  body.light .math-box p,body.light .math-box ul { color:#4a5a70; }
+  body.light .canvas-label { color:#8898b8; }
+  body.light .link-banner { background:#e8f0fa; border-color:#c0d4ec; }
+  body.light .link-banner .lb-text { color:#5870a0; }
+  body.light .link-banner .lb-text strong { color:#2a4878; }
+  body.light .lb-badge { background:#d0e4f8; border-color:#a8c8e8; color:#1a5a9a; }
+  body.light .shared-alpha-badge { background:#e8f0fa; border-color:#c0d4ec; color:#3a5878; }
+  body.light .slider-note { color:#7898b8; }
+  body.light .alpha-display { background:#e8edfb; border-color:#c0d4ec; }
+  body.light .alpha-display .alpha-label { color:#8898b8; }
+  body.light .alpha-display .alpha-value { color:#a07010; }
+</style>
+</head>
+<body>
+<button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
+<div class="wrap">
+
+  <header class="main-header">
+    <h1>Regularization: Ridge, Lasso &amp; ElasticNet <span class="badge-tag">Interactive Guide</span></h1>
+    <p>Three interactive playgrounds sharing <strong>one single α value</strong>. Change α in any playground and the same number appears in all three immediately — the same number, the same model, three simultaneous perspectives.</p>
+  </header>
+
+  <!-- JOURNEY OVERVIEW -->
+  <div class="journey-overview">
+    <div class="journey-step">
+      <div class="journey-step-num">Playground 1</div>
+      <div class="journey-step-icon">🎯</div>
+      <div class="journey-step-title">Curve &amp; Coefficient Bars</div>
+      <div class="journey-step-desc">Drag α — the path line in PG 2 and the constraint in PG 3 both update to the <em>same</em> α value.</div>
+      <div class="journey-link-pill">⇄ shares α with PG 2 &amp; 3</div>
+      <div class="journey-arrow">⇄</div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-step-num">Playground 2</div>
+      <div class="journey-step-icon">📈</div>
+      <div class="journey-step-title">The Regularisation Path</div>
+      <div class="journey-step-desc"><strong>Click</strong> to set α — PG 1's slider and PG 3's constraint both jump to that <em>same</em> number.</div>
+      <div class="journey-link-pill">⇄ shares α with PG 1 &amp; 3</div>
+      <div class="journey-arrow">⇄</div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-step-num">Playground 3</div>
+      <div class="journey-step-icon">🔷</div>
+      <div class="journey-step-title">The Geometric Reason</div>
+      <div class="journey-step-desc">Drag α here — PG 1's slider and PG 2's path line both move to the <em>same</em> number you set here.</div>
+      <div class="journey-link-pill">⇄ shares α with PG 1 &amp; 2</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section-block pg1">
+    <div class="section-num-badge"><span class="sn">1</span> Playground 1 of 3</div>
+    <h2>The Overfitting Problem — and How Regularization Fixes It</h2>
+    <p class="section-lead">Change α here and watch <strong>the same α number</strong> appear in Playgrounds 2 and 3 simultaneously.</p>
+  </div>
+
+  <div class="layout">
+    <div class="panel left">
+      <h2>Interactive Playground 1</h2>
+      <div class="canvas-label">Regression Curve</div>
+      <canvas id="cv1" width="640" height="280"></canvas>
+      <div class="canvas-label" style="margin-top:8px;">Coefficient Weights (x¹ through x⁶)</div>
+      <canvas id="cv2" class="no-cursor" width="640" height="148"></canvas>
+      <div class="controls" style="margin-top:10px;">
+        <button id="btn-ridge" class="active-ridge">Ridge (L2)</button>
+        <button id="btn-lasso">Lasso (L1)</button>
+        <button id="btn-elastic">ElasticNet</button>
+      </div>
+      <div class="controls">
+        <label for="alpha-slider"><strong>Shared α</strong> = <strong id="alpha-val">1.00</strong></label>
+        <input type="range" id="alpha-slider" min="-2" max="2" step="0.05" value="0" style="width:150px;" title="Log scale: 0.01 to 100">
+        <span style="font-size:11px;color:#4a5478;">(log scale 0.01→100)</span>
+        <button id="reseed-btn" style="background:#262c3d;color:#cfd6e6;border:0;margin-left:4px;">New Dataset</button>
+      </div>
+      <div class="k-warn" id="warn1"></div>
+      <div class="legend" style="margin-top:8px;">
+        <span><span class="lsamp" style="border-top:2px dashed rgba(180,180,180,.55);"></span>OLS</span>
+        <span><span class="lsamp" style="background:#6fb3e8;height:2.5px;"></span>Ridge</span>
+        <span><span class="lsamp" style="background:#ff9a6c;height:2.5px;"></span>Lasso</span>
+        <span><span class="lsamp" style="background:#7acc5a;height:2.5px;"></span>ElasticNet</span>
+        <span><span class="dot" style="background:#7b93db;"></span>Data</span>
+      </div>
+      <div class="verdict-card" id="vc1"><div class="vc-empty"><div class="vc-empty-ring"></div>Move α or change method to see metrics</div></div>
+      <table id="tbl1"><thead><tr><th>Feature</th><th>OLS weight</th><th>Regularised weight</th><th>Δ Change</th></tr></thead><tbody id="tbody1"></tbody></table>
+    </div>
+    <div class="panel right">
+      <h2>Why Overfitting Happens &amp; How Each Method Fixes It</h2>
+      <h3 style="margin-top:0;">Step 1 — The Overfitting Problem</h3>
+      <p>Without constraints, the optimiser uses enormous, opposite-sign weights — the curve passes through every training point while oscillating wildly.</p>
+      <h3>Step 2 — The Regularization Penalty</h3>
+      <ul>
+        <li><strong>Ridge (L2):</strong> Penalty = α·Σwⱼ². All weights shrink proportionally. No weight ever reaches exactly zero.</li>
+        <li><strong>Lasso (L1):</strong> Penalty = α·Σ|wⱼ|. Some weights snap to <em>exactly</em> zero — automatic feature selection.</li>
+        <li><strong>ElasticNet:</strong> Blends both penalties.</li>
+      </ul>
+      <h3>Step 3 — The Shared α</h3>
+      <p>The slider here, the click on PG 2's path chart, and the slider in PG 3 all control the <em>same</em> α. You will see the same number displayed in all three playgrounds simultaneously.</p>
+      <div class="tip"><strong>Try:</strong> Select <strong>Lasso</strong>, drag α to 2.4. Watch a bar drop to zero here — then check PG 3 (diamond corner just touched the axis) and PG 2 (dashed line at a kink). All three show the same α = 2.4 and the same sparsity event.</div>
+    </div>
+  </div>
+
+  <div class="key-insight">
+    <div class="ki-label">✦ Key Insight from Playground 1</div>
+    <ul>
+      <li>Ridge: all 6 bars shrink proportionally — none ever reach zero.</li>
+      <li>Lasso: bars snap to exact zero one by one as α increases.</li>
+      <li>The same α that zeroes a bar here creates a kink in PG 2 and a diamond-corner snap in PG 3.</li>
+    </ul>
+  </div>
+
+  <div class="section-transition">
+    <strong>Moving to Playground 2:</strong> Click anywhere on the path charts to set α — PG 1 and PG 3 both jump to <em>that exact number</em>. <span class="next-badge">↓ Playground 2</span>
+  </div>
+
+  <!-- SECTION 2 -->
+  <hr class="section-hr">
+  <div class="section-block pg2">
+    <div class="section-num-badge"><span class="sn">2</span> Playground 2 of 3</div>
+    <h2>The Regularisation Path — Click Sets the Shared α in All Three Playgrounds</h2>
+    <p class="section-lead">Clicking on either chart sets the <strong>shared α</strong> — Playground 1's slider and curve AND Playground 3's constraint both immediately update to that same value. The yellow dashed line shows whichever α is currently active across all three.</p>
+  </div>
+
+  <div class="panel full-width" style="margin-top:0;">
+    <div class="link-banner">
+      <span class="lb-icon">⇄</span>
+      <div class="lb-text">
+        <strong>One α, three views.</strong> &nbsp;
+        <span class="lb-badge">Drag PG 1 slider</span> — dashed line here + PG 3 constraint both update to the same number. &nbsp;
+        <span class="lb-badge">Click a chart below</span> — PG 1 slider + PG 3 constraint both jump to the same number. &nbsp;
+        <span class="lb-badge">Drag PG 3 slider</span> — dashed line here + PG 1 slider both move to the same number.
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:14px;font-weight:700;color:#6fb3e8;">Ridge (L2) Path</span>
+          <span style="font-size:11px;color:#4a5878;background:#6fb3e812;border:1px solid #6fb3e830;padding:2px 8px;border-radius:10px;">Smooth decay — no weight ever reaches zero</span>
+        </div>
+        <canvas id="cv3r" class="clickable" width="500" height="260" title="Click to set shared α"></canvas>
+        <p style="font-size:12.5px;color:#6878a0;margin-top:6px;line-height:1.5;">Every line smoothly approaches zero. <strong>Click to activate Ridge at any α.</strong></p>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:14px;font-weight:700;color:#ff9a6c;">Lasso (L1) Path</span>
+          <span style="font-size:11px;color:#4a5878;background:#ff9a6c12;border:1px solid #ff9a6c30;padding:2px 8px;border-radius:10px;">Kinks where weights snap to exactly zero</span>
+        </div>
+        <canvas id="cv3l" class="clickable" width="500" height="260" title="Click to set shared α"></canvas>
+        <p style="font-size:12.5px;color:#6878a0;margin-top:6px;line-height:1.5;">Sharp kinks = zero events. <strong>Click to activate Lasso at any α.</strong></p>
+      </div>
+    </div>
+    <div class="legend" style="margin-top:12px;justify-content:center;gap:20px;">
+      <span style="font-size:12px;color:#6878a0;">x¹ <span style="color:#ff6b8b;">■</span></span>
+      <span style="font-size:12px;">x² <span style="color:#ff9a3c;">■</span></span>
+      <span style="font-size:12px;">x³ <span style="color:#ffd479;">■</span></span>
+      <span style="font-size:12px;">x⁴ <span style="color:#7acc5a;">■</span></span>
+      <span style="font-size:12px;">x⁵ <span style="color:#4fd1c5;">■</span></span>
+      <span style="font-size:12px;">x⁶ <span style="color:#9fb4ff;">■</span></span>
+      <span style="font-size:12px;color:#ffd479;">│ = shared α (same number shown in all 3 playgrounds)</span>
+    </div>
+  </div>
+
+  <div class="section-transition">
+    <strong>Moving to Playground 3:</strong> Drag the PG 3 slider to any α — PG 1's number and PG 2's dashed line will move to that <em>same exact number</em>. At α ≈ 2.4 and α ≈ 4.2 you'll see sparsity events snap across all three views simultaneously. <span class="next-badge">↓ Playground 3</span>
+  </div>
+
+  <!-- SECTION 3 -->
+  <hr class="section-hr">
+  <div class="section-block pg3">
+    <div class="section-num-badge"><span class="sn">3</span> Playground 3 of 3</div>
+    <h2>The Geometric Reason L1 Produces Sparsity — Same α, Geometric View</h2>
+    <p class="section-lead">This slider controls the <strong>same shared α</strong> as Playgrounds 1 &amp; 2. The slider runs 0–6 on a linear scale, covering the geometrically interesting sparsity events (at α = 2.4 and α = 4.2). When PG 1 uses large α (&gt;6), the slider clamps at 6 but the canvas still shows the correct fully-constrained state.</p>
+  </div>
+
+  <div class="panel full-width" style="margin-top:0;">
+    <div style="display:grid;grid-template-columns:460px 1fr;gap:28px;align-items:start;">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <button id="geo-ridge" class="active-ridge">◯ Ridge — Circle (L2)</button>
+          <button id="geo-lasso">◆ Lasso — Diamond (L1)</button>
+        </div>
+
+        <!-- Shared-alpha indicator showing the same number as PG1 -->
+        <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+          <span class="shared-alpha-badge"><span class="dot-pulse"></span>Shared α across all 3 playgrounds:</span>
+          <div class="alpha-display"><span class="alpha-label">α =</span><span class="alpha-value" id="geo-alpha-display">1.00</span></div>
+        </div>
+
+        <canvas id="cv4" class="no-cursor" width="420" height="400"></canvas>
+
+        <div class="controls" style="margin-top:10px;">
+          <label for="geo-alpha" style="min-width:55px;">α =</label>
+          <input type="range" id="geo-alpha" min="0.01" max="6" step="0.05" value="1" style="width:200px;" title="Linear scale 0–6, controls the same α as Playground 1">
+          <span style="font-size:11px;color:#4a5478;flex-shrink:0;">0 → 6 (linear)</span>
+        </div>
+        <!-- Clear note explaining the scale -->
+        <div class="slider-note">Slider range 0–6 (linear) covers sparsity events at α=2.4 &amp; 4.2. Updates PG 1 &amp; 2 to the <strong>same number</strong>. When PG 1 sets α&gt;6, slider shows max but canvas still correct.</div>
+
+        <div class="legend" style="margin-top:8px;">
+          <span><span class="dot" style="background:#ffd479;"></span>OLS solution</span>
+          <span><span class="dot" style="background:#ff6b8b;"></span>Regularised solution</span>
+        </div>
+        <div style="margin-top:10px;background:#0c1020;border:1px solid #1e2838;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#7888a8;line-height:1.6;min-height:48px;" id="geo-annotation">
+          Drag α to shrink the constraint region. Sparsity events: Lasso w₂→0 at α=2.4, w₁→0 at α=4.2.
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin-top:0;color:#7acc5a;">Reading the Diagram</h3>
+        <ul>
+          <li><strong>Gold dot</strong> = unconstrained OLS solution (no penalty).</li>
+          <li><strong>Ellipses</strong> = MSE loss contours. Smaller = lower error.</li>
+          <li><strong>Constraint region</strong> = where weights must stay. The regularised solution (red dot) is where the smallest ellipse touches the constraint.</li>
+        </ul>
+        <h3 style="color:#6fb3e8;">Ridge (Circle) — Why No Zeros</h3>
+        <p>The L2 constraint is a smooth circle. The loss ellipse touches it at a generic point where both w₁ and w₂ are non-zero.</p>
+        <h3 style="color:#ff9a6c;">Lasso (Diamond) — Why Always Zeros</h3>
+        <p>The L1 diamond has corners exactly on the axes. At α = 2.4 the constraint shrinks until its corner lands on the w₁-axis — w₂ snaps to exactly zero. At α = 4.2, w₁ zeroes too.</p>
+        <h3 style="color:#ffd479;">Connection: Same Α Across All Three</h3>
+        <p>The corner snap at α = 2.4 here is the <em>same event</em> as the kink in the Lasso path in PG 2 and the bar dropping to zero in PG 1 — all three show it at the same numerical α value.</p>
+        <div class="tip"><strong>Try:</strong> Set Lasso (Diamond) and drag α here to 2.4. Watch w₂ snap to zero — and simultaneously observe PG 1's bar chart zero out and PG 2's dashed line land at a Lasso kink. All three display the same number: α = 2.4.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-hr">
+
+  <div class="panel full-width" style="margin-top:20px;">
+    <h2>When to Use Each Method</h2>
+    <div class="grid-2">
+      <div class="card"><span class="tag">Ridge</span><h3>All features relevant</h3><p>Default. Stable, closed-form, handles correlated features. No feature selection.</p></div>
+      <div class="card"><span class="tag">Lasso</span><h3>Many features, few relevant</h3><p>Automatic zero-coefficient selection. Unstable with highly correlated features.</p></div>
+      <div class="card"><span class="tag">ElasticNet</span><h3>Correlated + sparsity needed</h3><p>Combines L1 sparsity with L2 stability for correlated groups.</p></div>
+      <div class="card"><span class="tag">CV — Always</span><h3>Finding optimal α</h3><p>Use <code>RidgeCV</code>, <code>LassoCV</code>, <code>ElasticNetCV</code> with warm-starting. Never choose α from training error.</p></div>
+    </div>
+  </div>
+
+  <div class="panel full-width" style="margin-top:20px;">
+    <h2>Implementation in Scikit-Learn</h2>
+    <p>All three follow identical 5-step structure. <code>StandardScaler</code> before the estimator is mandatory — the penalty applies uniformly, so unscaled features receive systematically different magnitudes.</p>
+    <div class="grid-2">
+      <div>
+        <h3>The Five Consistent Steps</h3>
+        <ul>
+          <li><strong>1. Create:</strong> <code>PolynomialFeatures(include_bias=False)</code> → <code>StandardScaler()</code> → estimator.</li>
+          <li><strong>2. Fit:</strong> <code>.fit(X_train, y_train)</code></li>
+          <li><strong>3. Predict:</strong> <code>.predict(X_test)</code></li>
+          <li><strong>4. Coefficients:</strong> <code>pipeline.named_steps['estimator'].coef_</code></li>
+          <li><strong>5. Evaluate:</strong> <code>r2_score</code> + <code>np.sqrt(mean_squared_error(...))</code></li>
+        </ul>
+      </div>
+      <div>
+        <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.linear_model  <span class="kw">import</span> Ridge, Lasso, RidgeCV
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> PolynomialFeatures, StandardScaler
+<span class="kw">from</span> sklearn.pipeline      <span class="kw">import</span> make_pipeline
+<span class="kw">from</span> sklearn.metrics       <span class="kw">import</span> mean_squared_error, r2_score
+
+ridge = <span class="fn">make_pipeline</span>(<span class="fn">PolynomialFeatures</span>(degree=<span class="str">6</span>,include_bias=<span class="kw">False</span>),<span class="fn">StandardScaler</span>(),<span class="fn">Ridge</span>(alpha=<span class="str">1.0</span>))
+ridge.<span class="fn">fit</span>(X_train, y_train)
+y_r = ridge.<span class="fn">predict</span>(X_test)
+<span class="fn">print</span>(<span class="str">f"Coef: {ridge.named_steps['ridge'].coef_}"</span>)
+<span class="fn">print</span>(<span class="str">f"R²: {r2_score(y_test,y_r):.4f}  RMSE: {np.sqrt(mean_squared_error(y_test,y_r)):.4f}"</span>)
+
+lasso = <span class="fn">make_pipeline</span>(<span class="fn">PolynomialFeatures</span>(degree=<span class="str">6</span>,include_bias=<span class="kw">False</span>),<span class="fn">StandardScaler</span>(),<span class="fn">Lasso</span>(alpha=<span class="str">0.1</span>))
+lasso.<span class="fn">fit</span>(X_train, y_train)
+y_l = lasso.<span class="fn">predict</span>(X_test)
+<span class="fn">print</span>(<span class="str">f"Non-zero: {np.sum(lasso.named_steps['lasso'].coef_!=0)}/6"</span>)
+<span class="fn">print</span>(<span class="str">f"R²: {r2_score(y_test,y_l):.4f}  RMSE: {np.sqrt(mean_squared_error(y_test,y_l)):.4f}"</span>)
+
+rcv = <span class="fn">make_pipeline</span>(<span class="fn">PolynomialFeatures</span>(degree=<span class="str">6</span>,include_bias=<span class="kw">False</span>),<span class="fn">StandardScaler</span>(),
+    <span class="fn">RidgeCV</span>(alphas=np.<span class="fn">logspace</span>(<span class="str">-3</span>,<span class="str">3</span>,<span class="str">50</span>),cv=<span class="str">5</span>))
+rcv.<span class="fn">fit</span>(X_train, y_train)
+<span class="fn">print</span>(<span class="str">f"Best α: {rcv.named_steps['ridgecv'].alpha_:.4f}"</span>)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel full-width" style="margin-top:20px;">
+    <h2>Critical Pitfalls</h2>
+    <div class="warn-box"><strong style="color:#ff6b8b;">1. Not Scaling Features — The Most Common Mistake</strong><p style="margin-top:4px;margin-bottom:0;">The penalty applies uniformly. Always put <code>StandardScaler()</code> immediately before any regularised model.</p></div>
+    <div class="grid-2">
+      <div class="card"><h3>2. Choosing α by Training Performance</h3><p>Training MSE always decreases as α→0. Use <code>RidgeCV</code> or <code>LassoCV</code> with a held-out validation set.</p></div>
+      <div class="card"><h3>3. Lasso with Correlated Features</h3><p>Lasso arbitrarily picks one from a correlated group. Use ElasticNet when correlated features exist.</p></div>
+      <div class="card"><h3>4. Coefficients ≠ Feature Importances</h3><p>Regularised coefficients are distorted. Use <code>permutation_importance</code> for reliable rankings.</p></div>
+      <div class="card"><h3>5. Regularisation Cannot Fix Wrong Architecture</h3><p>Treat polynomial degree and α as separate hyperparameters, both tuned by cross-validation.</p></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+//  CONSTANTS
+// ════════════════════════════════════════════════════
+const DEGREE=6, N_PATH=55;
+const COEF_COLORS=['#ff6b8b','#ff9a3c','#ffd479','#7acc5a','#4fd1c5','#9fb4ff'];
+const PATH_ALPHAS=Array.from({length:N_PATH},(_,i)=>Math.pow(10,-2+i*4/(N_PATH-1)));
+
+// ════════════════════════════════════════════════════
+//  SHARED STATE — one alpha for all three playgrounds
+// ════════════════════════════════════════════════════
+let pts=[], query=null, isDark=true;
+let alpha=1.0;          // ← THE single shared α used by PG1, PG2, and PG3
+let method='ridge';
+let geo_method='ridge'; // PG3 Ridge/Lasso toggle (shape only, doesn't affect alpha)
+let pathHoverR=-1, pathHoverL=-1;
+
+let xMean=0,xStd=1,yMean=0,fMeans=[],fStds=[],X_norm=[];
+let olsW=[],curW=[],ridgePath=[],lassoPath=[];
+
+const cv1=document.getElementById('cv1'),ctx1=cv1.getContext('2d');
+const cv2=document.getElementById('cv2'),ctx2=cv2.getContext('2d');
+const cv3r=document.getElementById('cv3r'),ctx3r=cv3r.getContext('2d');
+const cv3l=document.getElementById('cv3l'),ctx3l=cv3l.getContext('2d');
+const cv4=document.getElementById('cv4'),ctx4=cv4.getContext('2d');
+const W1=cv1.width,H1=cv1.height,W2=cv2.width,H2=cv2.height,W4=cv4.width,H4=cv4.height;
+const M1={L:55,R:18,T:20,B:45},PW1=W1-M1.L-M1.R,PH1=H1-M1.T-M1.B;
+let dxMin=-3,dxMax=4,dyMin=0,dyMax=30;
+
+// ════════════════════════════════════════════════════
+//  ALPHA SYNC — updates all three displays to the same number
+//  Called after alpha changes from ANY source (PG1, PG2, or PG3)
+// ════════════════════════════════════════════════════
+function syncAllAlphaDisplays(){
+  const disp = alpha.toFixed(alpha<.1?3:alpha<1?2:1);
+
+  // PG1: log-scale slider + text
+  document.getElementById('alpha-slider').value = Math.log10(Math.max(0.01,alpha)).toFixed(4);
+  document.getElementById('alpha-val').textContent = disp;
+
+  // PG2: no slider, just the dashed line (redrawn in drawPathsOnly/drawAll)
+
+  // PG3: linear slider (clamped 0.01–6) + text + shared display
+  document.getElementById('geo-alpha').value = Math.min(6, Math.max(0.01, alpha)).toFixed(3);
+  document.getElementById('geo-alpha-display').textContent = disp;
+}
+
+// ════════════════════════════════════════════════════
+//  MATRIX UTILITIES
+// ════════════════════════════════════════════════════
+function inverse(M){
+  const n=M.length;
+  const a=M.map((row,i)=>[...row,...Array.from({length:n},(_,j)=>i===j?1:0)]);
+  for(let i=0;i<n;i++){
+    let mx=i; for(let k=i+1;k<n;k++) if(Math.abs(a[k][i])>Math.abs(a[mx][i])) mx=k;
+    [a[i],a[mx]]=[a[mx],a[i]];
+    const p=a[i][i]; if(Math.abs(p)<1e-14) continue;
+    for(let j=0;j<2*n;j++) a[i][j]/=p;
+    for(let k=0;k<n;k++){ if(k===i) continue; const f=a[k][i]; for(let j=0;j<2*n;j++) a[k][j]-=f*a[i][j]; }
+  }
+  return a.map(row=>row.slice(n));
+}
+
+// ════════════════════════════════════════════════════
+//  FEATURES
+// ════════════════════════════════════════════════════
+function buildFeatures(){
+  const n=pts.length; if(!n){X_norm=[];return;}
+  xMean=pts.reduce((s,p)=>s+p.x,0)/n;
+  xStd=Math.sqrt(pts.reduce((s,p)=>s+(p.x-xMean)**2,0)/n)||1;
+  yMean=pts.reduce((s,p)=>s+p.y,0)/n;
+  const xn=pts.map(p=>(p.x-xMean)/xStd);
+  const XR=xn.map(x=>Array.from({length:DEGREE},(_,d)=>Math.pow(x,d+1)));
+  fMeans=[]; fStds=[];
+  for(let j=0;j<DEGREE;j++){
+    const col=XR.map(r=>r[j]);
+    const m=col.reduce((s,v)=>s+v,0)/n;
+    const s=Math.sqrt(col.reduce((s,v)=>s+(v-m)**2,0)/n)||1;
+    fMeans.push(m); fStds.push(s);
+  }
+  X_norm=XR.map(row=>row.map((v,j)=>(v-fMeans[j])/fStds[j]));
+}
+function getYc(){ return pts.map(p=>p.y-yMean); }
+function predictAt(x,w){ const xn=(x-xMean)/xStd; const f=fMeans.map((m,j)=>(Math.pow(xn,j+1)-m)/fStds[j]); return f.reduce((s,fi,j)=>s+w[j]*fi,0)+yMean; }
+
+// ════════════════════════════════════════════════════
+//  SOLVERS
+// ════════════════════════════════════════════════════
+function solveRidge(a){
+  const n=pts.length; if(!n) return new Array(DEGREE).fill(0);
+  const y=getYc();
+  const XtX=Array.from({length:DEGREE},(_,r)=>Array.from({length:DEGREE},(_,c)=>X_norm.reduce((s,row)=>s+row[r]*row[c],0)/n));
+  const Xty=Array.from({length:DEGREE},(_,j)=>X_norm.reduce((s,row,i)=>s+row[j]*y[i],0)/n);
+  const A=XtX.map((row,i)=>row.map((v,j)=>v+(i===j?a:0)));
+  const Ainv=inverse(A);
+  return Ainv.map(row=>row.reduce((s,v,j)=>s+v*Xty[j],0));
+}
+function softThresh(z,t){ return z>t?z-t:z<-t?z+t:0; }
+function solveElastic(a,l1r,maxIter=1200,w0=null){
+  const n=pts.length; if(!n) return new Array(DEGREE).fill(0);
+  const y=getYc(); let w=w0?[...w0]:new Array(DEGREE).fill(0);
+  const s=Array.from({length:DEGREE},(_,j)=>X_norm.reduce((sum,row)=>sum+row[j]**2,0)/n);
+  const thr=a*l1r,rr=a*(1-l1r);
+  for(let iter=0;iter<maxIter;iter++){
+    const prev=[...w];
+    for(let j=0;j<DEGREE;j++){
+      let rho=0;
+      for(let i=0;i<n;i++){ let pred=0; for(let k=0;k<DEGREE;k++) if(k!==j) pred+=w[k]*X_norm[i][k]; rho+=X_norm[i][j]*(y[i]-pred)/n; }
+      w[j]=softThresh(rho,thr)/(s[j]+rr);
+    }
+    if(w.every((v,i)=>Math.abs(v-prev[i])<1e-8)) break;
+  }
+  return w;
+}
+function solveLasso(a,maxIter=1200,w0=null){ return solveElastic(a,1,maxIter,w0); }
+function solve(a,mth){ if(mth==='ridge') return solveRidge(a); if(mth==='lasso') return solveLasso(a); return solveElastic(a,0.5); }
+
+// ════════════════════════════════════════════════════
+//  PATHS
+// ════════════════════════════════════════════════════
+function computePaths(){
+  ridgePath=PATH_ALPHAS.map(a=>solveRidge(a));
+  lassoPath=new Array(N_PATH);
+  let warm=new Array(DEGREE).fill(0);
+  for(let i=N_PATH-1;i>=0;i--){ warm=solveLasso(PATH_ALPHAS[i],800,warm); lassoPath[i]=[...warm]; }
+}
+
+// ════════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════════
+function seed(){
+  const a=1.2+(Math.random()-.5)*.8,b=-2+(Math.random()-.5)*1.2,c=10+(Math.random()-.5)*5;
+  pts=[];
+  for(let i=0;i<26;i++){ const x=-3+Math.random()*7,noise=(Math.random()+Math.random()+Math.random()-1.5)*3.5; pts.push({x,y:a*x*x+b*x+c+noise}); }
+  query=null; buildFeatures(); updateDataRange();
+  olsW=solveRidge(1e-6); computePaths(); curW=solve(alpha,method);
+}
+function updateDataRange(){
+  if(!pts.length) return;
+  const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+  const xr=Math.max(...xs)-Math.min(...xs),yr=Math.max(...ys)-Math.min(...ys);
+  dxMin=Math.min(...xs)-xr*.12;dxMax=Math.max(...xs)+xr*.12;
+  dyMin=Math.min(...ys)-yr*.15;dyMax=Math.max(...ys)+yr*.20;
+}
+
+// ════════════════════════════════════════════════════
+//  DRAWING
+// ════════════════════════════════════════════════════
+function toS1(dx,dy){ return{x:M1.L+(dx-dxMin)/(dxMax-dxMin)*PW1,y:M1.T+(1-(dy-dyMin)/(dyMax-dyMin))*PH1}; }
+function fromS1(sx,sy){ return{x:(sx-M1.L)/PW1*(dxMax-dxMin)+dxMin,y:(1-(sy-M1.T)/PH1)*(dyMax-dyMin)+dyMin}; }
+function niceTicks(lo,hi,n){ const r=hi-lo,raw=r/n,exp=Math.pow(10,Math.floor(Math.log10(raw))); const step=[1,2,2.5,5,10].map(f=>f*exp).find(s=>s>=raw)||exp; const start=Math.ceil(lo/step)*step,t=[]; for(let v=start;v<=hi+step*.01;v+=step) t.push(parseFloat(v.toFixed(10))); return t; }
+
+function drawCV1(){
+  ctx1.clearRect(0,0,W1,H1);
+  const xT=niceTicks(dxMin,dxMax,6),yT=niceTicks(dyMin,dyMax,5);
+  const gC=isDark?'rgba(30,38,58,.9)':'rgba(200,210,230,.7)',aC=isDark?'rgba(200,215,235,.45)':'rgba(30,45,90,.4)',lC=isDark?'rgba(180,195,220,.7)':'rgba(40,55,95,.65)';
+  ctx1.strokeStyle=gC;ctx1.lineWidth=1;
+  xT.forEach(tx=>{const s=toS1(tx,dyMin);ctx1.beginPath();ctx1.moveTo(s.x,M1.T);ctx1.lineTo(s.x,H1-M1.B);ctx1.stroke();});
+  yT.forEach(ty=>{const s=toS1(dxMin,ty);ctx1.beginPath();ctx1.moveTo(M1.L,s.y);ctx1.lineTo(W1-M1.R,s.y);ctx1.stroke();});
+  ctx1.strokeStyle=aC;ctx1.lineWidth=1.5;
+  ctx1.beginPath();ctx1.moveTo(M1.L,M1.T);ctx1.lineTo(M1.L,H1-M1.B);ctx1.stroke();
+  ctx1.beginPath();ctx1.moveTo(M1.L,H1-M1.B);ctx1.lineTo(W1-M1.R,H1-M1.B);ctx1.stroke();
+  ctx1.font='11px -apple-system,sans-serif';ctx1.fillStyle=lC;
+  xT.forEach(tx=>{const s=toS1(tx,dyMin);ctx1.textAlign='center';ctx1.fillText(Number.isInteger(tx)?tx:tx.toFixed(1),s.x,H1-M1.B+16);});
+  yT.forEach(ty=>{const s=toS1(dxMin,ty);ctx1.textAlign='right';ctx1.fillText(Number.isInteger(ty)?ty:ty.toFixed(1),M1.L-7,s.y+4);});
+  ctx1.fillStyle=isDark?'rgba(150,170,205,.65)':'rgba(50,65,105,.6)';ctx1.font='12px -apple-system,sans-serif';ctx1.textAlign='center';
+  ctx1.fillText('x  (Feature)',M1.L+PW1/2,H1-4);
+  ctx1.save();ctx1.translate(13,M1.T+PH1/2);ctx1.rotate(-Math.PI/2);ctx1.fillText('y  (Target)',0,0);ctx1.restore();
+  if(!pts.length) return;
+  const dC=(w,c,lw,d)=>{ctx1.save();ctx1.beginPath();ctx1.rect(M1.L,M1.T,PW1,PH1);ctx1.clip();ctx1.strokeStyle=c;ctx1.lineWidth=lw;ctx1.setLineDash(d||[]);ctx1.beginPath();for(let i=0;i<=300;i++){const x=dxMin+i*(dxMax-dxMin)/300,s=toS1(x,predictAt(x,w));i===0?ctx1.moveTo(s.x,s.y):ctx1.lineTo(s.x,s.y);}ctx1.stroke();ctx1.setLineDash([]);ctx1.restore();};
+  dC(olsW,'rgba(160,170,190,.55)',1.5,[5,5]);
+  dC(curW,method==='ridge'?'#6fb3e8':method==='lasso'?'#ff9a6c':'#7acc5a',2.5);
+  if(query!==null){
+    const yp=predictAt(query,curW),sx=toS1(query,dyMin).x,syp=toS1(query,yp).y;
+    ctx1.save();ctx1.beginPath();ctx1.rect(M1.L,M1.T,PW1,PH1);ctx1.clip();
+    ctx1.strokeStyle='rgba(255,212,121,.6)';ctx1.lineWidth=1.5;ctx1.setLineDash([5,4]);
+    ctx1.beginPath();ctx1.moveTo(sx,M1.T);ctx1.lineTo(sx,H1-M1.B);ctx1.stroke();
+    ctx1.beginPath();ctx1.moveTo(M1.L,syp);ctx1.lineTo(sx,syp);ctx1.stroke();
+    ctx1.setLineDash([]);ctx1.beginPath();ctx1.arc(sx,syp,6,0,Math.PI*2);ctx1.fillStyle='#ffd479';ctx1.fill();ctx1.strokeStyle='#fff';ctx1.lineWidth=2;ctx1.stroke();ctx1.restore();
+  }
+  pts.forEach(p=>{const s=toS1(p.x,p.y);ctx1.beginPath();ctx1.arc(s.x,s.y,5,0,Math.PI*2);ctx1.fillStyle='#7b93db';ctx1.fill();ctx1.strokeStyle=isDark?'#0b0d13':'#dce4f8';ctx1.lineWidth=1.2;ctx1.stroke();});
+}
+
+function drawCV2(){
+  ctx2.clearRect(0,0,W2,H2);
+  const mL=80,mR=20,mT=12,mB=25,pw=W2-mL-mR,ph=H2-mT-mB,rowH=ph/DEGREE;
+  const allV=[...curW,...olsW],maxAbs=Math.max(Math.abs(Math.max(...allV)),Math.abs(Math.min(...allV)),0.01);
+  const scale=pw*0.45/maxAbs,zeroX=mL+pw/2;
+  ctx2.fillStyle=isDark?'rgba(24,30,45,.8)':'rgba(230,235,248,.6)';ctx2.fillRect(mL,mT,pw,ph);
+  ctx2.strokeStyle=isDark?'rgba(255,255,255,.2)':'rgba(0,0,0,.2)';ctx2.lineWidth=1;ctx2.beginPath();ctx2.moveTo(zeroX,mT);ctx2.lineTo(zeroX,mT+ph);ctx2.stroke();
+  const curCol=method==='ridge'?'#6fb3e8':method==='lasso'?'#ff9a6c':'#7acc5a';
+  for(let j=0;j<DEGREE;j++){
+    const y=mT+j*rowH+rowH*.1,bh=rowH*.8;
+    const ob=Math.abs(olsW[j])*scale;ctx2.fillStyle=isDark?'rgba(100,110,140,.4)':'rgba(100,100,130,.3)';ctx2.fillRect(olsW[j]>0?zeroX:zeroX-ob,y,ob,bh);
+    const bw=Math.abs(curW[j])*scale,isZ=Math.abs(curW[j])<.001;
+    ctx2.fillStyle=isZ?'rgba(60,60,60,.5)':curCol+'cc';ctx2.fillRect(curW[j]>0?zeroX:zeroX-bw,y,bw,bh);
+    ctx2.fillStyle=isDark?'rgba(180,190,215,.8)':'rgba(50,60,100,.7)';ctx2.font='11px -apple-system,sans-serif';ctx2.textAlign='right';ctx2.fillText(`x${j+1}`,mL-6,y+bh*.65);
+    ctx2.fillStyle=isZ?'#ff9f9f':isDark?'rgba(200,210,230,.75)':'rgba(40,50,90,.7)';ctx2.textAlign=curW[j]>=0?'left':'right';
+    ctx2.fillText(isZ?'← 0':curW[j].toFixed(2),curW[j]>=0?zeroX+bw+3:zeroX-bw-3,y+bh*.65);
+  }
+  ctx2.fillStyle=isDark?'rgba(140,155,185,.7)':'rgba(50,65,110,.6)';ctx2.font='10px -apple-system,sans-serif';ctx2.textAlign='center';ctx2.fillText('← Negative   0   Positive →',mL+pw*.5,mT+ph+17);
+}
+
+function drawPathCanvas(ctxP,cvP,pathData,lineColor,hoverIdx){
+  const W=cvP.width,H=cvP.height;ctxP.clearRect(0,0,W,H);
+  const mL=52,mR=15,mT=22,mB=40,pw=W-mL-mR,ph=H-mT-mB;
+  const allV=pathData.flat(),yMax=Math.max(...allV.map(Math.abs),.5)*1.12;
+  const toX=(i)=>mL+i/(N_PATH-1)*pw,toY=(v)=>mT+ph/2*(1-v/yMax);
+  const isL=lineColor==='#ff9a6c';
+  const gC=isDark?'rgba(30,38,58,.9)':'rgba(200,210,230,.7)';
+  ctxP.strokeStyle=gC;ctxP.lineWidth=1;
+  [-yMax*.5,0,yMax*.5].forEach(v=>{const y=toY(v);ctxP.beginPath();ctxP.moveTo(mL,y);ctxP.lineTo(W-mR,y);ctxP.stroke();});
+  ctxP.strokeStyle=isDark?'rgba(255,255,255,.22)':'rgba(0,0,0,.2)';ctxP.lineWidth=1;
+  const zy=toY(0);ctxP.beginPath();ctxP.moveTo(mL,zy);ctxP.lineTo(W-mR,zy);ctxP.stroke();
+  ctxP.strokeStyle=isDark?'rgba(200,215,235,.4)':'rgba(30,45,90,.35)';ctxP.lineWidth=1.2;
+  ctxP.beginPath();ctxP.moveTo(mL,mT);ctxP.lineTo(mL,mT+ph);ctxP.stroke();ctxP.beginPath();ctxP.moveTo(mL,mT+ph);ctxP.lineTo(W-mR,mT+ph);ctxP.stroke();
+  const xL=[{i:0,l:'0.01'},{i:Math.round(N_PATH*.25),l:'0.1'},{i:Math.round(N_PATH*.5),l:'1'},{i:Math.round(N_PATH*.75),l:'10'},{i:N_PATH-1,l:'100'}];
+  xL.forEach(({i,l})=>{
+    const x=toX(i);ctxP.strokeStyle=isDark?'rgba(200,215,235,.25)':'rgba(30,45,90,.18)';ctxP.lineWidth=1;ctxP.beginPath();ctxP.moveTo(x,mT+ph);ctxP.lineTo(x,mT+ph+5);ctxP.stroke();
+    ctxP.fillStyle=isDark?'rgba(160,175,205,.7)':'rgba(40,55,100,.65)';ctxP.font='10px -apple-system,sans-serif';ctxP.textAlign='center';ctxP.fillText(l,x,mT+ph+17);
+  });
+  ctxP.fillStyle=isDark?'rgba(160,175,205,.65)':'rgba(40,55,100,.6)';ctxP.font='11px -apple-system,sans-serif';
+  ctxP.save();ctxP.translate(13,mT+ph/2);ctxP.rotate(-Math.PI/2);ctxP.textAlign='center';ctxP.fillText('Coefficient',0,0);ctxP.restore();
+  ctxP.textAlign='center';ctxP.fillText('α (log scale) →',mL+pw/2,H-4);
+  for(let j=0;j<DEGREE;j++){
+    ctxP.strokeStyle=COEF_COLORS[j];ctxP.lineWidth=1.8;ctxP.beginPath();
+    pathData.forEach((w,i)=>{const x=toX(i),y=toY(w[j]);i===0?ctxP.moveTo(x,y):ctxP.lineTo(x,y);});ctxP.stroke();
+    if(isL){ let pZ=false; pathData.forEach((w,i)=>{const isZ=Math.abs(w[j])<.002; if(!pZ&&isZ&&i>0){ctxP.beginPath();ctxP.arc(toX(i),zy,3.5,0,Math.PI*2);ctxP.fillStyle=COEF_COLORS[j];ctxP.fill();} pZ=isZ;}); }
+  }
+  for(let j=0;j<DEGREE;j++){ ctxP.fillStyle=COEF_COLORS[j];ctxP.fillRect(mL+j*(pw/DEGREE)+2,mT-16,14,6); ctxP.fillStyle=isDark?'rgba(160,175,205,.7)':'rgba(40,55,100,.65)';ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='left';ctxP.fillText(`x${j+1}`,mL+j*(pw/DEGREE)+18,mT-11); }
+  // Dashed line for current shared α
+  const curI=Math.max(0,Math.min(N_PATH-1,PATH_ALPHAS.findIndex(a=>a>=alpha)));
+  const cx=toX(curI);
+  ctxP.strokeStyle='rgba(255,212,121,.9)';ctxP.lineWidth=2.2;ctxP.setLineDash([]);
+  ctxP.beginPath();ctxP.moveTo(cx,mT);ctxP.lineTo(cx,mT+ph);ctxP.stroke();
+  ctxP.fillStyle='rgba(255,212,121,.85)';ctxP.font='bold 10px -apple-system,sans-serif';ctxP.textAlign='center';
+  ctxP.fillText(`α=${alpha.toFixed(alpha<.1?3:alpha<1?2:1)}`,cx,mT-6);
+  for(let j=0;j<DEGREE;j++){ const cy=toY(pathData[curI][j]);ctxP.beginPath();ctxP.arc(cx,cy,4,0,Math.PI*2);ctxP.fillStyle=COEF_COLORS[j];ctxP.fill(); }
+  // Hover preview
+  if(hoverIdx>=0&&hoverIdx!==curI){
+    const hx=toX(hoverIdx);
+    ctxP.strokeStyle=isDark?'rgba(200,215,235,.35)':'rgba(30,45,90,.25)';ctxP.lineWidth=1.2;ctxP.setLineDash([3,3]);
+    ctxP.beginPath();ctxP.moveTo(hx,mT);ctxP.lineTo(hx,mT+ph);ctxP.stroke();ctxP.setLineDash([]);
+    const ha=PATH_ALPHAS[hoverIdx];ctxP.fillStyle=isDark?'rgba(180,200,225,.65)':'rgba(40,60,110,.55)';ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='center';ctxP.fillText(`α=${ha.toFixed(ha<.1?3:ha<1?2:1)}`,hx,mT+ph+32);
+    for(let j=0;j<DEGREE;j++){ const hy=toY(pathData[hoverIdx][j]);ctxP.beginPath();ctxP.arc(hx,hy,3.5,0,Math.PI*2);ctxP.fillStyle=COEF_COLORS[j]+'cc';ctxP.fill(); }
+    ctxP.fillStyle=isDark?'rgba(140,160,195,.5)':'rgba(50,70,130,.45)';ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='center';ctxP.fillText('click to set',hx,mT+ph+42);
+  }
+}
+
+// PG3 geometric canvas — uses the SHARED alpha directly
+// Analytical 2D example: OLS=(1.4,1.2), loss params A1=1.5, A2=1.0
+// Ridge: w1 = A1*W1_OLS/(A1+alpha), w2 = A2*W2_OLS/(A2+alpha)
+// Lasso: w1 = S(W1_OLS, alpha/(2*A1)), w2 = S(W2_OLS, alpha/(2*A2))
+// Sparsity events: w2→0 at alpha=2.4, w1→0 at alpha=4.2
+const W1_OLS=1.4,W2_OLS=1.2,A1=1.5,A2=1.0;
+
+function drawCV4(){
+  const W=W4,H=H4;ctx4.clearRect(0,0,W,H);
+  const mL=48,mR=18,mT=18,mB=48,pw=W-mL-mR,ph=H-mT-mB,wMin=-.4,wMax=2.1,scale=Math.min(pw,ph)/(wMax-wMin);
+  const toX=(w1)=>mL+(w1-wMin)*scale,toY=(w2)=>mT+ph-(w2-wMin)*scale;
+  ctx4.fillStyle=isDark?'#0c1020':'#eef2ff';ctx4.fillRect(mL,mT,pw,ph);
+  const gC=isDark?'rgba(30,38,58,.9)':'rgba(200,210,230,.7)';ctx4.strokeStyle=gC;ctx4.lineWidth=1;
+  for(let v=-.2;v<=2.05;v+=.4){ if(v>=wMin&&v<=wMax){ctx4.beginPath();ctx4.moveTo(toX(v),mT);ctx4.lineTo(toX(v),mT+ph);ctx4.stroke();ctx4.beginPath();ctx4.moveTo(mL,toY(v));ctx4.lineTo(mL+pw,toY(v));ctx4.stroke();} }
+  ctx4.strokeStyle=isDark?'rgba(200,215,235,.5)':'rgba(30,45,90,.4)';ctx4.lineWidth=1.5;
+  ctx4.beginPath();ctx4.moveTo(toX(0),mT);ctx4.lineTo(toX(0),mT+ph);ctx4.stroke();ctx4.beginPath();ctx4.moveTo(mL,toY(0));ctx4.lineTo(mL+pw,toY(0));ctx4.stroke();
+  ctx4.fillStyle=isDark?'rgba(160,175,205,.75)':'rgba(40,55,100,.7)';ctx4.font='11px -apple-system,sans-serif';ctx4.textAlign='center';ctx4.fillText('w₁',mL+pw/2,mT+ph+35);
+  ctx4.save();ctx4.translate(14,mT+ph/2);ctx4.rotate(-Math.PI/2);ctx4.fillText('w₂',0,0);ctx4.restore();
+  [-.2,0,.4,.8,1.2,1.6,2.0].forEach(v=>{ if(v>=wMin&&v<=wMax){ctx4.fillStyle=isDark?'rgba(140,155,185,.6)':'rgba(50,65,100,.55)';ctx4.font='9px -apple-system,sans-serif';ctx4.textAlign='center';ctx4.fillText(v.toFixed(1),toX(v),mT+ph+18);ctx4.textAlign='right';ctx4.fillText(v.toFixed(1),mL-5,toY(v)+4);} });
+  ctx4.save();ctx4.beginPath();ctx4.rect(mL,mT,pw,ph);ctx4.clip();
+  // Loss contours
+  const levels=[.06,.2,.5,1,1.8];
+  levels.forEach((L,i)=>{ const ax=Math.sqrt(L/A1)*scale,ay=Math.sqrt(L/A2)*scale,ac=(levels.length-1-i)/(levels.length-1);ctx4.strokeStyle=isDark?`rgba(130,150,200,${.13+ac*.25})`:`rgba(60,80,160,${.1+ac*.2})`;ctx4.lineWidth=1.2;ctx4.beginPath();ctx4.ellipse(toX(W1_OLS),toY(W2_OLS),ax,ay,0,0,Math.PI*2);ctx4.stroke(); });
+  // ── Solution uses shared alpha directly ──────────────────────────────
+  const sol = geo_method==='ridge'
+    ? {w1:A1*W1_OLS/(A1+alpha), w2:A2*W2_OLS/(A2+alpha)}
+    : {w1:softThresh(W1_OLS,alpha/(2*A1)), w2:softThresh(W2_OLS,alpha/(2*A2))};
+  if(geo_method==='ridge'){
+    const r=Math.sqrt(sol.w1**2+sol.w2**2)*scale;
+    ctx4.strokeStyle=isDark?'rgba(111,179,232,.72)':'rgba(20,80,160,.6)';ctx4.lineWidth=2;ctx4.setLineDash([]);ctx4.beginPath();ctx4.arc(toX(0),toY(0),r,0,Math.PI*2);ctx4.stroke();
+  } else {
+    const r=(Math.abs(sol.w1)+Math.abs(sol.w2))*scale;
+    ctx4.strokeStyle=isDark?'rgba(255,154,108,.72)':'rgba(180,60,20,.6)';ctx4.lineWidth=2;ctx4.setLineDash([]);
+    ctx4.beginPath();ctx4.moveTo(toX(r/scale),toY(0));ctx4.lineTo(toX(0),toY(r/scale));ctx4.lineTo(toX(-r/scale),toY(0));ctx4.lineTo(toX(0),toY(-r/scale));ctx4.closePath();ctx4.stroke();
+  }
+  ctx4.restore();
+  ctx4.fillStyle='#ffd479';ctx4.beginPath();ctx4.arc(toX(W1_OLS),toY(W2_OLS),7,0,Math.PI*2);ctx4.fill();ctx4.strokeStyle='#fff';ctx4.lineWidth=2;ctx4.stroke();
+  ctx4.fillStyle=isDark?'rgba(255,212,121,.8)':'rgba(140,100,0,.8)';ctx4.font='bold 10px -apple-system,sans-serif';ctx4.textAlign='left';ctx4.fillText('OLS',toX(W1_OLS)+9,toY(W2_OLS)-3);
+  const sx=toX(sol.w1),sy=toY(sol.w2);
+  ctx4.fillStyle='#ff6b8b';ctx4.beginPath();ctx4.arc(sx,sy,7,0,Math.PI*2);ctx4.fill();ctx4.strokeStyle='#fff';ctx4.lineWidth=2;ctx4.stroke();
+  ctx4.fillStyle=isDark?'rgba(255,107,139,.85)':'rgba(180,30,60,.8)';ctx4.font='10px -apple-system,sans-serif';ctx4.textAlign='left';ctx4.fillText(`(${sol.w1.toFixed(2)}, ${sol.w2.toFixed(2)})`,sx+9,sy-4);
+  const sW2=geo_method==='lasso'&&Math.abs(sol.w2)<.005,sW1=geo_method==='lasso'&&Math.abs(sol.w1)<.005;
+  let ann='';
+  if(sW1&&sW2) ann='<span style="color:#ff9f9f;">Both weights zeroed (α ≥ 4.2).</span>';
+  else if(sW2) ann='<span style="color:#ffd479;font-weight:700;">&#x25C6; Sparsity event!</span> α = '+alpha.toFixed(2)+' ≥ 2.4: diamond corner hits w₁-axis → <strong>w₂ = 0</strong>. Same α = same event in PG 1 &amp; 2.';
+  else if(sW1) ann='<span style="color:#ffd479;font-weight:700;">&#x25C6; Sparsity event!</span> α = '+alpha.toFixed(2)+' ≥ 4.2: corner hits w₂-axis → <strong>w₁ = 0</strong>.';
+  else if(geo_method==='lasso') ann='Drag α to 2.4 → w₂ snaps to zero. To 4.2 → w₁ also zeros. Watch PG 1 bars and PG 2 dashed line react to the <em>same</em> α.';
+  else ann='Ridge circle has no corners — solution slides smoothly, both w₁ and w₂ non-zero at every α.';
+  document.getElementById('geo-annotation').innerHTML=ann;
+}
+
+function drawAll(){ drawCV1();drawCV2();drawPathCanvas(ctx3r,cv3r,ridgePath,'#6fb3e8',pathHoverR);drawPathCanvas(ctx3l,cv3l,lassoPath,'#ff9a6c',pathHoverL);drawCV4();report(); }
+function drawPathsOnly(){ drawPathCanvas(ctx3r,cv3r,ridgePath,'#6fb3e8',pathHoverR);drawPathCanvas(ctx3l,cv3l,lassoPath,'#ff9a6c',pathHoverL); }
+
+// ════════════════════════════════════════════════════
+//  REPORT
+// ════════════════════════════════════════════════════
+function computeMetrics(w){ if(!pts.length||!w.length) return{mse:0,r2:0,nnz:0}; const mse=pts.reduce((s,p)=>{const e=predictAt(p.x,w)-p.y;return s+e*e;},0)/pts.length; const ym=pts.reduce((s,p)=>s+p.y,0)/pts.length,ss=pts.reduce((s,p)=>s+(p.y-ym)**2,0); return{mse,r2:ss>0?1-pts.reduce((s,p)=>s+(predictAt(p.x,w)-p.y)**2,0)/ss:1,nnz:w.filter(v=>Math.abs(v)>.001).length}; }
+function report(){
+  const vc=document.getElementById('vc1'),tb=document.getElementById('tbody1');tb.innerHTML='';
+  const wp=[];if(alpha<.05) wp.push('Very small α ≈ OLS.');else if(alpha>20) wp.push('Very large α — weights near zero.');if(method==='lasso'&&alpha>3) wp.push('Most Lasso weights are zero.');
+  document.getElementById('warn1').textContent=wp.join('  ·  ');
+  if(!pts.length){vc.innerHTML=`<div class="vc-empty"><div class="vc-empty-ring"></div>Generate a dataset first</div>`;return;}
+  const{mse,r2,nnz}=computeMetrics(curW),{r2:r2ols}=computeMetrics(olsW),rmse=Math.sqrt(mse);
+  let r2C='#7acc5a';if(r2<.6)r2C='#ff9f9f';else if(r2<.85)r2C='#ffd479';
+  const mc=method==='ridge'?'#6fb3e8':method==='lasso'?'#ff9a6c':'#7acc5a';
+  const pt=`${method.charAt(0).toUpperCase()+method.slice(1)} · α=${alpha.toFixed(alpha<.1?3:alpha<1?2:1)} · R²=${r2.toFixed(3)}`;
+  const nw=Math.sqrt(curW.reduce((s,v)=>s+v*v,0)).toFixed(3),gp=Math.min(98,Math.max(2,r2*100));
+  const tc=isDark?'rgba(255,255,255,.28)':'rgba(50,60,100,.4)';
+  vc.innerHTML=`<div class="vc-header"><span class="vc-section-title">Model Metrics</span><span class="vc-model-pill">${pt}</span></div><div class="vc-metrics"><div class="vc-metric"><span class="vc-metric-label">R² Score</span><span class="vc-metric-value" style="color:${r2C}">${r2.toFixed(3)}</span><div class="vc-status-row"><span class="vc-status-dot" style="background:${r2C};"></span><span class="vc-status-text" style="color:${r2C}">${r2>=.9?'Good fit':r2>=.7?'Moderate':'Underfitting'}</span></div></div><div class="vc-metric"><span class="vc-metric-label">${method==='lasso'||method==='elastic'?'Non-zero weights':'||w||₂ norm'}</span><span class="vc-metric-value" style="color:${mc}">${method==='lasso'||method==='elastic'?`${nnz} / ${DEGREE}`:nw}</span></div><div class="vc-metric"><span class="vc-metric-label">RMSE</span><span class="vc-metric-value" style="color:#9fb4ff">${rmse.toFixed(2)}</span></div></div><div><div class="vc-gauge-bar vc-gauge-bar-reg"><div class="vc-gauge-tick" style="left:50%"></div><div class="vc-gauge-needle" style="left:${gp}%"></div></div><div class="vc-gauge-axis"><span class="vc-gauge-axis-label" style="left:50%;color:${tc};">0.5</span></div><div class="vc-gauge-zones"><span class="vc-gauge-zone-label" style="color:#ff6b8b;">← R²=0</span><span class="vc-gauge-zone-label" style="color:#7acc5a;">R²=1 →</span></div></div>`;
+  const labels=['x¹','x²','x³','x⁴','x⁵','x⁶'];
+  tb.innerHTML=`<tr style="background:rgba(255,212,121,.05);"><td colspan="4" style="color:#8b93a7;font-size:11px;">OLS R²=${r2ols.toFixed(3)} vs ${method} R²=${r2.toFixed(3)} (shared α=${alpha.toFixed(alpha<.1?3:alpha<1?2:1)})</td></tr>`;
+  for(let j=0;j<DEGREE;j++){const isZ=Math.abs(curW[j])<.001,diff=curW[j]-olsW[j];tb.innerHTML+=`<tr ${isZ?'style="background:rgba(255,100,100,.06);"':''}><td style="color:${COEF_COLORS[j]};font-weight:600;">${labels[j]}</td><td style="font-family:'Fira Code',monospace;font-size:11.5px;">${olsW[j].toFixed(3)}</td><td style="font-family:'Fira Code',monospace;font-size:11.5px;color:${isZ?'#ff9f9f':mc}">${isZ?'<strong>0.000 ← zeroed!</strong>':curW[j].toFixed(3)}</td><td style="font-size:11.5px;color:${diff<0?'#4fd1c5':'#ff6b8b'}">${diff>=0?'+':''}${diff.toFixed(3)}</td></tr>`;}
+}
+
+// ════════════════════════════════════════════════════
+//  PATH INTERACTION
+// ════════════════════════════════════════════════════
+function getPathIdx(e,canvas){ const r=canvas.getBoundingClientRect(),sx=(e.clientX-r.left)*(canvas.width/r.width),mL=52,mR=15,pw=canvas.width-mL-mR,ratio=(sx-mL)/pw; if(ratio<0||ratio>1) return -1; return Math.round(ratio*(N_PATH-1)); }
+function handlePathClick(e,canvas,targetMethod){
+  const idx=getPathIdx(e,canvas); if(idx<0) return;
+  alpha=PATH_ALPHAS[idx]; method=targetMethod;
+  ['ridge','lasso','elastic'].forEach(m=>{document.getElementById(`btn-${m}`).className='';});
+  document.getElementById(`btn-${targetMethod}`).className=`active-${targetMethod}`;
+  syncAllAlphaDisplays();  // updates PG1 slider, PG3 slider, and shared display
+  curW=solve(alpha,method); drawAll();
+}
+
+// ════════════════════════════════════════════════════
+//  EVENT LISTENERS
+// ════════════════════════════════════════════════════
+cv1.addEventListener('click',e=>{
+  const r=cv1.getBoundingClientRect(),sx=(e.clientX-r.left)*(W1/r.width),sy=(e.clientY-r.top)*(H1/r.height);
+  if(sx<M1.L||sx>W1-M1.R||sy<M1.T||sy>H1-M1.B) return;
+  query=fromS1(sx,sy).x; drawAll();
+});
+
+// ── PG1 slider: sets shared alpha ────────────────────────────────────
+document.getElementById('alpha-slider').addEventListener('input',e=>{
+  alpha=Math.pow(10,+e.target.value);
+  syncAllAlphaDisplays();   // PG1 display + PG3 slider + shared badge
+  curW=solve(alpha,method); drawAll();
+});
+
+// ── Method buttons ───────────────────────────────────────────────────
+['ridge','lasso','elastic'].forEach(m=>{
+  document.getElementById(`btn-${m}`).addEventListener('click',()=>{
+    method=m;['ridge','lasso','elastic'].forEach(x=>{document.getElementById(`btn-${x}`).className='';});
+    document.getElementById(`btn-${m}`).className=`active-${m}`;
+    curW=solve(alpha,method); drawAll();
+  });
+});
+
+document.getElementById('reseed-btn').addEventListener('click',()=>{ seed(); syncAllAlphaDisplays(); drawAll(); });
+
+// ── PG2 path click: sets shared alpha ────────────────────────────────
+cv3r.addEventListener('click',e=>{ handlePathClick(e,cv3r,'ridge'); });
+cv3r.addEventListener('mousemove',e=>{ const idx=getPathIdx(e,cv3r); if(idx!==pathHoverR){pathHoverR=idx; drawPathsOnly();} });
+cv3r.addEventListener('mouseleave',()=>{ pathHoverR=-1; drawPathsOnly(); });
+cv3l.addEventListener('click',e=>{ handlePathClick(e,cv3l,'lasso'); });
+cv3l.addEventListener('mousemove',e=>{ const idx=getPathIdx(e,cv3l); if(idx!==pathHoverL){pathHoverL=idx; drawPathsOnly();} });
+cv3l.addEventListener('mouseleave',()=>{ pathHoverL=-1; drawPathsOnly(); });
+
+// ── PG3 slider: THE FIX — sets the SAME shared alpha as PG1 and PG2 ─
+// Linear scale 0.01–6. When set here, PG1's log slider and display
+// both jump to the same number. drawCV4 uses alpha directly (not geo_alpha).
+document.getElementById('geo-alpha').addEventListener('input',e=>{
+  alpha = +e.target.value;  // directly set the ONE shared alpha variable
+  syncAllAlphaDisplays();   // PG1 log slider + PG1 display + PG3 display
+  curW=solve(alpha,method); drawAll();
+});
+
+// PG3 shape toggle (Ridge circle / Lasso diamond) — does NOT change alpha
+['ridge','lasso'].forEach(m=>{
+  document.getElementById(`geo-${m}`).addEventListener('click',()=>{
+    geo_method=m;
+    document.getElementById('geo-ridge').className=m==='ridge'?'active-ridge':'';
+    document.getElementById('geo-lasso').className=m==='lasso'?'active-lasso':'';
+    drawCV4();
+  });
+});
+
+document.getElementById('theme-toggle').addEventListener('click',()=>{
+  isDark=!isDark;document.body.classList.toggle('light',!isDark);
+  document.getElementById('theme-toggle').textContent=isDark?'☀️':'🌙';drawAll();
+});
+
+// ════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════
+seed();
+syncAllAlphaDisplays();
+drawAll();
+</script>
+
+</body></html>
