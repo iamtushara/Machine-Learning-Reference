@@ -1,4 +1,4 @@
-<html data-type="html" data-identifier="c5d6e7f8-1a2b-4c3d-9e0f-a1b2c3d4e5f6" data-title="Regularization: Ridge, Lasso &amp; ElasticNet — Interactive Explainer" data-version="5" width="1200" height="900"><head>
+<html data-type="html" data-identifier="c5d6e7f8-1a2b-4c3d-9e0f-a1b2c3d4e5f6" data-title="Regularization: Ridge, Lasso &amp; ElasticNet — Interactive Explainer" data-version="8" width="1200" height="900"><head>
 <meta charset="utf-8">
 <style>
   * { box-sizing: border-box; }
@@ -9,15 +9,15 @@
   header.main-header h1 .badge-tag { font-size:13px; background:#6c8cff; color:#0b0d13; padding:3px 10px; border-radius:12px; font-weight:700; }
   header.main-header p { font-size:15px; color:#b9c0d0; margin:0; line-height:1.6; max-width:900px; }
   h2 { font-size:18px; margin:0 0 10px; color:#9fb4ff; border-bottom:1px solid #262c3d; padding-bottom:6px; transition:color .25s,border-color .25s; }
-  h3 { font-size:15px; margin:18px 0 6px; color:#ffd479; transition:color .25s; }
-  p { line-height:1.65; color:#b9c0d0; font-size:14px; margin:0 0 12px; transition:color .25s; }
+  h3 { font-size:15px; margin:18px 0 6px; color:#ffd479; }
+  p { line-height:1.65; color:#b9c0d0; font-size:14px; margin:0 0 12px; }
   .layout { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:0; }
   .panel { background:#171b26; border:1px solid #262c3d; border-radius:14px; padding:20px; transition:background .25s,border-color .25s; }
   .left { flex:1 1 620px; } .right { flex:1 1 360px; } .full-width { width:100%; }
   canvas { border-radius:8px; background:#0b0d13; display:block; width:100%; height:auto; transition:background .25s; }
   canvas.no-cursor { cursor:default; } canvas.clickable { cursor:crosshair; }
   .controls { display:flex; align-items:center; gap:12px; margin:10px 0 2px; flex-wrap:wrap; }
-  label { font-size:13px; color:#8b93a7; white-space:nowrap; transition:color .25s; }
+  label { font-size:13px; color:#8b93a7; white-space:nowrap; }
   input[type=range] { width:120px; accent-color:#6c8cff; }
   button { background:#262c3d; color:#cfd6e6; border:1px solid #333d55; border-radius:8px; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
   button:hover { filter:brightness(1.2); }
@@ -25,12 +25,12 @@
   button.active-lasso { background:#3d1a1a; color:#ff9a6c; border-color:#ff6b38; }
   button.active-elastic { background:#1a3d2a; color:#7acc5a; border-color:#3a8c5a; }
   table { width:100%; border-collapse:collapse; font-size:12.5px; margin-top:8px; }
-  th,td { text-align:left; padding:6px 8px; border-bottom:1px solid #262c3d; transition:border-color .25s; }
+  th,td { text-align:left; padding:6px 8px; border-bottom:1px solid #262c3d; }
   th { color:#8b93a7; font-weight:600; }
   ol,ul { color:#b9c0d0; font-size:14px; line-height:1.65; padding-left:20px; margin:0 0 12px; }
   li { margin-bottom:6px; }
   .k-warn { color:#ff9f9f; font-size:12px; min-height:16px; margin-top:2px; }
-  .legend { display:flex; gap:14px; font-size:12px; color:#8b93a7; margin-top:8px; flex-wrap:wrap; transition:color .25s; }
+  .legend { display:flex; gap:14px; font-size:12px; color:#8b93a7; margin-top:8px; flex-wrap:wrap; }
   .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; }
   .lsamp { display:inline-block; width:18px; height:3px; vertical-align:middle; margin-right:4px; }
   pre { background:#0b0d13; padding:14px; border-radius:8px; border:1px solid #262c3d; font-family:'Fira Code',Consolas,Monaco,monospace; font-size:12.5px; color:#a9b7c6; overflow-x:auto; line-height:1.5; }
@@ -78,17 +78,35 @@
   .section-block h2 { font-size:22px; margin:0 0 8px; color:#e0e8ff; border-bottom:none; padding-bottom:0; }
   .section-block .section-lead { font-size:14px; color:#7888a8; line-height:1.6; margin:0; max-width:820px; }
   .canvas-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#4a5478; margin-bottom:5px; margin-top:10px; }
-  .key-insight { background:linear-gradient(135deg,#0f1a22 0%,#0c1620 100%); border:1px solid #2a3d50; border-left:4px solid #ffd479; border-radius:0 10px 10px 0; padding:16px 20px; margin-top:24px; }
+  .key-insight { background:linear-gradient(135deg,#0f1a22,#0c1620); border:1px solid #2a3d50; border-left:4px solid #ffd479; border-radius:0 10px 10px 0; padding:16px 20px; margin-top:24px; }
   .key-insight .ki-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#ffd479; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
-  .key-insight p { color:#aabac8; font-size:13.5px; line-height:1.65; margin-bottom:6px; }
-  .key-insight p:last-child { margin-bottom:0; }
-  .key-insight ul { color:#aabac8; font-size:13.5px; line-height:1.65; margin-bottom:0; }
+  .key-insight p,.key-insight li { color:#aabac8; font-size:13.5px; line-height:1.65; }
+  .key-insight ul { margin-bottom:0; }
+  .math-box { background:#10141d; border:1px solid #262c3d; border-radius:10px; padding:18px 20px; margin-top:20px; }
+  .math-box h3 { margin-top:0; font-size:14px; color:#ffd479; }
+  .math-box p,.math-box li,.math-box ul { font-size:13.5px; color:#aab8c8; line-height:1.65; }
+  .math-box .formula-block { background:#0b0d13; border:1px solid #1e2535; border-radius:8px; padding:10px 14px; margin:8px 0; font-family:'Fira Code',Consolas,monospace; font-size:13px; color:#9fb4ff; }
+  .math-box .formula-label { font-size:11px; color:#4a5878; text-transform:uppercase; letter-spacing:.5px; margin-bottom:3px; }
+  .math-box .plain-english { font-size:12.5px; color:#6878a0; font-style:italic; margin-top:3px; }
   .section-transition { background:#0c1020; border:1px solid #1e2838; border-radius:10px; padding:14px 18px; margin:28px 0 0; font-size:13.5px; color:#7888a8; line-height:1.65; }
   .section-transition strong { color:#b0c0d4; }
   .next-badge { display:inline-block; background:#6c8cff18; border:1px solid #6c8cff30; color:#6c8cff; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:700; margin-left:4px; }
-  .math-box { background:#10141d; border:1px solid #262c3d; border-radius:10px; padding:16px 18px; margin-top:20px; }
-  .math-box h3 { margin-top:0; font-size:14px; }
-  .math-box p,.math-box ul { font-size:13.5px; color:#aab8c8; line-height:1.6; }
+  .link-banner { display:flex; align-items:flex-start; gap:12px; background:#0d1828; border:1px solid #1e3a5c; border-radius:10px; padding:12px 16px; margin-bottom:16px; }
+  .link-banner .lb-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+  .link-banner .lb-text { font-size:13px; color:#7898b8; line-height:1.55; }
+  .link-banner .lb-text strong { color:#a8c4e0; }
+  .lb-badge { display:inline-block; background:#1a3a5c; border:1px solid #2a5070; color:#6fb3e8; padding:2px 8px; border-radius:8px; font-size:11px; font-weight:700; white-space:nowrap; }
+  .shared-alpha-badge { display:inline-flex; align-items:center; gap:6px; background:#1a2838; border:1px solid #2a4058; color:#9fb4cc; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:600; }
+  .shared-alpha-badge .dot-pulse { width:6px; height:6px; border-radius:50%; background:#6fb3e8; animation:pulse-blue 2s infinite; }
+  @keyframes pulse-blue { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+  .alpha-display { display:inline-flex; align-items:center; gap:6px; background:#131826; border:1px solid #2a3d50; border-radius:8px; padding:4px 12px; }
+  .alpha-display .alpha-label { font-size:11px; color:#4a5878; }
+  .alpha-display .alpha-value { font-size:16px; font-weight:800; color:#ffd479; font-family:'Fira Code',Consolas,monospace; }
+  .slider-note { font-size:11px; color:#4a7090; margin-top:3px; }
+  .path-explain-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+  .path-explain-box { background:#0c1020; border:1px solid #1e2838; border-radius:8px; padding:12px 16px; }
+  .path-explain-box h4 { margin:0 0 8px; font-size:13px; }
+  .path-explain-box p { font-size:12.5px; color:#6878a0; margin:0; line-height:1.55; }
   .pg1 .section-num-badge { background:#6fb3e818; border-color:#6fb3e830; color:#6fb3e8; }
   .pg1 .section-num-badge .sn { background:#6fb3e8; color:#0b0d13; }
   .pg1 h2 { color:#d4eafc; }
@@ -99,20 +117,6 @@
   .pg3 .section-num-badge .sn { background:#7acc5a; color:#0b0d13; }
   .pg3 h2 { color:#d8f0d0; }
   .section-hr { border:none; border-top:1px solid #1a2030; margin:36px 0 0; }
-  .link-banner { display:flex; align-items:flex-start; gap:12px; background:#0d1828; border:1px solid #1e3a5c; border-radius:10px; padding:12px 16px; margin-bottom:16px; }
-  .link-banner .lb-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
-  .link-banner .lb-text { font-size:13px; color:#7898b8; line-height:1.55; }
-  .link-banner .lb-text strong { color:#a8c4e0; }
-  .lb-badge { display:inline-block; background:#1a3a5c; border:1px solid #2a5070; color:#6fb3e8; padding:2px 8px; border-radius:8px; font-size:11px; font-weight:700; white-space:nowrap; }
-  /* Shared-alpha indicator */
-  .shared-alpha-badge { display:inline-flex; align-items:center; gap:6px; background:#1a2838; border:1px solid #2a4058; color:#9fb4cc; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:600; }
-  .shared-alpha-badge .dot-pulse { width:6px; height:6px; border-radius:50%; background:#6fb3e8; animation:pulse-blue 2s infinite; }
-  @keyframes pulse-blue { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
-  .slider-note { font-size:11px; color:#4a7090; margin-top:3px; }
-  /* Alpha display box */
-  .alpha-display { display:inline-flex; align-items:center; gap:6px; background:#131826; border:1px solid #2a3d50; border-radius:8px; padding:4px 12px; font-family:'Fira Code',Consolas,monospace; }
-  .alpha-display .alpha-label { font-size:11px; color:#4a5878; }
-  .alpha-display .alpha-value { font-size:16px; font-weight:800; color:#ffd479; }
   #theme-toggle { position:fixed; top:20px; right:24px; width:36px; height:36px; padding:0; border-radius:50%; background:#1e2436; border:1px solid #333d55; color:inherit; font-size:16px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:1000; transition:background .25s,border-color .25s,transform .15s; }
   #theme-toggle:hover { filter:none; transform:scale(1.1); }
   body.light { background:#f0f3fa; color:#1a1f2e; }
@@ -143,7 +147,7 @@
   body.light .tip { background:#eef2ff; color:#3d4a6e; }
   body.light .warn-box { background:#fff5f5; }
   body.light .k-warn { color:#c0392b; }
-  body.light .verdict-card { background:linear-gradient(140deg,#f8faff 0%,#f2f5fb 100%); border-color:#d0d8ee; }
+  body.light .verdict-card { background:linear-gradient(140deg,#f8faff,#f2f5fb); border-color:#d0d8ee; }
   body.light .vc-header { border-bottom-color:#dce4f4; }
   body.light .vc-section-title { color:#8594b8; }
   body.light .vc-model-pill { background:#e8edfb; border-color:#d0d8ee; color:#5868a0; }
@@ -160,12 +164,15 @@
   body.light .section-block .section-lead { color:#6878a0; }
   body.light .key-insight { background:linear-gradient(135deg,#f0f5fa,#e8eef8); border-color:#c8d8e8; border-left-color:#f0a020; }
   body.light .key-insight .ki-label { color:#a07010; }
-  body.light .key-insight p,body.light .key-insight ul { color:#4a5a70; }
+  body.light .key-insight p,body.light .key-insight li { color:#4a5a70; }
   body.light .section-transition { background:#eef2ff; border-color:#d4daf0; color:#6878a0; }
   body.light .section-transition strong { color:#2a3a60; }
   body.light .section-hr { border-top-color:#d4daf0; }
   body.light .math-box { background:#f5f7fe; border-color:#d4daf0; }
-  body.light .math-box p,body.light .math-box ul { color:#4a5a70; }
+  body.light .math-box h3 { color:#9a7000; }
+  body.light .math-box p,body.light .math-box li,body.light .math-box ul,body.light .math-box .plain-english { color:#4a5a70; }
+  body.light .math-box .formula-block { background:#e8edfb; border-color:#d0d8ee; color:#2d52c4; }
+  body.light .math-box .formula-label { color:#8898b8; }
   body.light .canvas-label { color:#8898b8; }
   body.light .link-banner { background:#e8f0fa; border-color:#c0d4ec; }
   body.light .link-banner .lb-text { color:#5870a0; }
@@ -176,248 +183,325 @@
   body.light .alpha-display { background:#e8edfb; border-color:#c0d4ec; }
   body.light .alpha-display .alpha-label { color:#8898b8; }
   body.light .alpha-display .alpha-value { color:#a07010; }
+  body.light .path-explain-box { background:#eef2ff; border-color:#d4daf0; }
+  body.light .path-explain-box p { color:#6878a0; }
 </style>
 </head>
 <body>
 <button id="theme-toggle" title="Toggle light / dark mode">☀️</button>
 <div class="wrap">
 
-  <header class="main-header">
-    <h1>Regularization: Ridge, Lasso &amp; ElasticNet <span class="badge-tag">Interactive Guide</span></h1>
-    <p>Three interactive playgrounds sharing <strong>one single α value</strong>. Change α in any playground and the same number appears in all three immediately — the same number, the same model, three simultaneous perspectives.</p>
-  </header>
+<header class="main-header">
+  <h1>Regularization: Ridge, Lasso &amp; ElasticNet <span class="badge-tag">Interactive Guide</span></h1>
+  <p>When a model fits training data <em>too</em> perfectly — memorising every quirk and noise spike instead of learning the actual pattern — it fails on new data. This is <strong>overfitting</strong>. Regularization fixes it by adding a penalty on large weights, forcing the model to be simpler. <strong>Ridge</strong> shrinks all weights proportionally. <strong>Lasso</strong> zeros some weights entirely, acting as automatic feature selection. <strong>ElasticNet</strong> blends both. All three playgrounds share one single α — change it anywhere and watch the same number update across all views simultaneously.</p>
+</header>
 
-  <!-- JOURNEY OVERVIEW -->
-  <div class="journey-overview">
-    <div class="journey-step">
-      <div class="journey-step-num">Playground 1</div>
-      <div class="journey-step-icon">🎯</div>
-      <div class="journey-step-title">Curve &amp; Coefficient Bars</div>
-      <div class="journey-step-desc">Drag α — the path line in PG 2 and the constraint in PG 3 both update to the <em>same</em> α value.</div>
-      <div class="journey-link-pill">⇄ shares α with PG 2 &amp; 3</div>
-      <div class="journey-arrow">⇄</div>
-    </div>
-    <div class="journey-step">
-      <div class="journey-step-num">Playground 2</div>
-      <div class="journey-step-icon">📈</div>
-      <div class="journey-step-title">The Regularisation Path</div>
-      <div class="journey-step-desc"><strong>Click</strong> to set α — PG 1's slider and PG 3's constraint both jump to that <em>same</em> number.</div>
-      <div class="journey-link-pill">⇄ shares α with PG 1 &amp; 3</div>
-      <div class="journey-arrow">⇄</div>
-    </div>
-    <div class="journey-step">
-      <div class="journey-step-num">Playground 3</div>
-      <div class="journey-step-icon">🔷</div>
-      <div class="journey-step-title">The Geometric Reason</div>
-      <div class="journey-step-desc">Drag α here — PG 1's slider and PG 2's path line both move to the <em>same</em> number you set here.</div>
-      <div class="journey-link-pill">⇄ shares α with PG 1 &amp; 2</div>
-    </div>
+<div class="journey-overview">
+  <div class="journey-step">
+    <div class="journey-step-num">Playground 1</div>
+    <div class="journey-step-icon">🎯</div>
+    <div class="journey-step-title">Curve &amp; Coefficients</div>
+    <div class="journey-step-desc">See overfitting happen, then drag α to watch the curve and all 6 coefficient bars change. Updates PG 2 &amp; 3.</div>
+    <div class="journey-link-pill">⇄ shared α → PG 2 &amp; 3</div>
+    <div class="journey-arrow">⇄</div>
   </div>
-
-  <!-- SECTION 1 -->
-  <div class="section-block pg1">
-    <div class="section-num-badge"><span class="sn">1</span> Playground 1 of 3</div>
-    <h2>The Overfitting Problem — and How Regularization Fixes It</h2>
-    <p class="section-lead">Change α here and watch <strong>the same α number</strong> appear in Playgrounds 2 and 3 simultaneously.</p>
+  <div class="journey-step">
+    <div class="journey-step-num">Playground 2</div>
+    <div class="journey-step-icon">📈</div>
+    <div class="journey-step-title">The Regularisation Path</div>
+    <div class="journey-step-desc"><strong>Click</strong> any chart to set α — PG 1 curve &amp; PG 3 constraint both update to the same value. Hover to preview.</div>
+    <div class="journey-link-pill">⇄ shared α → PG 1 &amp; 3</div>
+    <div class="journey-arrow">⇄</div>
   </div>
-
-  <div class="layout">
-    <div class="panel left">
-      <h2>Interactive Playground 1</h2>
-      <div class="canvas-label">Regression Curve</div>
-      <canvas id="cv1" width="640" height="280"></canvas>
-      <div class="canvas-label" style="margin-top:8px;">Coefficient Weights (x¹ through x⁶)</div>
-      <canvas id="cv2" class="no-cursor" width="640" height="148"></canvas>
-      <div class="controls" style="margin-top:10px;">
-        <button id="btn-ridge" class="active-ridge">Ridge (L2)</button>
-        <button id="btn-lasso">Lasso (L1)</button>
-        <button id="btn-elastic">ElasticNet</button>
-      </div>
-      <div class="controls">
-        <label for="alpha-slider"><strong>Shared α</strong> = <strong id="alpha-val">1.00</strong></label>
-        <input type="range" id="alpha-slider" min="-2" max="2" step="0.05" value="0" style="width:150px;" title="Log scale: 0.01 to 100">
-        <span style="font-size:11px;color:#4a5478;">(log scale 0.01→100)</span>
-        <button id="reseed-btn" style="background:#262c3d;color:#cfd6e6;border:0;margin-left:4px;">New Dataset</button>
-      </div>
-      <div class="k-warn" id="warn1"></div>
-      <div class="legend" style="margin-top:8px;">
-        <span><span class="lsamp" style="border-top:2px dashed rgba(180,180,180,.55);"></span>OLS</span>
-        <span><span class="lsamp" style="background:#6fb3e8;height:2.5px;"></span>Ridge</span>
-        <span><span class="lsamp" style="background:#ff9a6c;height:2.5px;"></span>Lasso</span>
-        <span><span class="lsamp" style="background:#7acc5a;height:2.5px;"></span>ElasticNet</span>
-        <span><span class="dot" style="background:#7b93db;"></span>Data</span>
-      </div>
-      <div class="verdict-card" id="vc1"><div class="vc-empty"><div class="vc-empty-ring"></div>Move α or change method to see metrics</div></div>
-      <table id="tbl1"><thead><tr><th>Feature</th><th>OLS weight</th><th>Regularised weight</th><th>Δ Change</th></tr></thead><tbody id="tbody1"></tbody></table>
-    </div>
-    <div class="panel right">
-      <h2>Why Overfitting Happens &amp; How Each Method Fixes It</h2>
-      <h3 style="margin-top:0;">Step 1 — The Overfitting Problem</h3>
-      <p>Without constraints, the optimiser uses enormous, opposite-sign weights — the curve passes through every training point while oscillating wildly.</p>
-      <h3>Step 2 — The Regularization Penalty</h3>
-      <ul>
-        <li><strong>Ridge (L2):</strong> Penalty = α·Σwⱼ². All weights shrink proportionally. No weight ever reaches exactly zero.</li>
-        <li><strong>Lasso (L1):</strong> Penalty = α·Σ|wⱼ|. Some weights snap to <em>exactly</em> zero — automatic feature selection.</li>
-        <li><strong>ElasticNet:</strong> Blends both penalties.</li>
-      </ul>
-      <h3>Step 3 — The Shared α</h3>
-      <p>The slider here, the click on PG 2's path chart, and the slider in PG 3 all control the <em>same</em> α. You will see the same number displayed in all three playgrounds simultaneously.</p>
-      <div class="tip"><strong>Try:</strong> Select <strong>Lasso</strong>, drag α to 2.4. Watch a bar drop to zero here — then check PG 3 (diamond corner just touched the axis) and PG 2 (dashed line at a kink). All three show the same α = 2.4 and the same sparsity event.</div>
-    </div>
+  <div class="journey-step">
+    <div class="journey-step-num">Playground 3</div>
+    <div class="journey-step-icon">🔷</div>
+    <div class="journey-step-title">The Geometric Reason</div>
+    <div class="journey-step-desc"><strong>Drag α here</strong> to see PG 1 &amp; 2 update. Shows <em>why</em> L1 forces zeros (diamond corners) while L2 only shrinks (smooth circle).</div>
+    <div class="journey-link-pill">⇄ shared α → PG 1 &amp; 2</div>
   </div>
+</div>
 
-  <div class="key-insight">
-    <div class="ki-label">✦ Key Insight from Playground 1</div>
+<!-- SECTION 1 -->
+<div class="section-block pg1">
+  <div class="section-num-badge"><span class="sn">1</span> Playground 1 of 3</div>
+  <h2>The Overfitting Problem — and How Regularization Fixes It</h2>
+  <p class="section-lead">A degree-6 polynomial with no constraints finds enormous, cancelling weights that memorise every training noise spike. Drag α to apply a penalty — watch the curve smooth out and the coefficient bars change.</p>
+</div>
+
+<div class="layout">
+  <div class="panel left">
+    <h2>Interactive Playground 1</h2>
+    <div class="canvas-label">Regression Curve — Gray dashed = OLS · Coloured = regularised fit</div>
+    <canvas id="cv1" width="640" height="280"></canvas>
+    <div class="canvas-label" style="margin-top:8px;">Coefficient Weights — Faint gray = OLS reference · Coloured = regularised</div>
+    <canvas id="cv2" class="no-cursor" width="640" height="148"></canvas>
+    <div class="controls" style="margin-top:10px;">
+      <button id="btn-ridge" class="active-ridge">Ridge (L2)</button>
+      <button id="btn-lasso">Lasso (L1)</button>
+      <button id="btn-elastic">ElasticNet</button>
+    </div>
+    <div class="controls">
+      <label for="alpha-slider"><strong>Shared α</strong> = <strong id="alpha-val">1.00</strong></label>
+      <input type="range" id="alpha-slider" min="-2" max="2" step="0.05" value="0" style="width:150px;">
+      <span style="font-size:11px;color:#4a5478;">(log scale 0.01→100)</span>
+      <button id="reseed-btn" style="background:#262c3d;color:#cfd6e6;border:0;margin-left:4px;">New Dataset</button>
+    </div>
+    <div class="k-warn" id="warn1"></div>
+    <div class="legend" style="margin-top:8px;">
+      <span><span class="lsamp" style="border-top:2px dashed rgba(180,180,180,.55);"></span>OLS</span>
+      <span><span class="lsamp" style="background:#6fb3e8;height:2.5px;"></span>Ridge</span>
+      <span><span class="lsamp" style="background:#ff9a6c;height:2.5px;"></span>Lasso</span>
+      <span><span class="lsamp" style="background:#7acc5a;height:2.5px;"></span>ElasticNet</span>
+      <span><span class="dot" style="background:#7b93db;"></span>Data points</span>
+    </div>
+    <div class="verdict-card" id="vc1"><div class="vc-empty"><div class="vc-empty-ring"></div>Move α or change method to see model metrics</div></div>
+    <table id="tbl1"><thead><tr><th>Feature</th><th>OLS weight</th><th>Regularised weight</th><th>Δ Change</th></tr></thead><tbody id="tbody1"></tbody></table>
+  </div>
+  <div class="panel right">
+    <h2>Why Overfitting Happens &amp; What Regularization Does</h2>
+    <h3 style="margin-top:0;">Why Does Overfitting Happen?</h3>
+    <p>A degree-6 polynomial with no constraints discovers combinations like "<code>+500·x⁵ − 500·x⁶</code>" — huge opposite-sign weights that nearly cancel, threading through every training point. Training error → 0, but the curve oscillates wildly. Any new data point will miss it badly.</p>
+    <h3>The Core Idea: A Budget for Your Weights</h3>
+    <p>Regularization adds a second objective: minimise the SIZE of the weights too. Think of it as a <strong>weight budget</strong> — large weights become expensive, so the optimiser only uses them when they genuinely reduce prediction error enough to justify the cost.</p>
+    <h3>Three Methods, Three Penalty Shapes</h3>
     <ul>
-      <li>Ridge: all 6 bars shrink proportionally — none ever reach zero.</li>
-      <li>Lasso: bars snap to exact zero one by one as α increases.</li>
-      <li>The same α that zeroes a bar here creates a kink in PG 2 and a diamond-corner snap in PG 3.</li>
+      <li><strong>Ridge (L2):</strong> Penalty = α·Σwⱼ². All weights shrink toward zero — none reach exactly zero.</li>
+      <li><strong>Lasso (L1):</strong> Penalty = α·Σ|wⱼ|. Some weights snap to <em>exactly zero</em> — automatic feature selection.</li>
+      <li><strong>ElasticNet:</strong> Blends both. <code>l1_ratio=1</code> = Lasso; <code>l1_ratio=0</code> = Ridge.</li>
     </ul>
+    <h3>The α Parameter</h3>
+    <p>α=0 gives pure OLS (overfitting). Very large α forces all weights to zero (underfitting). Optimal α comes from <strong>cross-validation on held-out data</strong> — never from training performance alone.</p>
+    <div class="tip"><strong>Try:</strong> Set <strong>Ridge</strong>, drag α 0.01→5 — all 6 bars shrink proportionally, none reaching zero. Switch to <strong>Lasso</strong> — bars snap to exact zero one at a time. That single difference is the entire L1 vs L2 story.</div>
   </div>
+</div>
 
-  <div class="section-transition">
-    <strong>Moving to Playground 2:</strong> Click anywhere on the path charts to set α — PG 1 and PG 3 both jump to <em>that exact number</em>. <span class="next-badge">↓ Playground 2</span>
-  </div>
+<div class="key-insight">
+  <div class="ki-label">✦ Key Insight from Playground 1</div>
+  <ul>
+    <li><strong>Ridge bars:</strong> all 6 shrink proportionally — every feature stays, reduced influence.</li>
+    <li><strong>Lasso bars:</strong> individual bars snap to <em>exact zero</em> — automatic feature selection.</li>
+    <li>The same α that zeroes a bar here creates a kink in PG 2's path chart and a diamond-corner snap in PG 3.</li>
+  </ul>
+</div>
 
-  <!-- SECTION 2 -->
-  <hr class="section-hr">
-  <div class="section-block pg2">
-    <div class="section-num-badge"><span class="sn">2</span> Playground 2 of 3</div>
-    <h2>The Regularisation Path — Click Sets the Shared α in All Three Playgrounds</h2>
-    <p class="section-lead">Clicking on either chart sets the <strong>shared α</strong> — Playground 1's slider and curve AND Playground 3's constraint both immediately update to that same value. The yellow dashed line shows whichever α is currently active across all three.</p>
-  </div>
-
-  <div class="panel full-width" style="margin-top:0;">
-    <div class="link-banner">
-      <span class="lb-icon">⇄</span>
-      <div class="lb-text">
-        <strong>One α, three views.</strong> &nbsp;
-        <span class="lb-badge">Drag PG 1 slider</span> — dashed line here + PG 3 constraint both update to the same number. &nbsp;
-        <span class="lb-badge">Click a chart below</span> — PG 1 slider + PG 3 constraint both jump to the same number. &nbsp;
-        <span class="lb-badge">Drag PG 3 slider</span> — dashed line here + PG 1 slider both move to the same number.
+<div class="math-box">
+  <h3>∞ The Three Objective Functions</h3>
+  <div class="grid-2">
+    <div>
+      <div style="margin-bottom:12px;">
+        <div class="formula-label">Ridge (sklearn: no 1/n normalization)</div>
+        <div class="formula-block">min ||Xw − y||² + α·||w||²</div>
+        <div class="plain-english">"Minimise total squared error + α × sum of squared weights"</div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div class="formula-label">Lasso (sklearn: 1/(2n) normalized)</div>
+        <div class="formula-block">min (1/2n)||Xw − y||² + α·||w||₁</div>
+        <div class="plain-english">"Minimise mean squared error + α × sum of absolute weights"</div>
+      </div>
+      <div>
+        <div class="formula-label">ElasticNet (l1_ratio = ρ)</div>
+        <div class="formula-block">min (1/2n)||Xw − y||² + α·ρ·||w||₁ + (α/2)·(1−ρ)·||w||²</div>
       </div>
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-          <span style="font-size:14px;font-weight:700;color:#6fb3e8;">Ridge (L2) Path</span>
-          <span style="font-size:11px;color:#4a5878;background:#6fb3e812;border:1px solid #6fb3e830;padding:2px 8px;border-radius:10px;">Smooth decay — no weight ever reaches zero</span>
-        </div>
-        <canvas id="cv3r" class="clickable" width="500" height="260" title="Click to set shared α"></canvas>
-        <p style="font-size:12.5px;color:#6878a0;margin-top:6px;line-height:1.5;">Every line smoothly approaches zero. <strong>Click to activate Ridge at any α.</strong></p>
-      </div>
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-          <span style="font-size:14px;font-weight:700;color:#ff9a6c;">Lasso (L1) Path</span>
-          <span style="font-size:11px;color:#4a5878;background:#ff9a6c12;border:1px solid #ff9a6c30;padding:2px 8px;border-radius:10px;">Kinks where weights snap to exactly zero</span>
-        </div>
-        <canvas id="cv3l" class="clickable" width="500" height="260" title="Click to set shared α"></canvas>
-        <p style="font-size:12.5px;color:#6878a0;margin-top:6px;line-height:1.5;">Sharp kinks = zero events. <strong>Click to activate Lasso at any α.</strong></p>
-      </div>
-    </div>
-    <div class="legend" style="margin-top:12px;justify-content:center;gap:20px;">
-      <span style="font-size:12px;color:#6878a0;">x¹ <span style="color:#ff6b8b;">■</span></span>
-      <span style="font-size:12px;">x² <span style="color:#ff9a3c;">■</span></span>
-      <span style="font-size:12px;">x³ <span style="color:#ffd479;">■</span></span>
-      <span style="font-size:12px;">x⁴ <span style="color:#7acc5a;">■</span></span>
-      <span style="font-size:12px;">x⁵ <span style="color:#4fd1c5;">■</span></span>
-      <span style="font-size:12px;">x⁶ <span style="color:#9fb4ff;">■</span></span>
-      <span style="font-size:12px;color:#ffd479;">│ = shared α (same number shown in all 3 playgrounds)</span>
+    <div>
+      <p><strong>Key terms:</strong> <code>||w||²</code> = sum of squared weights (Ridge). <code>||w||₁</code> = sum of absolute weights (Lasso). α=0 → pure OLS. Large α → all weights near zero.</p>
+      <p><strong>Note:</strong> sklearn's Ridge does not divide by n while Lasso does (1/2n) — a known inconsistency. Always use cross-validation to find optimal α rather than comparing values across methods.</p>
     </div>
   </div>
+</div>
 
-  <div class="section-transition">
-    <strong>Moving to Playground 3:</strong> Drag the PG 3 slider to any α — PG 1's number and PG 2's dashed line will move to that <em>same exact number</em>. At α ≈ 2.4 and α ≈ 4.2 you'll see sparsity events snap across all three views simultaneously. <span class="next-badge">↓ Playground 3</span>
-  </div>
+<div class="section-transition">
+  <strong>Moving to Playground 2:</strong> You've seen the effect of a <em>single</em> α. How does each weight respond as α sweeps from near-zero to 100? <strong>Click anywhere on the path charts to set the shared α.</strong> <span class="next-badge">↓ Playground 2</span>
+</div>
 
-  <!-- SECTION 3 -->
-  <hr class="section-hr">
-  <div class="section-block pg3">
-    <div class="section-num-badge"><span class="sn">3</span> Playground 3 of 3</div>
-    <h2>The Geometric Reason L1 Produces Sparsity — Same α, Geometric View</h2>
-    <p class="section-lead">This slider controls the <strong>same shared α</strong> as Playgrounds 1 &amp; 2. The slider runs 0–6 on a linear scale, covering the geometrically interesting sparsity events (at α = 2.4 and α = 4.2). When PG 1 uses large α (&gt;6), the slider clamps at 6 but the canvas still shows the correct fully-constrained state.</p>
-  </div>
+<!-- SECTION 2 -->
+<hr class="section-hr">
+<div class="section-block pg2">
+  <div class="section-num-badge"><span class="sn">2</span> Playground 2 of 3</div>
+  <h2>The Regularisation Path — Tracing Every Weight Across All α Values</h2>
+  <p class="section-lead">Each coloured line traces one polynomial weight across the full α range. The yellow dashed line shows the <strong>current shared α</strong>. <strong>Click either chart to set α</strong> — Playgrounds 1 and 3 update instantly. Hover to preview without committing.</p>
+</div>
 
-  <div class="panel full-width" style="margin-top:0;">
-    <div style="display:grid;grid-template-columns:460px 1fr;gap:28px;align-items:start;">
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-          <button id="geo-ridge" class="active-ridge">◯ Ridge — Circle (L2)</button>
-          <button id="geo-lasso">◆ Lasso — Diamond (L1)</button>
-        </div>
-
-        <!-- Shared-alpha indicator showing the same number as PG1 -->
-        <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-          <span class="shared-alpha-badge"><span class="dot-pulse"></span>Shared α across all 3 playgrounds:</span>
-          <div class="alpha-display"><span class="alpha-label">α =</span><span class="alpha-value" id="geo-alpha-display">1.00</span></div>
-        </div>
-
-        <canvas id="cv4" class="no-cursor" width="420" height="400"></canvas>
-
-        <div class="controls" style="margin-top:10px;">
-          <label for="geo-alpha" style="min-width:55px;">α =</label>
-          <input type="range" id="geo-alpha" min="0.01" max="6" step="0.05" value="1" style="width:200px;" title="Linear scale 0–6, controls the same α as Playground 1">
-          <span style="font-size:11px;color:#4a5478;flex-shrink:0;">0 → 6 (linear)</span>
-        </div>
-        <!-- Clear note explaining the scale -->
-        <div class="slider-note">Slider range 0–6 (linear) covers sparsity events at α=2.4 &amp; 4.2. Updates PG 1 &amp; 2 to the <strong>same number</strong>. When PG 1 sets α&gt;6, slider shows max but canvas still correct.</div>
-
-        <div class="legend" style="margin-top:8px;">
-          <span><span class="dot" style="background:#ffd479;"></span>OLS solution</span>
-          <span><span class="dot" style="background:#ff6b8b;"></span>Regularised solution</span>
-        </div>
-        <div style="margin-top:10px;background:#0c1020;border:1px solid #1e2838;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#7888a8;line-height:1.6;min-height:48px;" id="geo-annotation">
-          Drag α to shrink the constraint region. Sparsity events: Lasso w₂→0 at α=2.4, w₁→0 at α=4.2.
-        </div>
-      </div>
-
-      <div>
-        <h3 style="margin-top:0;color:#7acc5a;">Reading the Diagram</h3>
-        <ul>
-          <li><strong>Gold dot</strong> = unconstrained OLS solution (no penalty).</li>
-          <li><strong>Ellipses</strong> = MSE loss contours. Smaller = lower error.</li>
-          <li><strong>Constraint region</strong> = where weights must stay. The regularised solution (red dot) is where the smallest ellipse touches the constraint.</li>
-        </ul>
-        <h3 style="color:#6fb3e8;">Ridge (Circle) — Why No Zeros</h3>
-        <p>The L2 constraint is a smooth circle. The loss ellipse touches it at a generic point where both w₁ and w₂ are non-zero.</p>
-        <h3 style="color:#ff9a6c;">Lasso (Diamond) — Why Always Zeros</h3>
-        <p>The L1 diamond has corners exactly on the axes. At α = 2.4 the constraint shrinks until its corner lands on the w₁-axis — w₂ snaps to exactly zero. At α = 4.2, w₁ zeroes too.</p>
-        <h3 style="color:#ffd479;">Connection: Same Α Across All Three</h3>
-        <p>The corner snap at α = 2.4 here is the <em>same event</em> as the kink in the Lasso path in PG 2 and the bar dropping to zero in PG 1 — all three show it at the same numerical α value.</p>
-        <div class="tip"><strong>Try:</strong> Set Lasso (Diamond) and drag α here to 2.4. Watch w₂ snap to zero — and simultaneously observe PG 1's bar chart zero out and PG 2's dashed line land at a Lasso kink. All three display the same number: α = 2.4.</div>
-      </div>
+<div class="panel full-width" style="margin-top:0;">
+  <div class="link-banner">
+    <span class="lb-icon">⇄</span>
+    <div class="lb-text">
+      <strong>One α, three views.</strong> &nbsp;
+      <span class="lb-badge">Drag PG 1 slider</span> → yellow line here moves + PG 3 updates. &nbsp;
+      <span class="lb-badge">Click a chart below</span> → PG 1 + PG 3 both jump to the same number. &nbsp;
+      <span class="lb-badge">Drag PG 3 slider</span> → yellow line here + PG 1 both update.
     </div>
   </div>
 
-  <hr class="section-hr">
-
-  <div class="panel full-width" style="margin-top:20px;">
-    <h2>When to Use Each Method</h2>
-    <div class="grid-2">
-      <div class="card"><span class="tag">Ridge</span><h3>All features relevant</h3><p>Default. Stable, closed-form, handles correlated features. No feature selection.</p></div>
-      <div class="card"><span class="tag">Lasso</span><h3>Many features, few relevant</h3><p>Automatic zero-coefficient selection. Unstable with highly correlated features.</p></div>
-      <div class="card"><span class="tag">ElasticNet</span><h3>Correlated + sparsity needed</h3><p>Combines L1 sparsity with L2 stability for correlated groups.</p></div>
-      <div class="card"><span class="tag">CV — Always</span><h3>Finding optimal α</h3><p>Use <code>RidgeCV</code>, <code>LassoCV</code>, <code>ElasticNetCV</code> with warm-starting. Never choose α from training error.</p></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:14px;font-weight:700;color:#6fb3e8;">Ridge (L2) Path</span>
+        <span style="font-size:11px;color:#4a5878;background:#6fb3e812;border:1px solid #6fb3e830;padding:2px 8px;border-radius:10px;">Smooth decay — no weight ever reaches zero</span>
+      </div>
+      <!-- FIX: height increased from 260 to 290 to accommodate larger top margin -->
+      <canvas id="cv3r" class="clickable" width="500" height="290" title="Click to set shared α · Hover to preview"></canvas>
+    </div>
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:14px;font-weight:700;color:#ff9a6c;">Lasso (L1) Path</span>
+        <span style="font-size:11px;color:#4a5878;background:#ff9a6c12;border:1px solid #ff9a6c30;padding:2px 8px;border-radius:10px;">Weights snap to exactly zero at specific α thresholds</span>
+      </div>
+      <!-- FIX: height increased from 260 to 290 to accommodate larger top margin -->
+      <canvas id="cv3l" class="clickable" width="500" height="290" title="Click to set shared α · Hover to preview"></canvas>
     </div>
   </div>
 
-  <div class="panel full-width" style="margin-top:20px;">
-    <h2>Implementation in Scikit-Learn</h2>
-    <p>All three follow identical 5-step structure. <code>StandardScaler</code> before the estimator is mandatory — the penalty applies uniformly, so unscaled features receive systematically different magnitudes.</p>
-    <div class="grid-2">
-      <div>
-        <h3>The Five Consistent Steps</h3>
-        <ul>
-          <li><strong>1. Create:</strong> <code>PolynomialFeatures(include_bias=False)</code> → <code>StandardScaler()</code> → estimator.</li>
-          <li><strong>2. Fit:</strong> <code>.fit(X_train, y_train)</code></li>
-          <li><strong>3. Predict:</strong> <code>.predict(X_test)</code></li>
-          <li><strong>4. Coefficients:</strong> <code>pipeline.named_steps['estimator'].coef_</code></li>
-          <li><strong>5. Evaluate:</strong> <code>r2_score</code> + <code>np.sqrt(mean_squared_error(...))</code></li>
-        </ul>
+  <div class="path-explain-grid">
+    <div class="path-explain-box">
+      <h4 style="color:#6fb3e8;">📖 How to Read the Ridge Path</h4>
+      <p>X-axis = α on a log scale (small left, large right). Each coloured line = one polynomial feature. Moving right, every line curves smoothly toward zero — never crossing it. Ridge can only shrink, never eliminate.</p>
+    </div>
+    <div class="path-explain-box">
+      <h4 style="color:#ff9a6c;">📖 How to Read the Lasso Path</h4>
+      <p>Same layout as Ridge — but look for sharp "kinks" where lines hit zero and flatline. Coloured dots mark elimination events. The last feature to reach zero is the most predictive — Lasso implicitly ranks features.</p>
+    </div>
+  </div>
+
+  <div class="legend" style="margin-top:12px;justify-content:center;gap:20px;">
+    <span style="font-size:12px;">x¹ <span style="color:#ff6b8b;">■</span></span>
+    <span style="font-size:12px;">x² <span style="color:#ff9a3c;">■</span></span>
+    <span style="font-size:12px;">x³ <span style="color:#ffd479;">■</span></span>
+    <span style="font-size:12px;">x⁴ <span style="color:#7acc5a;">■</span></span>
+    <span style="font-size:12px;">x⁵ <span style="color:#4fd1c5;">■</span></span>
+    <span style="font-size:12px;">x⁶ <span style="color:#9fb4ff;">■</span></span>
+    <span style="font-size:12px;color:#ffd479;">│ = current shared α &nbsp;·&nbsp; click chart to change it</span>
+  </div>
+</div>
+
+<div class="key-insight">
+  <div class="ki-label">✦ Key Insight from Playground 2</div>
+  <ul>
+    <li><strong>Ridge lines</strong> approach zero asymptotically — dividing by (s+α) can only shrink, never reach zero. No kinks.</li>
+    <li><strong>Lasso lines</strong> hit zero sharply — the soft-threshold sets w=0 exactly when |ρⱼ| ≤ α.</li>
+    <li>The elimination order is informative: the last feature standing is the most predictive.</li>
+  </ul>
+</div>
+
+<div class="math-box">
+  <h3>∞ Why Lasso Produces Exact Zeros — Coordinate Descent &amp; Soft Thresholding</h3>
+  <div class="grid-2">
+    <div>
+      <div style="margin-bottom:8px;">
+        <div class="formula-label">Partial correlation (how much feature j "deserves")</div>
+        <div class="formula-block">ρⱼ = Xⱼᵀ(y − X₋ⱼw₋ⱼ) / n</div>
+      </div>
+      <div style="margin-bottom:8px;">
+        <div class="formula-label">Soft-threshold update (the "toll booth")</div>
+        <div class="formula-block">wⱼ ← S(ρⱼ, α) / sⱼ &nbsp;&nbsp; where S(z,γ) = sign(z)·max(0,|z|−γ)<br>sⱼ = XⱼᵀXⱼ / n</div>
+        <div class="plain-english">If |ρⱼ| ≤ α: feature can't "afford the toll" → wⱼ = exactly 0</div>
       </div>
       <div>
-        <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+        <div class="formula-label">ElasticNet update</div>
+        <div class="formula-block">wⱼ ← S(ρⱼ, α·l1_ratio) / (sⱼ + α·(1−l1_ratio))</div>
+      </div>
+    </div>
+    <div>
+      <p><strong>The "toll booth" intuition:</strong> Each feature's weight has "momentum" (ρⱼ). If |ρⱼ| &gt; α, the weight passes through reduced by the toll. If |ρⱼ| ≤ α, the weight is blocked entirely — <strong>exactly zero</strong>.</p>
+      <p><strong>Why Ridge never hits zero:</strong> Ridge update is simply wⱼ = ρⱼ/(sⱼ+α) — dividing can only shrink, never zero. No threshold, no toll booth, no sparsity.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-transition">
+  <strong>Moving to Playground 3:</strong> You've seen <em>that</em> L1 produces zeros and <em>when</em>. But <em>why</em> geometrically? The answer is a circle vs a diamond. <span class="next-badge">↓ Playground 3</span>
+</div>
+
+<!-- SECTION 3 -->
+<hr class="section-hr">
+<div class="section-block pg3">
+  <div class="section-num-badge"><span class="sn">3</span> Playground 3 of 3</div>
+  <h2>The Geometric Reason L1 Produces Sparsity — Circle vs Diamond</h2>
+  <p class="section-lead">A 2D analytical example (two weights only) showing the constraint-region geometry. Drag α here — Playgrounds 1 &amp; 2 update to the same number simultaneously.</p>
+</div>
+
+<div class="panel full-width" style="margin-top:0;">
+  <div style="display:grid;grid-template-columns:460px 1fr;gap:28px;align-items:start;">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+        <button id="geo-ridge" class="active-ridge">◯ Ridge — Circle (L2)</button>
+        <button id="geo-lasso">◆ Lasso — Diamond (L1)</button>
+      </div>
+      <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="shared-alpha-badge"><span class="dot-pulse"></span>Shared α across all 3 playgrounds:</span>
+        <div class="alpha-display"><span class="alpha-label">α =</span><span class="alpha-value" id="geo-alpha-display">1.00</span></div>
+      </div>
+      <canvas id="cv4" class="no-cursor" width="420" height="400"></canvas>
+      <div class="controls" style="margin-top:10px;">
+        <label for="geo-alpha">α = <strong id="geo-alpha-val" style="color:#ffd479;font-family:'Fira Code',Consolas,monospace;">1.00</strong></label>
+        <input type="range" id="geo-alpha" min="0.01" max="6" step="0.05" value="1" style="width:200px;">
+        <span style="font-size:11px;color:#4a5478;flex-shrink:0;">0 → 6 (linear)</span>
+      </div>
+      <div class="slider-note">↺ Dragging this updates PG 1 slider &amp; PG 2 path line to the same number.</div>
+      <div class="legend" style="margin-top:8px;">
+        <span><span class="dot" style="background:#ffd479;"></span>OLS solution</span>
+        <span><span class="dot" style="background:#ff6b8b;"></span>Regularised solution</span>
+      </div>
+      <div style="margin-top:10px;background:#0c1020;border:1px solid #1e2838;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#7888a8;line-height:1.6;min-height:48px;" id="geo-annotation">
+        Drag α to shrink the constraint. Lasso sparsity events: w₂→0 at α=2.4, w₁→0 at α=4.2.
+      </div>
+    </div>
+    <div>
+      <h3 style="margin-top:0;color:#7acc5a;">Step 1 — What Are the Ellipses and the Constraint?</h3>
+      <ul>
+        <li><strong>Gold dot</strong> = OLS solution — the (w₁,w₂) that minimises prediction error with no penalty.</li>
+        <li><strong>Ellipses</strong> = MSE loss contours. Smaller = lower error (closer to OLS).</li>
+        <li><strong>Coloured boundary</strong> = constraint region. The regularised solution (red dot) is where the <em>smallest ellipse just touches the constraint</em>.</li>
+      </ul>
+      <h3 style="color:#6fb3e8;">Step 2 — Why Ridge (Circle) Never Gives Zeros</h3>
+      <p>The L2 constraint <code>w₁²+w₂²≤1/α</code> is a <strong>perfect circle with no corners</strong>. An expanding loss ellipse touches it at a random smooth point — almost certainly where both w₁ and w₂ are non-zero. Ridge can only shrink, never eliminate.</p>
+      <h3 style="color:#ff9a6c;">Step 3 — Why Lasso (Diamond) Always Can Give Zeros</h3>
+      <p>The L1 constraint <code>|w₁|+|w₂|≤1/α</code> is a <strong>diamond with corners exactly on the axes</strong>. Loss ellipses expanding from the OLS solution hit corners preferentially. At a corner, one coordinate is <em>exactly zero</em>. This is geometry, not coincidence.</p>
+      <h3 style="color:#ffd479;">Step 4 — Why This Scales to High Dimensions</h3>
+      <p>With p features, the L1 ball has <strong>2p corners</strong> — one per axis. In high-dimensional problems (p=100), the ball is almost entirely corners. The probability of a loss ellipse touching a corner is very high — explaining why Lasso naturally selects sparse feature subsets.</p>
+      <div class="tip"><strong>Compare:</strong> Set <strong>Lasso (Diamond)</strong>, drag α to 2.4 — w₂ snaps to zero (check PG 1 bar and PG 2 kink). Switch to <strong>Ridge (Circle)</strong> at the same α — the red dot slides smoothly, both coordinates remain non-zero throughout.</div>
+    </div>
+  </div>
+</div>
+
+<div class="key-insight">
+  <div class="ki-label">✦ Key Insight from Playground 3</div>
+  <p>A zero in PG 1's bar chart = a kink in PG 2's Lasso path = a diamond-corner event in PG 3. <strong>These are the same mathematical fact observed from three angles simultaneously.</strong></p>
+  <ul>
+    <li>Ridge circle: smooth, no corners → only shrinkage, never zeros.</li>
+    <li>Lasso diamond: corners on axes → zeros snap into existence at specific α thresholds.</li>
+  </ul>
+</div>
+
+<hr class="section-hr">
+
+<div class="panel full-width" style="margin-top:20px;">
+  <h2>When to Use Each Method</h2>
+  <div class="grid-2">
+    <div class="card"><span class="tag">Ridge</span><h3>All features relevant</h3><p>Default choice. Stable closed-form solution. Handles correlated features by distributing weight across them. No feature selection.</p></div>
+    <div class="card"><span class="tag">Lasso</span><h3>Many features, few relevant</h3><p>High-dimensional settings: genomics, text. Automatic feature elimination produces a sparse, interpretable model. Unstable with highly correlated features.</p></div>
+    <div class="card"><span class="tag">ElasticNet</span><h3>Correlated features + sparsity</h3><p>Lasso arbitrarily picks one from correlated groups. ElasticNet keeps correlated features together (L2) while zeroing irrelevant ones (L1).</p></div>
+    <div class="card"><span class="tag">CV — Always</span><h3>Finding optimal α</h3><p>Training MSE always decreases as α→0. Use <code>RidgeCV</code>, <code>LassoCV</code>, <code>ElasticNetCV</code> — they compute the full path with warm starting efficiently.</p></div>
+  </div>
+</div>
+
+<div class="panel full-width" style="margin-top:20px;">
+  <h2>Implementation in Scikit-Learn</h2>
+  <p><code>StandardScaler()</code> before the regularised estimator is mandatory — the penalty applies uniformly to all weights, so unscaled features receive systematically distorted penalties.</p>
+  <div class="grid-2">
+    <div>
+      <h3>Five Consistent Steps</h3>
+      <ul>
+        <li><strong>1. Create:</strong> <code>PolynomialFeatures(include_bias=False)</code> → <code>StandardScaler()</code> → estimator.</li>
+        <li><strong>2. Fit:</strong> <code>.fit(X_train, y_train)</code></li>
+        <li><strong>3. Predict:</strong> <code>.predict(X_test)</code></li>
+        <li><strong>4. Coefficients:</strong> <code>pipeline.named_steps['estimator'].coef_</code></li>
+        <li><strong>5. Evaluate:</strong> <code>r2_score</code> + <code>np.sqrt(mean_squared_error(...))</code></li>
+      </ul>
+    </div>
+    <div>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
 <span class="kw">from</span> sklearn.linear_model  <span class="kw">import</span> Ridge, Lasso, RidgeCV
 <span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> PolynomialFeatures, StandardScaler
 <span class="kw">from</span> sklearn.pipeline      <span class="kw">import</span> make_pipeline
@@ -432,46 +516,44 @@ y_r = ridge.<span class="fn">predict</span>(X_test)
 lasso = <span class="fn">make_pipeline</span>(<span class="fn">PolynomialFeatures</span>(degree=<span class="str">6</span>,include_bias=<span class="kw">False</span>),<span class="fn">StandardScaler</span>(),<span class="fn">Lasso</span>(alpha=<span class="str">0.1</span>))
 lasso.<span class="fn">fit</span>(X_train, y_train)
 y_l = lasso.<span class="fn">predict</span>(X_test)
-<span class="fn">print</span>(<span class="str">f"Non-zero: {np.sum(lasso.named_steps['lasso'].coef_!=0)}/6"</span>)
+coef = lasso.named_steps[<span class="str">'lasso'</span>].coef_
+<span class="fn">print</span>(<span class="str">f"Non-zero: {np.sum(coef != 0)}/{len(coef)}"</span>)
 <span class="fn">print</span>(<span class="str">f"R²: {r2_score(y_test,y_l):.4f}  RMSE: {np.sqrt(mean_squared_error(y_test,y_l)):.4f}"</span>)
 
 rcv = <span class="fn">make_pipeline</span>(<span class="fn">PolynomialFeatures</span>(degree=<span class="str">6</span>,include_bias=<span class="kw">False</span>),<span class="fn">StandardScaler</span>(),
     <span class="fn">RidgeCV</span>(alphas=np.<span class="fn">logspace</span>(<span class="str">-3</span>,<span class="str">3</span>,<span class="str">50</span>),cv=<span class="str">5</span>))
 rcv.<span class="fn">fit</span>(X_train, y_train)
 <span class="fn">print</span>(<span class="str">f"Best α: {rcv.named_steps['ridgecv'].alpha_:.4f}"</span>)</code></pre>
-      </div>
     </div>
   </div>
-
-  <div class="panel full-width" style="margin-top:20px;">
-    <h2>Critical Pitfalls</h2>
-    <div class="warn-box"><strong style="color:#ff6b8b;">1. Not Scaling Features — The Most Common Mistake</strong><p style="margin-top:4px;margin-bottom:0;">The penalty applies uniformly. Always put <code>StandardScaler()</code> immediately before any regularised model.</p></div>
-    <div class="grid-2">
-      <div class="card"><h3>2. Choosing α by Training Performance</h3><p>Training MSE always decreases as α→0. Use <code>RidgeCV</code> or <code>LassoCV</code> with a held-out validation set.</p></div>
-      <div class="card"><h3>3. Lasso with Correlated Features</h3><p>Lasso arbitrarily picks one from a correlated group. Use ElasticNet when correlated features exist.</p></div>
-      <div class="card"><h3>4. Coefficients ≠ Feature Importances</h3><p>Regularised coefficients are distorted. Use <code>permutation_importance</code> for reliable rankings.</p></div>
-      <div class="card"><h3>5. Regularisation Cannot Fix Wrong Architecture</h3><p>Treat polynomial degree and α as separate hyperparameters, both tuned by cross-validation.</p></div>
-    </div>
-  </div>
-
 </div>
 
+<div class="panel full-width" style="margin-top:20px;">
+  <h2>Critical Pitfalls</h2>
+  <div class="warn-box"><strong style="color:#ff6b8b;">1. Not Scaling Features — The Most Common Mistake</strong><p style="margin-top:6px;margin-bottom:0;">The penalty applies uniformly to all weights. A feature measured in thousands needs a tiny coefficient; the penalty barely touches it. A feature measured in fractions needs a large coefficient; the penalty hammers it. <strong>Always put <code>StandardScaler()</code> immediately before any regularised model.</strong></p></div>
+  <div class="grid-2">
+    <div class="card"><h3>2. Choosing α by Training Performance</h3><p>Training MSE always improves as α→0. Use <code>RidgeCV</code> or <code>LassoCV</code> with a held-out validation set.</p></div>
+    <div class="card"><h3>3. Lasso with Highly Correlated Features</h3><p>Lasso arbitrarily picks one from a correlated group. Use ElasticNet when correlated features exist.</p></div>
+    <div class="card"><h3>4. Treating Coefficients as Feature Importances</h3><p>Use <code>sklearn.inspection.permutation_importance</code> on a held-out test set for reliable rankings.</p></div>
+    <div class="card"><h3>5. Regularisation Cannot Fix Wrong Architecture</h3><p>Treat model architecture and α as separate hyperparameters, both requiring cross-validation.</p></div>
+  </div>
+</div>
+
+</div><!-- /.wrap -->
+
 <script>
-// ════════════════════════════════════════════════════
-//  CONSTANTS
-// ════════════════════════════════════════════════════
-const DEGREE=6, N_PATH=55;
+// ═══════════════════════════════════════════════════════
+//  CONSTANTS & SHARED STATE
+// ═══════════════════════════════════════════════════════
+const DEGREE=6,N_PATH=55;
 const COEF_COLORS=['#ff6b8b','#ff9a3c','#ffd479','#7acc5a','#4fd1c5','#9fb4ff'];
 const PATH_ALPHAS=Array.from({length:N_PATH},(_,i)=>Math.pow(10,-2+i*4/(N_PATH-1)));
 
-// ════════════════════════════════════════════════════
-//  SHARED STATE — one alpha for all three playgrounds
-// ════════════════════════════════════════════════════
-let pts=[], query=null, isDark=true;
-let alpha=1.0;          // ← THE single shared α used by PG1, PG2, and PG3
+let pts=[],query=null,isDark=true;
+let alpha=1.0;
 let method='ridge';
-let geo_method='ridge'; // PG3 Ridge/Lasso toggle (shape only, doesn't affect alpha)
-let pathHoverR=-1, pathHoverL=-1;
+let geo_method='ridge';
+let pathHoverR=-1,pathHoverL=-1;
 
 let xMean=0,xStd=1,yMean=0,fMeans=[],fStds=[],X_norm=[];
 let olsW=[],curW=[],ridgePath=[],lassoPath=[];
@@ -485,27 +567,21 @@ const W1=cv1.width,H1=cv1.height,W2=cv2.width,H2=cv2.height,W4=cv4.width,H4=cv4.
 const M1={L:55,R:18,T:20,B:45},PW1=W1-M1.L-M1.R,PH1=H1-M1.T-M1.B;
 let dxMin=-3,dxMax=4,dyMin=0,dyMax=30;
 
-// ════════════════════════════════════════════════════
-//  ALPHA SYNC — updates all three displays to the same number
-//  Called after alpha changes from ANY source (PG1, PG2, or PG3)
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  ALPHA SYNC
+// ═══════════════════════════════════════════════════════
 function syncAllAlphaDisplays(){
-  const disp = alpha.toFixed(alpha<.1?3:alpha<1?2:1);
-
-  // PG1: log-scale slider + text
-  document.getElementById('alpha-slider').value = Math.log10(Math.max(0.01,alpha)).toFixed(4);
-  document.getElementById('alpha-val').textContent = disp;
-
-  // PG2: no slider, just the dashed line (redrawn in drawPathsOnly/drawAll)
-
-  // PG3: linear slider (clamped 0.01–6) + text + shared display
-  document.getElementById('geo-alpha').value = Math.min(6, Math.max(0.01, alpha)).toFixed(3);
-  document.getElementById('geo-alpha-display').textContent = disp;
+  const disp=alpha.toFixed(alpha<.1?3:alpha<1?2:1);
+  document.getElementById('alpha-slider').value=Math.log10(Math.max(0.01,alpha)).toFixed(4);
+  document.getElementById('alpha-val').textContent=disp;
+  document.getElementById('geo-alpha').value=Math.min(6,Math.max(0.01,alpha)).toFixed(3);
+  document.getElementById('geo-alpha-display').textContent=disp;
+  document.getElementById('geo-alpha-val').textContent=disp;
 }
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  MATRIX UTILITIES
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function inverse(M){
   const n=M.length;
   const a=M.map((row,i)=>[...row,...Array.from({length:n},(_,j)=>i===j?1:0)]);
@@ -519,9 +595,9 @@ function inverse(M){
   return a.map(row=>row.slice(n));
 }
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  FEATURES
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function buildFeatures(){
   const n=pts.length; if(!n){X_norm=[];return;}
   xMean=pts.reduce((s,p)=>s+p.x,0)/n;
@@ -541,9 +617,9 @@ function buildFeatures(){
 function getYc(){ return pts.map(p=>p.y-yMean); }
 function predictAt(x,w){ const xn=(x-xMean)/xStd; const f=fMeans.map((m,j)=>(Math.pow(xn,j+1)-m)/fStds[j]); return f.reduce((s,fi,j)=>s+w[j]*fi,0)+yMean; }
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  SOLVERS
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function solveRidge(a){
   const n=pts.length; if(!n) return new Array(DEGREE).fill(0);
   const y=getYc();
@@ -573,9 +649,9 @@ function solveElastic(a,l1r,maxIter=1200,w0=null){
 function solveLasso(a,maxIter=1200,w0=null){ return solveElastic(a,1,maxIter,w0); }
 function solve(a,mth){ if(mth==='ridge') return solveRidge(a); if(mth==='lasso') return solveLasso(a); return solveElastic(a,0.5); }
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  PATHS
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function computePaths(){
   ridgePath=PATH_ALPHAS.map(a=>solveRidge(a));
   lassoPath=new Array(N_PATH);
@@ -583,9 +659,9 @@ function computePaths(){
   for(let i=N_PATH-1;i>=0;i--){ warm=solveLasso(PATH_ALPHAS[i],800,warm); lassoPath[i]=[...warm]; }
 }
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  DATA
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function seed(){
   const a=1.2+(Math.random()-.5)*.8,b=-2+(Math.random()-.5)*1.2,c=10+(Math.random()-.5)*5;
   pts=[];
@@ -601,9 +677,9 @@ function updateDataRange(){
   dyMin=Math.min(...ys)-yr*.15;dyMax=Math.max(...ys)+yr*.20;
 }
 
-// ════════════════════════════════════════════════════
-//  DRAWING
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  DRAWING — CV1
+// ═══════════════════════════════════════════════════════
 function toS1(dx,dy){ return{x:M1.L+(dx-dxMin)/(dxMax-dxMin)*PW1,y:M1.T+(1-(dy-dyMin)/(dyMax-dyMin))*PH1}; }
 function fromS1(sx,sy){ return{x:(sx-M1.L)/PW1*(dxMax-dxMin)+dxMin,y:(1-(sy-M1.T)/PH1)*(dyMax-dyMin)+dyMin}; }
 function niceTicks(lo,hi,n){ const r=hi-lo,raw=r/n,exp=Math.pow(10,Math.floor(Math.log10(raw))); const step=[1,2,2.5,5,10].map(f=>f*exp).find(s=>s>=raw)||exp; const start=Math.ceil(lo/step)*step,t=[]; for(let v=start;v<=hi+step*.01;v+=step) t.push(parseFloat(v.toFixed(10))); return t; }
@@ -639,6 +715,9 @@ function drawCV1(){
   pts.forEach(p=>{const s=toS1(p.x,p.y);ctx1.beginPath();ctx1.arc(s.x,s.y,5,0,Math.PI*2);ctx1.fillStyle='#7b93db';ctx1.fill();ctx1.strokeStyle=isDark?'#0b0d13':'#dce4f8';ctx1.lineWidth=1.2;ctx1.stroke();});
 }
 
+// ═══════════════════════════════════════════════════════
+//  DRAWING — CV2
+// ═══════════════════════════════════════════════════════
 function drawCV2(){
   ctx2.clearRect(0,0,W2,H2);
   const mL=80,mR=20,mT=12,mB=25,pw=W2-mL-mR,ph=H2-mT-mB,rowH=ph/DEGREE;
@@ -659,57 +738,99 @@ function drawCV2(){
   ctx2.fillStyle=isDark?'rgba(140,155,185,.7)':'rgba(50,65,110,.6)';ctx2.font='10px -apple-system,sans-serif';ctx2.textAlign='center';ctx2.fillText('← Negative   0   Positive →',mL+pw*.5,mT+ph+17);
 }
 
+// ═══════════════════════════════════════════════════════
+//  DRAWING — PATH CHARTS (cv3r and cv3l)
+//
+//  FIX: mT increased from 22 → 46 to create more top-margin space.
+//       Feature legend rect moved from mT-16 → mT-30 (pushed higher).
+//       Feature legend text moved from mT-11 → mT-24 (pushed higher).
+//       Alpha label stays at mT-6 (close to plot edge, well below legend).
+//
+//  Resulting vertical layout in the top margin (mT=46):
+//    y=16:  feature colour rectangles   (mT-30)
+//    y=22:  feature x¹–x⁶ labels       (mT-24)
+//    y=40:  α=value text                (mT-6)
+//    Gap between labels (y=22) and α text (y=40) = 18 px — clearly readable.
+//
+//  Plot area: H=290, mT=46, mB=40 → ph=204 px (6 px MORE than before).
+// ═══════════════════════════════════════════════════════
 function drawPathCanvas(ctxP,cvP,pathData,lineColor,hoverIdx){
   const W=cvP.width,H=cvP.height;ctxP.clearRect(0,0,W,H);
-  const mL=52,mR=15,mT=22,mB=40,pw=W-mL-mR,ph=H-mT-mB;
+
+  // ── FIX: mT increased from 22 to 46 ──────────────────
+  const mL=52,mR=15,mT=46,mB=40,pw=W-mL-mR,ph=H-mT-mB;
+
   const allV=pathData.flat(),yMax=Math.max(...allV.map(Math.abs),.5)*1.12;
   const toX=(i)=>mL+i/(N_PATH-1)*pw,toY=(v)=>mT+ph/2*(1-v/yMax);
   const isL=lineColor==='#ff9a6c';
+
+  // Grid
   const gC=isDark?'rgba(30,38,58,.9)':'rgba(200,210,230,.7)';
   ctxP.strokeStyle=gC;ctxP.lineWidth=1;
   [-yMax*.5,0,yMax*.5].forEach(v=>{const y=toY(v);ctxP.beginPath();ctxP.moveTo(mL,y);ctxP.lineTo(W-mR,y);ctxP.stroke();});
   ctxP.strokeStyle=isDark?'rgba(255,255,255,.22)':'rgba(0,0,0,.2)';ctxP.lineWidth=1;
   const zy=toY(0);ctxP.beginPath();ctxP.moveTo(mL,zy);ctxP.lineTo(W-mR,zy);ctxP.stroke();
   ctxP.strokeStyle=isDark?'rgba(200,215,235,.4)':'rgba(30,45,90,.35)';ctxP.lineWidth=1.2;
-  ctxP.beginPath();ctxP.moveTo(mL,mT);ctxP.lineTo(mL,mT+ph);ctxP.stroke();ctxP.beginPath();ctxP.moveTo(mL,mT+ph);ctxP.lineTo(W-mR,mT+ph);ctxP.stroke();
+  ctxP.beginPath();ctxP.moveTo(mL,mT);ctxP.lineTo(mL,mT+ph);ctxP.stroke();
+  ctxP.beginPath();ctxP.moveTo(mL,mT+ph);ctxP.lineTo(W-mR,mT+ph);ctxP.stroke();
+
+  // X-axis tick labels
   const xL=[{i:0,l:'0.01'},{i:Math.round(N_PATH*.25),l:'0.1'},{i:Math.round(N_PATH*.5),l:'1'},{i:Math.round(N_PATH*.75),l:'10'},{i:N_PATH-1,l:'100'}];
   xL.forEach(({i,l})=>{
-    const x=toX(i);ctxP.strokeStyle=isDark?'rgba(200,215,235,.25)':'rgba(30,45,90,.18)';ctxP.lineWidth=1;ctxP.beginPath();ctxP.moveTo(x,mT+ph);ctxP.lineTo(x,mT+ph+5);ctxP.stroke();
-    ctxP.fillStyle=isDark?'rgba(160,175,205,.7)':'rgba(40,55,100,.65)';ctxP.font='10px -apple-system,sans-serif';ctxP.textAlign='center';ctxP.fillText(l,x,mT+ph+17);
+    const x=toX(i);
+    ctxP.strokeStyle=isDark?'rgba(200,215,235,.25)':'rgba(30,45,90,.18)';ctxP.lineWidth=1;
+    ctxP.beginPath();ctxP.moveTo(x,mT+ph);ctxP.lineTo(x,mT+ph+5);ctxP.stroke();
+    ctxP.fillStyle=isDark?'rgba(160,175,205,.7)':'rgba(40,55,100,.65)';
+    ctxP.font='10px -apple-system,sans-serif';ctxP.textAlign='center';ctxP.fillText(l,x,mT+ph+17);
   });
+
+  // Axis titles
   ctxP.fillStyle=isDark?'rgba(160,175,205,.65)':'rgba(40,55,100,.6)';ctxP.font='11px -apple-system,sans-serif';
-  ctxP.save();ctxP.translate(13,mT+ph/2);ctxP.rotate(-Math.PI/2);ctxP.textAlign='center';ctxP.fillText('Coefficient',0,0);ctxP.restore();
+  ctxP.save();ctxP.translate(13,mT+ph/2);ctxP.rotate(-Math.PI/2);ctxP.textAlign='center';ctxP.fillText('Coefficient value',0,0);ctxP.restore();
   ctxP.textAlign='center';ctxP.fillText('α (log scale) →',mL+pw/2,H-4);
+
+  // Coefficient lines
   for(let j=0;j<DEGREE;j++){
     ctxP.strokeStyle=COEF_COLORS[j];ctxP.lineWidth=1.8;ctxP.beginPath();
     pathData.forEach((w,i)=>{const x=toX(i),y=toY(w[j]);i===0?ctxP.moveTo(x,y):ctxP.lineTo(x,y);});ctxP.stroke();
     if(isL){ let pZ=false; pathData.forEach((w,i)=>{const isZ=Math.abs(w[j])<.002; if(!pZ&&isZ&&i>0){ctxP.beginPath();ctxP.arc(toX(i),zy,3.5,0,Math.PI*2);ctxP.fillStyle=COEF_COLORS[j];ctxP.fill();} pZ=isZ;}); }
   }
-  for(let j=0;j<DEGREE;j++){ ctxP.fillStyle=COEF_COLORS[j];ctxP.fillRect(mL+j*(pw/DEGREE)+2,mT-16,14,6); ctxP.fillStyle=isDark?'rgba(160,175,205,.7)':'rgba(40,55,100,.65)';ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='left';ctxP.fillText(`x${j+1}`,mL+j*(pw/DEGREE)+18,mT-11); }
-  // Dashed line for current shared α
+
+  // ── FIX: Feature colour legend — pushed up to mT-30 (rect) and mT-24 (text) ──
+  for(let j=0;j<DEGREE;j++){
+    ctxP.fillStyle=COEF_COLORS[j];
+    ctxP.fillRect(mL+j*(pw/DEGREE)+2, mT-30, 14, 6);   // was mT-16
+    ctxP.fillStyle=isDark?'rgba(160,175,205,.7)':'rgba(40,55,100,.65)';
+    ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='left';
+    ctxP.fillText(`x${j+1}`, mL+j*(pw/DEGREE)+18, mT-24);  // was mT-11
+  }
+
+  // Current shared α dashed line — stays at mT-6 (well below legend at mT-24)
   const curI=Math.max(0,Math.min(N_PATH-1,PATH_ALPHAS.findIndex(a=>a>=alpha)));
   const cx=toX(curI);
   ctxP.strokeStyle='rgba(255,212,121,.9)';ctxP.lineWidth=2.2;ctxP.setLineDash([]);
   ctxP.beginPath();ctxP.moveTo(cx,mT);ctxP.lineTo(cx,mT+ph);ctxP.stroke();
   ctxP.fillStyle='rgba(255,212,121,.85)';ctxP.font='bold 10px -apple-system,sans-serif';ctxP.textAlign='center';
-  ctxP.fillText(`α=${alpha.toFixed(alpha<.1?3:alpha<1?2:1)}`,cx,mT-6);
+  ctxP.fillText(`α=${alpha.toFixed(alpha<.1?3:alpha<1?2:1)}`,cx,mT-6);  // stays at mT-6
   for(let j=0;j<DEGREE;j++){ const cy=toY(pathData[curI][j]);ctxP.beginPath();ctxP.arc(cx,cy,4,0,Math.PI*2);ctxP.fillStyle=COEF_COLORS[j];ctxP.fill(); }
+
   // Hover preview
   if(hoverIdx>=0&&hoverIdx!==curI){
     const hx=toX(hoverIdx);
     ctxP.strokeStyle=isDark?'rgba(200,215,235,.35)':'rgba(30,45,90,.25)';ctxP.lineWidth=1.2;ctxP.setLineDash([3,3]);
     ctxP.beginPath();ctxP.moveTo(hx,mT);ctxP.lineTo(hx,mT+ph);ctxP.stroke();ctxP.setLineDash([]);
-    const ha=PATH_ALPHAS[hoverIdx];ctxP.fillStyle=isDark?'rgba(180,200,225,.65)':'rgba(40,60,110,.55)';ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='center';ctxP.fillText(`α=${ha.toFixed(ha<.1?3:ha<1?2:1)}`,hx,mT+ph+32);
+    const ha=PATH_ALPHAS[hoverIdx];
+    ctxP.fillStyle=isDark?'rgba(180,200,225,.65)':'rgba(40,60,110,.55)';ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='center';
+    ctxP.fillText(`α=${ha.toFixed(ha<.1?3:ha<1?2:1)}`,hx,mT+ph+32);
     for(let j=0;j<DEGREE;j++){ const hy=toY(pathData[hoverIdx][j]);ctxP.beginPath();ctxP.arc(hx,hy,3.5,0,Math.PI*2);ctxP.fillStyle=COEF_COLORS[j]+'cc';ctxP.fill(); }
-    ctxP.fillStyle=isDark?'rgba(140,160,195,.5)':'rgba(50,70,130,.45)';ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='center';ctxP.fillText('click to set',hx,mT+ph+42);
+    ctxP.fillStyle=isDark?'rgba(140,160,195,.5)':'rgba(50,70,130,.45)';ctxP.font='9px -apple-system,sans-serif';ctxP.textAlign='center';
+    ctxP.fillText('click to set',hx,mT+ph+44);
   }
 }
 
-// PG3 geometric canvas — uses the SHARED alpha directly
-// Analytical 2D example: OLS=(1.4,1.2), loss params A1=1.5, A2=1.0
-// Ridge: w1 = A1*W1_OLS/(A1+alpha), w2 = A2*W2_OLS/(A2+alpha)
-// Lasso: w1 = S(W1_OLS, alpha/(2*A1)), w2 = S(W2_OLS, alpha/(2*A2))
-// Sparsity events: w2→0 at alpha=2.4, w1→0 at alpha=4.2
+// ═══════════════════════════════════════════════════════
+//  DRAWING — CV4 (Geometric)
+// ═══════════════════════════════════════════════════════
 const W1_OLS=1.4,W2_OLS=1.2,A1=1.5,A2=1.0;
 
 function drawCV4(){
@@ -725,19 +846,15 @@ function drawCV4(){
   ctx4.save();ctx4.translate(14,mT+ph/2);ctx4.rotate(-Math.PI/2);ctx4.fillText('w₂',0,0);ctx4.restore();
   [-.2,0,.4,.8,1.2,1.6,2.0].forEach(v=>{ if(v>=wMin&&v<=wMax){ctx4.fillStyle=isDark?'rgba(140,155,185,.6)':'rgba(50,65,100,.55)';ctx4.font='9px -apple-system,sans-serif';ctx4.textAlign='center';ctx4.fillText(v.toFixed(1),toX(v),mT+ph+18);ctx4.textAlign='right';ctx4.fillText(v.toFixed(1),mL-5,toY(v)+4);} });
   ctx4.save();ctx4.beginPath();ctx4.rect(mL,mT,pw,ph);ctx4.clip();
-  // Loss contours
   const levels=[.06,.2,.5,1,1.8];
   levels.forEach((L,i)=>{ const ax=Math.sqrt(L/A1)*scale,ay=Math.sqrt(L/A2)*scale,ac=(levels.length-1-i)/(levels.length-1);ctx4.strokeStyle=isDark?`rgba(130,150,200,${.13+ac*.25})`:`rgba(60,80,160,${.1+ac*.2})`;ctx4.lineWidth=1.2;ctx4.beginPath();ctx4.ellipse(toX(W1_OLS),toY(W2_OLS),ax,ay,0,0,Math.PI*2);ctx4.stroke(); });
-  // ── Solution uses shared alpha directly ──────────────────────────────
-  const sol = geo_method==='ridge'
-    ? {w1:A1*W1_OLS/(A1+alpha), w2:A2*W2_OLS/(A2+alpha)}
-    : {w1:softThresh(W1_OLS,alpha/(2*A1)), w2:softThresh(W2_OLS,alpha/(2*A2))};
+  const sol=geo_method==='ridge'
+    ?{w1:A1*W1_OLS/(A1+alpha),w2:A2*W2_OLS/(A2+alpha)}
+    :{w1:softThresh(W1_OLS,alpha/(2*A1)),w2:softThresh(W2_OLS,alpha/(2*A2))};
   if(geo_method==='ridge'){
-    const r=Math.sqrt(sol.w1**2+sol.w2**2)*scale;
-    ctx4.strokeStyle=isDark?'rgba(111,179,232,.72)':'rgba(20,80,160,.6)';ctx4.lineWidth=2;ctx4.setLineDash([]);ctx4.beginPath();ctx4.arc(toX(0),toY(0),r,0,Math.PI*2);ctx4.stroke();
+    const r=Math.sqrt(sol.w1**2+sol.w2**2)*scale;ctx4.strokeStyle=isDark?'rgba(111,179,232,.72)':'rgba(20,80,160,.6)';ctx4.lineWidth=2;ctx4.setLineDash([]);ctx4.beginPath();ctx4.arc(toX(0),toY(0),r,0,Math.PI*2);ctx4.stroke();
   } else {
-    const r=(Math.abs(sol.w1)+Math.abs(sol.w2))*scale;
-    ctx4.strokeStyle=isDark?'rgba(255,154,108,.72)':'rgba(180,60,20,.6)';ctx4.lineWidth=2;ctx4.setLineDash([]);
+    const r=(Math.abs(sol.w1)+Math.abs(sol.w2))*scale;ctx4.strokeStyle=isDark?'rgba(255,154,108,.72)':'rgba(180,60,20,.6)';ctx4.lineWidth=2;ctx4.setLineDash([]);
     ctx4.beginPath();ctx4.moveTo(toX(r/scale),toY(0));ctx4.lineTo(toX(0),toY(r/scale));ctx4.lineTo(toX(-r/scale),toY(0));ctx4.lineTo(toX(0),toY(-r/scale));ctx4.closePath();ctx4.stroke();
   }
   ctx4.restore();
@@ -749,25 +866,25 @@ function drawCV4(){
   const sW2=geo_method==='lasso'&&Math.abs(sol.w2)<.005,sW1=geo_method==='lasso'&&Math.abs(sol.w1)<.005;
   let ann='';
   if(sW1&&sW2) ann='<span style="color:#ff9f9f;">Both weights zeroed (α ≥ 4.2).</span>';
-  else if(sW2) ann='<span style="color:#ffd479;font-weight:700;">&#x25C6; Sparsity event!</span> α = '+alpha.toFixed(2)+' ≥ 2.4: diamond corner hits w₁-axis → <strong>w₂ = 0</strong>. Same α = same event in PG 1 &amp; 2.';
-  else if(sW1) ann='<span style="color:#ffd479;font-weight:700;">&#x25C6; Sparsity event!</span> α = '+alpha.toFixed(2)+' ≥ 4.2: corner hits w₂-axis → <strong>w₁ = 0</strong>.';
-  else if(geo_method==='lasso') ann='Drag α to 2.4 → w₂ snaps to zero. To 4.2 → w₁ also zeros. Watch PG 1 bars and PG 2 dashed line react to the <em>same</em> α.';
-  else ann='Ridge circle has no corners — solution slides smoothly, both w₁ and w₂ non-zero at every α.';
+  else if(sW2) ann='<span style="color:#ffd479;font-weight:700;">&#x25C6; Sparsity event at α='+alpha.toFixed(2)+'!</span> Diamond corner on w₁-axis → <strong>w₂ = 0 exactly</strong>. Same event: bar zeroed in PG 1, kink in PG 2.';
+  else if(sW1) ann='<span style="color:#ffd479;font-weight:700;">&#x25C6; Second sparsity event at α='+alpha.toFixed(2)+'!</span> Diamond corner on w₂-axis → <strong>w₁ = 0 exactly</strong>.';
+  else if(geo_method==='lasso') ann='Drag α to 2.4 → w₂ snaps to zero. Drag to 4.2 → w₁ also zeroes. Watch PG 1 bars and PG 2 dashed line react simultaneously.';
+  else ann='Ridge circle has no corners — the solution slides smoothly. Both w₁ and w₂ stay non-zero at every α. Switch to Lasso (Diamond) to see corner snaps.';
   document.getElementById('geo-annotation').innerHTML=ann;
 }
 
 function drawAll(){ drawCV1();drawCV2();drawPathCanvas(ctx3r,cv3r,ridgePath,'#6fb3e8',pathHoverR);drawPathCanvas(ctx3l,cv3l,lassoPath,'#ff9a6c',pathHoverL);drawCV4();report(); }
 function drawPathsOnly(){ drawPathCanvas(ctx3r,cv3r,ridgePath,'#6fb3e8',pathHoverR);drawPathCanvas(ctx3l,cv3l,lassoPath,'#ff9a6c',pathHoverL); }
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  REPORT
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function computeMetrics(w){ if(!pts.length||!w.length) return{mse:0,r2:0,nnz:0}; const mse=pts.reduce((s,p)=>{const e=predictAt(p.x,w)-p.y;return s+e*e;},0)/pts.length; const ym=pts.reduce((s,p)=>s+p.y,0)/pts.length,ss=pts.reduce((s,p)=>s+(p.y-ym)**2,0); return{mse,r2:ss>0?1-pts.reduce((s,p)=>s+(predictAt(p.x,w)-p.y)**2,0)/ss:1,nnz:w.filter(v=>Math.abs(v)>.001).length}; }
 function report(){
   const vc=document.getElementById('vc1'),tb=document.getElementById('tbody1');tb.innerHTML='';
-  const wp=[];if(alpha<.05) wp.push('Very small α ≈ OLS.');else if(alpha>20) wp.push('Very large α — weights near zero.');if(method==='lasso'&&alpha>3) wp.push('Most Lasso weights are zero.');
+  const wp=[];if(alpha<.05) wp.push('Very small α ≈ OLS — model likely overfits.');else if(alpha>20) wp.push('Very large α — weights near zero, may underfit.');if(method==='lasso'&&alpha>3) wp.push('Most Lasso weights are now zero — check the bar chart!');
   document.getElementById('warn1').textContent=wp.join('  ·  ');
-  if(!pts.length){vc.innerHTML=`<div class="vc-empty"><div class="vc-empty-ring"></div>Generate a dataset first</div>`;return;}
+  if(!pts.length){vc.innerHTML=`<div class="vc-empty"><div class="vc-empty-ring"></div>Generate a dataset to see metrics</div>`;return;}
   const{mse,r2,nnz}=computeMetrics(curW),{r2:r2ols}=computeMetrics(olsW),rmse=Math.sqrt(mse);
   let r2C='#7acc5a';if(r2<.6)r2C='#ff9f9f';else if(r2<.85)r2C='#ffd479';
   const mc=method==='ridge'?'#6fb3e8':method==='lasso'?'#ff9a6c':'#7acc5a';
@@ -780,36 +897,32 @@ function report(){
   for(let j=0;j<DEGREE;j++){const isZ=Math.abs(curW[j])<.001,diff=curW[j]-olsW[j];tb.innerHTML+=`<tr ${isZ?'style="background:rgba(255,100,100,.06);"':''}><td style="color:${COEF_COLORS[j]};font-weight:600;">${labels[j]}</td><td style="font-family:'Fira Code',monospace;font-size:11.5px;">${olsW[j].toFixed(3)}</td><td style="font-family:'Fira Code',monospace;font-size:11.5px;color:${isZ?'#ff9f9f':mc}">${isZ?'<strong>0.000 ← zeroed!</strong>':curW[j].toFixed(3)}</td><td style="font-size:11.5px;color:${diff<0?'#4fd1c5':'#ff6b8b'}">${diff>=0?'+':''}${diff.toFixed(3)}</td></tr>`;}
 }
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  PATH INTERACTION
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function getPathIdx(e,canvas){ const r=canvas.getBoundingClientRect(),sx=(e.clientX-r.left)*(canvas.width/r.width),mL=52,mR=15,pw=canvas.width-mL-mR,ratio=(sx-mL)/pw; if(ratio<0||ratio>1) return -1; return Math.round(ratio*(N_PATH-1)); }
 function handlePathClick(e,canvas,targetMethod){
   const idx=getPathIdx(e,canvas); if(idx<0) return;
   alpha=PATH_ALPHAS[idx]; method=targetMethod;
   ['ridge','lasso','elastic'].forEach(m=>{document.getElementById(`btn-${m}`).className='';});
   document.getElementById(`btn-${targetMethod}`).className=`active-${targetMethod}`;
-  syncAllAlphaDisplays();  // updates PG1 slider, PG3 slider, and shared display
-  curW=solve(alpha,method); drawAll();
+  syncAllAlphaDisplays(); curW=solve(alpha,method); drawAll();
 }
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  EVENT LISTENERS
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 cv1.addEventListener('click',e=>{
   const r=cv1.getBoundingClientRect(),sx=(e.clientX-r.left)*(W1/r.width),sy=(e.clientY-r.top)*(H1/r.height);
   if(sx<M1.L||sx>W1-M1.R||sy<M1.T||sy>H1-M1.B) return;
   query=fromS1(sx,sy).x; drawAll();
 });
 
-// ── PG1 slider: sets shared alpha ────────────────────────────────────
 document.getElementById('alpha-slider').addEventListener('input',e=>{
   alpha=Math.pow(10,+e.target.value);
-  syncAllAlphaDisplays();   // PG1 display + PG3 slider + shared badge
-  curW=solve(alpha,method); drawAll();
+  syncAllAlphaDisplays(); curW=solve(alpha,method); drawAll();
 });
 
-// ── Method buttons ───────────────────────────────────────────────────
 ['ridge','lasso','elastic'].forEach(m=>{
   document.getElementById(`btn-${m}`).addEventListener('click',()=>{
     method=m;['ridge','lasso','elastic'].forEach(x=>{document.getElementById(`btn-${x}`).className='';});
@@ -820,7 +933,6 @@ document.getElementById('alpha-slider').addEventListener('input',e=>{
 
 document.getElementById('reseed-btn').addEventListener('click',()=>{ seed(); syncAllAlphaDisplays(); drawAll(); });
 
-// ── PG2 path click: sets shared alpha ────────────────────────────────
 cv3r.addEventListener('click',e=>{ handlePathClick(e,cv3r,'ridge'); });
 cv3r.addEventListener('mousemove',e=>{ const idx=getPathIdx(e,cv3r); if(idx!==pathHoverR){pathHoverR=idx; drawPathsOnly();} });
 cv3r.addEventListener('mouseleave',()=>{ pathHoverR=-1; drawPathsOnly(); });
@@ -828,16 +940,11 @@ cv3l.addEventListener('click',e=>{ handlePathClick(e,cv3l,'lasso'); });
 cv3l.addEventListener('mousemove',e=>{ const idx=getPathIdx(e,cv3l); if(idx!==pathHoverL){pathHoverL=idx; drawPathsOnly();} });
 cv3l.addEventListener('mouseleave',()=>{ pathHoverL=-1; drawPathsOnly(); });
 
-// ── PG3 slider: THE FIX — sets the SAME shared alpha as PG1 and PG2 ─
-// Linear scale 0.01–6. When set here, PG1's log slider and display
-// both jump to the same number. drawCV4 uses alpha directly (not geo_alpha).
 document.getElementById('geo-alpha').addEventListener('input',e=>{
-  alpha = +e.target.value;  // directly set the ONE shared alpha variable
-  syncAllAlphaDisplays();   // PG1 log slider + PG1 display + PG3 display
-  curW=solve(alpha,method); drawAll();
+  alpha=+e.target.value;
+  syncAllAlphaDisplays(); curW=solve(alpha,method); drawAll();
 });
 
-// PG3 shape toggle (Ridge circle / Lasso diamond) — does NOT change alpha
 ['ridge','lasso'].forEach(m=>{
   document.getElementById(`geo-${m}`).addEventListener('click',()=>{
     geo_method=m;
@@ -852,9 +959,9 @@ document.getElementById('theme-toggle').addEventListener('click',()=>{
   document.getElementById('theme-toggle').textContent=isDark?'☀️':'🌙';drawAll();
 });
 
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  INIT
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 seed();
 syncAllAlphaDisplays();
 drawAll();
